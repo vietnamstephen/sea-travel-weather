@@ -6,6 +6,17 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
+# 可选：从本机「未纳入 git」的配置文件读取航班 API Key（切勿把密钥写进仓库）
+# 用法：mkdir -p ~/.config/sea-travel-weather && 在该目录的 env 文件里写
+#   AVIATIONSTACK_API_KEY=xxx
+#   AVIATIONSTACK_AIRPORTS=SIN,BKK
+# 或 VARIFLIGHT_API_KEY=xxx（需另外接 MCP 客户端，见 update_data.py）
+if [ -f "$HOME/.config/sea-travel-weather/env" ]; then
+  set -a
+  . "$HOME/.config/sea-travel-weather/env"
+  set +a
+fi
+
 echo "=== [1/3] 拉取天气数据 ==="
 python3 scripts/update_data.py
 
