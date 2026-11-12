@@ -6,7 +6,9 @@ SEA Travel Weather · 每日数据更新脚本（本机运行，无需任何第�
 做什么
   1) 逐城市向 Open-Meteo 公开预报 API 拉取 7 天逐日 + 逐小时天气（免注册、非商用、CC BY 4.0）；
   2) 写出 data/weather.json（前端只读这个文件，页面本身不接触任何密钥）；
-  3) 写出 data/flights.json（默认 mode=off；配置 Key 后才尝试真实航班状态）。
+  3) 写出 data/flights.json（默认 mode=off；配置 Key 后才尝试真实航班状态）；
+  4) 写出 data/advisories.json：GDACS 台风/洪水事件（官方 Red/Orange/Green 等级）、
+     Open-Meteo GloFAS 河流流量模型预报、官方交通管制核实入口说明。
 
 用法
   python3 scripts/update_data.py                # 正常更新
@@ -48,9 +50,30 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 OUT_WEATHER = ROOT / 'data' / 'weather.json'
 OUT_FLIGHTS = ROOT / 'data' / 'flights.json'
+OUT_ADVISORIES = ROOT / 'data' / 'advisories.json'
 DATA_JS = ROOT / 'js' / 'data.js'
 
 API = 'https://api.open-meteo.com/v1/forecast'
+FLOOD_API = 'https://flood-api.open-meteo.com/v1/flood'
+GDACS_FEEDS = {
+    'TC': 'https://www.gdacs.org/xml/gdacsTC.geojson',
+    'FL': 'https://www.gdacs.org/xml/gdacsFL.geojson',
+}
+# 东南亚空间框（含南海、安达曼海、菲律宾海）；GDACS 全球事件按此框筛出与出行相关的部分
+SEA_BBOX = (-12.0, 92.0, 26.0, 142.0)   # lat_min, lon_min, lat_max, lon_max
+SEA_ISO3 = {'VNM', 'THA', 'SGP', 'MYS', 'IDN', 'PHL', 'KHM', 'LAO', 'MMR', 'BRN', 'TLS'}
+# GloFAS 5 km 河道网格取样点：坐标经实测落在主河道上（小流域/城市内涝不适用）
+# id 同时对应前端 i18n 词条 river.<id>
+RIVER_POINTS = [
+    ('mekong-cantho', 'vn', 10.0333, 105.7833),   # 湄公河 · 芹苴
+    ('red-river', 'vn', 20.4200, 106.1700),       # 红河 · 南定下游
+    ('saigon-river', 'vn', 10.7600, 106.6800),    # 西贡河 · 胡志明市
+    ('chao-phraya', 'th', 13.7600, 100.4950),     # 昭披耶河 · 曼谷
+    ('bang-pakong', 'th', 13.6900, 101.0833),     # 邦巴功河 · 北柳
+    ('pahang', 'my', 3.5000, 103.4000),           # 彭亨河 · 北根
+    ('kapuas', 'id', -0.0300, 109.3300),          # 卡普阿斯河 · 坤甸
+    ('cagayan', 'ph', 17.6200, 121.7200),         # 卡加延河 · 土格加劳
+]
 CURRENT_VARS = 'temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_gusts_10m'
 HOURLY_VARS = 'temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,weather_code,wind_speed_10m,wind_gusts_10m,visibility'
 DAILY_VARS = 'temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,weather_code'
@@ -59,10 +82,17 @@ DAILY_VARS = 'temperature_2m_max,temperature_2m_min,precipitation_sum,precipitat
 LOCATIONS = [
     ('vn', 'Asia/Ho_Chi_Minh', [
         ('hcm', 10.8231, 106.6297), ('hanoi', 21.0278, 105.8342),
-        ('danang', 16.0544, 108.2022), ('phuquoc', 10.2270, 103.9570)]),
+        ('danang', 16.0544, 108.2022), ('phuquoc', 10.2270, 103.9570),
+        ('nhatrang', 12.2388, 109.1967), ('quynhon', 13.7563, 109.2295),
+        ('dalat', 11.9404, 108.4583), ('bacninh', 21.1861, 106.0763),
+        ('bacgiang', 21.2739, 106.1954), ('haiphong', 20.8449, 106.6881),
+        ('binhduong', 10.9804, 106.6519), ('dongnai', 10.9447, 106.8233)]),
     ('th', 'Asia/Bangkok', [
         ('bangkok', 13.7563, 100.5018), ('chiangmai', 18.7883, 98.9853),
-        ('phuket', 7.8804, 98.3923), ('pattaya', 12.9236, 100.8825)]),
+        ('phuket', 7.8804, 98.3923), ('pattaya', 12.9236, 100.8825),
+        ('chonburi', 13.3611, 100.9847), ('rayong', 12.6833, 101.2833),
+        ('chachoengsao', 13.6900, 101.0833), ('ayutthaya', 14.3532, 100.5765),
+        ('samutprakan', 13.5990, 100.5968), ('samutsakhon', 13.5479, 100.2748)]),
     ('sg', 'Asia/Singapore', [
         ('singapore', 1.3521, 103.8198), ('jurong', 1.3329, 103.7436),
         ('changi', 1.3644, 103.9915)]),
@@ -84,11 +114,14 @@ def log(msg):
     print('[%s] %s' % (dt.datetime.now().strftime('%H:%M:%S'), msg), flush=True)
 
 
-def http_json(url, tries=3, timeout=25):
+def http_json(url, tries=3, timeout=25, headers=None):
     last = None
+    base = {'User-Agent': UA, 'Accept': 'application/json'}
+    if headers:
+        base.update(headers)
     for i in range(tries):
         try:
-            req = urllib.request.Request(url, headers={'User-Agent': UA, 'Accept': 'application/json'})
+            req = urllib.request.Request(url, headers=base)
             with urllib.request.urlopen(req, timeout=timeout) as r:
                 return json.loads(r.read().decode('utf-8'))
         except Exception as e:                       # noqa: BLE001 - 网络层统一降级
@@ -210,10 +243,223 @@ def build_flights(now_iso):
     return payload
 
 
+# ---------------------------------------------------------------------------
+# 台风 / 洪水事件（GDACS：欧盟 JRC 与联合国联合，免 Key）
+# ---------------------------------------------------------------------------
+def _flatten_pairs(node, out):
+    """递归把 GeoJSON 坐标树拆成 (lon, lat) 列表。"""
+    if isinstance(node, (list, tuple)):
+        if len(node) >= 2 and all(isinstance(v, (int, float)) for v in node[:2]):
+            out.append((float(node[0]), float(node[1])))
+        else:
+            for child in node:
+                _flatten_pairs(child, out)
+
+
+def _geometry_center(geom):
+    pairs = []
+    _flatten_pairs((geom or {}).get('coordinates'), pairs)
+    if not pairs:
+        return None, None, []
+    lons = [p[0] for p in pairs]
+    lats = [p[1] for p in pairs]
+    return ((min(lons) + max(lons)) / 2.0, (min(lats) + max(lats)) / 2.0, pairs)
+
+
+def _feature_extent(f):
+    """返回 (minLon, minLat, maxLon, maxLat)，优先用 GeoJSON bbox。"""
+    b = f.get('bbox')
+    if isinstance(b, (list, tuple)) and len(b) >= 4:
+        try:
+            return float(b[0]), float(b[1]), float(b[2]), float(b[3])
+        except (TypeError, ValueError):
+            pass
+    pairs = []
+    _flatten_pairs((f.get('geometry') or {}).get('coordinates'), pairs)
+    if not pairs:
+        return None
+    lons = [p[0] for p in pairs]
+    lats = [p[1] for p in pairs]
+    return min(lons), min(lats), max(lons), max(lats)
+
+
+def fetch_gdacs():
+    """返回 (精简事件列表, 状态字典)。
+
+    判定：影响范围与东南亚空间框相交，且事件在近 30 天内仍有效。
+    active=true 表示 GDACS 标注的结束日期尚未过去；否则归入「近期已结束」。
+    """
+    status, seen = {}, {}
+    today = dt.date.today().isoformat()
+    cutoff = (dt.date.today() - dt.timedelta(days=30)).isoformat()
+    rank = {'Green': 1, 'Orange': 2, 'Red': 3}
+    la_min, lo_min, la_max, lo_max = SEA_BBOX
+    for typ, url in GDACS_FEEDS.items():
+        try:
+            # GDACS 对 Accept: application/json 返回 406；而浏览器 UA 会触发反爬 HTML 页，
+            # 因此保持自定义 UA，仅把 Accept 改为通配。
+            j = http_json(url, tries=2, timeout=45, headers={'Accept': '*/*'})
+            raw = j.get('features') or []
+        except Exception as e:                     # noqa: BLE001
+            status[typ] = 'failed: %s' % str(e)[:120]
+            log('GDACS %s 拉取失败 → %s' % (typ, str(e)[:100]))
+            continue
+        kept = 0
+        for f in raw:
+            p = f.get('properties') or {}
+            if str(p.get('iscurrent', 'true')).lower() == 'false':
+                continue
+            ended = (p.get('todate') or '')[:10]
+            if ended and ended < cutoff:
+                continue
+            ext = _feature_extent(f)
+            if not ext:
+                continue
+            x0, y0, x1, y1 = ext
+            # 影响范围与东南亚框相交（而非仅中心点落在框内）
+            if x1 < lo_min or x0 > lo_max or y1 < la_min or y0 > la_max:
+                continue
+            raw_cx, raw_cy = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+            cx = min(max(raw_cx, lo_min), lo_max)
+            cy = min(max(raw_cy, la_min), la_max)
+            key = (typ, str(p.get('eventid')))
+            lv = p.get('alertlevel') or 'Green'
+            episode = p.get('episodeid') or 0
+            u = p.get('url') if isinstance(p.get('url'), dict) else {}
+            poly = []
+            if typ == 'TC' and (f.get('geometry') or {}).get('type') == 'Polygon':
+                pairs = []
+                _flatten_pairs((f.get('geometry') or {}).get('coordinates'), pairs)
+                if len(pairs) > 3:
+                    step = max(1, len(pairs) // 70)
+                    poly = [[round(b, 3), round(a, 3)] for a, b in pairs[::step]][:80]
+            prev = seen.get(key)
+            score_new = (rank.get(lv, 0), episode)
+            if prev:
+                score_old = (rank.get(prev['level'], 0), prev['_ep'])
+                if score_new > score_old:
+                    if not poly:
+                        poly = prev['poly']
+                elif poly and not prev['poly']:
+                    prev['poly'] = poly
+                    continue
+                else:
+                    continue
+            seen[key] = {
+                'id': '%s-%s' % (typ, p.get('eventid')),
+                'type': typ,
+                'name': p.get('name') or p.get('description') or '',
+                'level': lv,
+                'score': p.get('alertscore'),
+                'country': p.get('country') or '',
+                'iso3': p.get('iso3') or '',
+                'from': p.get('fromdate') or '',
+                'to': p.get('todate') or '',
+                'lat': round(cy, 4), 'lon': round(cx, 4),
+                'bbox': [round(x0, 3), round(y0, 3), round(x1, 3), round(y1, 3)],
+                'inCoverage': bool(la_min <= raw_cy <= la_max and lo_min <= raw_cx <= lo_max),
+                'radiusKm': 350 if typ == 'TC' else 120,
+                'severity': ((p.get('severitydata') or {}).get('severitytext') or ''),
+                'url': u.get('report') or '',
+                'poly': poly,
+                'active': bool(not ended or ended >= today),
+                'source': 'GDACS',
+                '_ep': episode,
+            }
+            kept += 1
+        status[typ] = 'ok (%d raw / %d kept)' % (len(raw), kept)
+        log('GDACS %s：%d 条原始事件，保留 %d 条' % (typ, len(raw), kept))
+    for ev in seen.values():
+        ev.pop('_ep', None)
+    events = sorted(seen.values(),
+                    key=lambda x: (not x['active'], -rank.get(x['level'], 0), x['type'], x['name']))
+    return events, status
+
+
+def fetch_flood():
+    """Open-Meteo Flood API（Copernicus GloFAS v4），7 天逐日河流流量 m³/s。"""
+    out, failed = [], 0
+    for rid, cid, lat, lon in RIVER_POINTS:
+        q = {
+            'latitude': '%.4f' % lat, 'longitude': '%.4f' % lon,
+            'daily': 'river_discharge', 'forecast_days': '7', 'timezone': 'GMT',
+        }
+        try:
+            j = http_json(FLOOD_API + '?' + urllib.parse.urlencode(q), tries=2, timeout=25)
+            d = j.get('daily') or {}
+            times = d.get('time') or []
+            vals = [round(v, 1) if isinstance(v, (int, float)) else None
+                    for v in (d.get('river_discharge') or [])]
+            valid = [v for v in vals if v is not None]
+            first = valid[0] if valid else None
+            peak = max(valid) if valid else None
+            change = round((peak - first) / first * 100.0, 1) \
+                if first and peak and first >= 10 else None
+            status = 'ok' if (valid and peak and peak >= 10) else \
+                ('low-flow' if valid else 'no-river-cell')
+            out.append({
+                'id': rid, 'country': cid, 'lat': lat, 'lon': lon,
+                'unit': 'm³/s', 'time': times, 'discharge': vals,
+                'peak': peak, 'changePct': change, 'status': status,
+                'latUsed': j.get('latitude'), 'lonUsed': j.get('longitude'),
+            })
+            log('GloFAS %s：peak %s m³/s，变化 %s%%' % (rid, peak, change))
+        except Exception as e:                     # noqa: BLE001
+            failed += 1
+            out.append({'id': rid, 'country': cid, 'lat': lat, 'lon': lon,
+                        'unit': 'm³/s', 'time': [], 'discharge': [],
+                        'peak': None, 'changePct': None, 'status': 'failed',
+                        'error': str(e)[:120]})
+            log('GloFAS %s 失败 → %s' % (rid, str(e)[:100]))
+        time.sleep(0.3)
+    return out, ('failed' if failed == len(RIVER_POINTS) else 'ok')
+
+
+def build_advisories(now_iso):
+    events, gdacs_status = fetch_gdacs()
+    flood, flood_status = fetch_flood()
+    all_failed = all(str(v).startswith('failed') for v in gdacs_status.values()) \
+        and flood_status == 'failed'
+    return {
+        'meta': {
+            'generatedAt': now_iso,
+            'gdacsStatus': gdacs_status,
+            'floodStatus': flood_status,
+            'eventCount': len(events),
+            'floodPointCount': len(flood),
+            'allSourcesFailed': all_failed,
+            'bbox': SEA_BBOX,
+            'sources': [
+                {'id': 'GDACS', 'url': 'https://www.gdacs.org/',
+                 'note': 'Global Disaster Alert and Coordination System (EC JRC / UN). Red/Orange/Green are GDACS alert levels.'},
+                {'id': 'GloFAS', 'url': 'https://open-meteo.com/en/docs/flood-api',
+                 'note': 'Open-Meteo Flood API, Copernicus GloFAS v4 river discharge model. Model output, NOT an official flood warning.'},
+            ],
+            'note': '台风/洪水事件为 GDACS 官方警报等级；河流流量为 GloFAS 模型预报。本站不提供实时官方封路数据库。',
+            'closureSchema': ('confirmedClosures 可人工维护：'
+                              '{id, country, area, type(road|bridge|ferry|port|airspace), status, '
+                              'since, until, sourceName, sourceUrl, verifiedAt}'),
+        },
+        'controlsMode': {
+            'mode': 'official-links',
+            'hasLiveApi': False,
+            'note': ('东南亚各国没有统一、免费、结构化的官方封路/交通管制 API。'
+                     '本板块提供各国官方公告直达入口 + 自动灾害事件 + 人工核实条目；'
+                     '「可能影响交通」是规则推断，不代表已发布管制。'),
+        },
+        'events': events,
+        'flood': flood,
+        # 人工核实过的封路/管制条目；日常为空，格式见 meta.closureSchema
+        'confirmedClosures': [],
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--check', action='store_true', help='只做坐标一致性校验')
     ap.add_argument('--dry-run', action='store_true', help='拉取但不写文件')
+    ap.add_argument('--advisories-only', action='store_true',
+                    help='只刷新台风/洪水/管制数据，不重拉天气（调试或临时刷新用）')
     args = ap.parse_args()
 
     consistency_check()
@@ -222,6 +468,19 @@ def main():
 
     now = dt.datetime.now().astimezone()
     now_iso = now.isoformat(timespec='seconds')
+
+    if args.advisories_only:
+        adv = build_advisories(now_iso)
+        if adv['meta']['allSourcesFailed'] and OUT_ADVISORIES.exists():
+            log('全部灾害源失败，保留原有 advisories.json')
+            return 3
+        tmp = OUT_ADVISORIES.with_suffix('.json.tmp')
+        tmp.write_text(json.dumps(adv, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
+        tmp.replace(OUT_ADVISORIES)
+        log('写入 %s（事件 %d / 河流点 %d）' %
+            (OUT_ADVISORIES.relative_to(ROOT), len(adv['events']), len(adv['flood'])))
+        return 0
+
     countries, failed, degraded = {}, [], []
 
     for cid, tz, cities in LOCATIONS:
@@ -272,6 +531,20 @@ def main():
     log('写入 %s（%d 国 / %d 城市，失败 %d）' %
         (OUT_WEATHER.relative_to(ROOT), ok_countries, payload['meta']['cityCount'], len(failed)))
     log('写入 %s' % OUT_FLIGHTS.relative_to(ROOT))
+
+    # 台风 / 洪水 / 管制信息：独立失败不影响天气主流程
+    try:
+        adv = build_advisories(now_iso)
+        if adv['meta']['allSourcesFailed'] and OUT_ADVISORIES.exists():
+            log('GDACS 与 GloFAS 均失败，保留原有 advisories.json（不推送半截数据）')
+        else:
+            atmp = OUT_ADVISORIES.with_suffix('.json.tmp')
+            atmp.write_text(json.dumps(adv, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
+            atmp.replace(OUT_ADVISORIES)
+            log('写入 %s（事件 %d 条 / 河流点 %d 个）' %
+                (OUT_ADVISORIES.relative_to(ROOT), len(adv['events']), len(adv['flood'])))
+    except Exception as e:                        # noqa: BLE001
+        log('警告：advisories.json 生成异常（不影响天气数据）→ %s' % str(e)[:150])
     return 0
 
 

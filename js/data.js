@@ -42,6 +42,11 @@
           'ในช่วงพายุ เรือข้ามเกาะและทัวร์ทางทะเลอาจระงับ ตรวจสอบประกาศของผู้ให้บริการ',
           'Saat musim topan, feri dan wisata laut dapat dibatalkan; cek pengumuman operator.')
       ],
+      controls: [
+        { id: 'VN-MOT', kind: 'road', label: L('交通运输部 · 公路与海事通告', 'Ministry of Transport · road & maritime notices', 'Bộ GTVT · thông báo đường bộ & hàng hải', 'กระทรวงคมนาคม · ประกาศทางบกและทางทะเล', 'Kementerian Perhubungan · pengumuman jalan & laut'), url: 'https://www.mt.gov.vn/' },
+        { id: 'VN-CAAV', kind: 'aviation', label: L('越南民航局 · 机场与空域通告', 'CAAV · airport & airspace notices', 'Cục Hàng không · thông báo sân bay', 'สำนักงานการบินพลเรือน · ประกาศสนามบิน', 'Otoritas Penerbangan Sipil · notisi bandara'), url: 'https://caa.gov.vn/' },
+        { id: 'VN-DM', kind: 'gov', label: L('国家防灾与堤防管理 · 灾情通报', 'Disaster & Dyke Management · situation reports', 'Quản lý đê điều & PCTT · báo cáo tình hình', 'สำนักจัดการภัยพิบัติ · รายงานสถานการณ์', 'Badan Penanggulangan Bencana · laporan situasi'), url: 'https://phongchongthientai.mard.gov.vn/' }
+      ],
       sources: [
         { id: 'VN-NCHMF', label: L('越南国家水文气象预报中心 NCHMF', 'NCHMF · National Center for Hydro-Meteorological Forecasting', 'NCHMF · Trung tâm Dự báo Khí tượng Thủy văn', 'NCHMF · ศูนย์พยากรณ์อากาศ', 'NCHMF · Pusat Prakiraan Cuaca'), url: 'https://nchmf.gov.vn/', kind: 'wx' },
         { id: 'VN-KTTV', label: L('越南气象水文总局 · 十日趋势', 'Vietnam Meteorological Administration · 10-day outlook', 'Cục KTTV · Xu hướng 10 ngày', 'กรมอุตุนิยมวิทยา · แนวโน้ม 10 วัน', 'BMKG Vietnam · Prospek 10 hari'), url: 'https://thoitietvietnam.gov.vn/', kind: 'wx' },
@@ -51,13 +56,25 @@
         { id: 'hcm', name: L('胡志明市', 'Ho Chi Minh City', 'TP. Hồ Chí Minh', 'โฮจิมินห์ซิตี', 'Kota Ho Chi Minh'), lat: 10.8231, lon: 106.6297, airport: 'SGN', flood: true, coastal: false, island: false, mountain: false },
         { id: 'hanoi', name: L('河内', 'Hanoi', 'Hà Nội', 'ฮานอย', 'Hanoi'), lat: 21.0278, lon: 105.8342, airport: 'HAN', flood: true, coastal: false, island: false, mountain: false },
         { id: 'danang', name: L('岘港', 'Da Nang', 'Đà Nẵng', 'ดานัง', 'Da Nang'), lat: 16.0544, lon: 108.2022, airport: 'DAD', flood: true, coastal: true, island: false, mountain: false },
-        { id: 'phuquoc', name: L('富国岛', 'Phu Quoc', 'Phú Quốc', 'ฟู้โกว๊ก', 'Phu Quoc'), lat: 10.2270, lon: 103.9570, airport: 'PQC', flood: false, coastal: true, island: true, mountain: false }
+        { id: 'phuquoc', name: L('富国岛', 'Phu Quoc', 'Phú Quốc', 'ฟู้โกว๊ก', 'Phu Quoc'), lat: 10.2270, lon: 103.9570, airport: 'PQC', flood: false, coastal: true, island: true, mountain: false },
+        { id: 'nhatrang', name: L('芽庄', 'Nha Trang', 'Nha Trang', 'ญาจาง', 'Nha Trang'), lat: 12.2388, lon: 109.1967, airport: 'CXR', flood: false, coastal: true, island: false, mountain: false },
+        { id: 'quynhon', name: L('归仁', 'Quy Nhon', 'Quy Nhơn', 'กวีเญิน', 'Quy Nhon'), lat: 13.7563, lon: 109.2295, airport: 'UIH', flood: true, coastal: true, island: false, mountain: false },
+        { id: 'dalat', name: L('大叻', 'Da Lat', 'Đà Lạt', 'ดาลัด', 'Da Lat'), lat: 11.9404, lon: 108.4583, airport: 'DLI', flood: false, coastal: false, island: false, mountain: true },
+        { id: 'bacninh', name: L('北宁', 'Bac Ninh', 'Bắc Ninh', 'บั๊กนิญ', 'Bac Ninh'), lat: 21.1861, lon: 106.0763, airport: 'HAN', flood: false, coastal: false, island: false, mountain: false },
+        { id: 'bacgiang', name: L('北江', 'Bac Giang', 'Bắc Giang', 'บั๊กซาง', 'Bac Giang'), lat: 21.2739, lon: 106.1954, airport: 'HAN', flood: false, coastal: false, island: false, mountain: false },
+        { id: 'haiphong', name: L('海防', 'Hai Phong', 'Hải Phòng', 'ไฮฟอง', 'Hai Phong'), lat: 20.8449, lon: 106.6881, airport: 'HPH', flood: true, coastal: true, island: false, mountain: false },
+        { id: 'binhduong', name: L('平阳·土龙木', 'Binh Duong (Thu Dau Mot)', 'Bình Dương (Thủ Dầu Một)', 'บิ่ญเซือง', 'Binh Duong'), lat: 10.9804, lon: 106.6519, airport: 'SGN', flood: false, coastal: false, island: false, mountain: false },
+        { id: 'dongnai', name: L('同奈·边和', 'Dong Nai (Bien Hoa)', 'Đồng Nai (Biên Hòa)', 'ด่งนาย', 'Dong Nai'), lat: 10.9447, lon: 106.8233, airport: 'SGN', flood: false, coastal: false, island: false, mountain: false },
       ],
       airports: [
         { iata: 'SGN', name: L('新山一国际机场', 'Tan Son Nhat Intl', 'Tân Sơn Nhất', 'ทันซอนญัต', 'Tan Son Nhat'), city: 'hcm', lat: 10.8189, lon: 106.6519, board: link('official', 'https://www.vietnamairport.vn/tansonnhatairport/', 'ACV'), live: 'https://www.flightaware.com/live/airport/VVTS' },
         { iata: 'HAN', name: L('内排国际机场', 'Noi Bai Intl', 'Nội Bài', 'นอยบาย', 'Noi Bai'), city: 'hanoi', lat: 21.2212, lon: 105.8072, board: link('official', 'https://www.vietnamairport.vn/noibaiairport/', 'ACV'), live: 'https://www.flightaware.com/live/airport/VVNB' },
         { iata: 'DAD', name: L('岘港国际机场', 'Da Nang Intl', 'Đà Nẵng', 'ดานัง', 'Da Nang'), city: 'danang', lat: 16.0439, lon: 108.1990, board: link('official', 'https://www.vietnamairport.vn/danangairport/', 'ACV'), live: 'https://www.flightaware.com/live/airport/VVDN' },
-        { iata: 'PQC', name: L('富国国际机场', 'Phu Quoc Intl', 'Phú Quốc', 'ฟู้โกว๊ก', 'Phu Quoc'), city: 'phuquoc', lat: 10.1698, lon: 103.9931, board: link('public', 'https://www.flightaware.com/live/airport/VVPQ', ''), live: 'https://www.flightaware.com/live/airport/VVPQ' }
+        { iata: 'PQC', name: L('富国国际机场', 'Phu Quoc Intl', 'Phú Quốc', 'ฟู้โกว๊ก', 'Phu Quoc'), city: 'phuquoc', lat: 10.1698, lon: 103.9931, board: link('public', 'https://www.flightaware.com/live/airport/VVPQ', ''), live: 'https://www.flightaware.com/live/airport/VVPQ' },
+        { iata: 'CXR', name: L('金兰国际机场（芽庄）', 'Cam Ranh Intl (Nha Trang)', 'Cam Ranh (Nha Trang)', 'คัมรานห์ (ญาจาง)', 'Cam Ranh (Nha Trang)'), city: 'nhatrang', lat: 11.9982, lon: 109.2194, board: link('public', 'https://www.flightaware.com/live/airport/VVCR', 'FlightAware'), live: 'https://www.flightaware.com/live/airport/VVCR' },
+        { iata: 'UIH', name: L('符吉机场（归仁）', 'Phu Cat (Quy Nhon)', 'Phù Cát (Quy Nhơn)', 'ฟู้กาต (กวีเญิน)', 'Phu Cat (Quy Nhon)'), city: 'quynhon', lat: 13.9550, lon: 109.0420, board: link('public', 'https://www.flightaware.com/live/airport/VVPC', 'FlightAware'), live: 'https://www.flightaware.com/live/airport/VVPC' },
+        { iata: 'DLI', name: L('莲姜机场（大叻）', 'Lien Khuong (Da Lat)', 'Liên Khương (Đà Lạt)', 'เลียนเคือง (ดาลัด)', 'Lien Khuong (Da Lat)'), city: 'dalat', lat: 11.7500, lon: 108.3700, board: link('public', 'https://www.flightaware.com/live/airport/VVDL', 'FlightAware'), live: 'https://www.flightaware.com/live/airport/VVDL' },
+        { iata: 'HPH', name: L('吉碑国际机场（海防）', 'Cat Bi Intl (Hai Phong)', 'Cát Bi (Hải Phòng)', 'กาดบี (ไฮฟอง)', 'Cat Bi (Hai Phong)'), city: 'haiphong', lat: 20.8200, lon: 106.7250, board: link('public', 'https://www.flightaware.com/live/airport/VVCI', 'FlightAware'), live: 'https://www.flightaware.com/live/airport/VVCI' },
       ],
       airlines: [
         { code: 'VN', name: L('越南航空', 'Vietnam Airlines', 'Vietnam Airlines', 'เวียดนามแอร์ไลน์', 'Vietnam Airlines'), url: 'https://www.vietnamairlines.com/' },
@@ -87,6 +104,11 @@
           'เรือข้ามเกาะภูเก็ต/กระบี่มักระงับเมื่อคลื่นแรง อย่าต่อเครื่องบินระหว่างประเทศวันเดียวกัน',
           'Feri pulau sering dibatalkan saat laut bergelombang; jangan sambung feri + penerbangan internasional di hari sama.')
       ],
+      controls: [
+        { id: 'TH-DOH', kind: 'road', label: L('公路厅 · 封路与道路状况', 'Department of Highways · road closures & conditions', 'กรมทางหลวง · ปิดถนนและสภาพทาง', 'กรมทางหลวง · ปิดถนนและสภาพทาง', 'Dinas Jalan Raya · penutupan jalan'), url: 'https://www.doh.go.th/' },
+        { id: 'TH-DDPM', kind: 'gov', label: L('防灾减灾厅 · 灾害与交通管制公告', 'DDPM · disaster & traffic control notices', 'DDPM · ประกาศภัยพิบัติและควบคุมจราจร', 'กรมป้องกันและบรรเทาสาธารณภัย · ประกาศ', 'Badan Bencana · pengumuman pembatasan lalu lintas'), url: 'https://www.disaster.go.th/' },
+        { id: 'TH-WATER', kind: 'marine', label: L('ThaiWater · 河流水位与洪水监视', 'ThaiWater · river levels & flood watch', 'ThaiWater · mực nước sông & lũ', 'ThaiWater · ระดับน้ำและน้ำท่วม', 'ThaiWater · tinggi air sungai & banjir'), url: 'https://www.thaiwater.net/' }
+      ],
       sources: [
         { id: 'TH-TMD', label: L('泰国气象局 TMD', 'Thai Meteorological Department (TMD)', 'Cục Khí tượng Thái Lan (TMD)', 'กรมอุตุนิยมวิทยา (TMD)', 'Badan Meteorologi Thailand (TMD)'), url: 'https://www.tmd.go.th/en', kind: 'wx' },
         { id: 'TH-WATER', label: L('泰国水资源信息网 · 实时水位', 'ThaiWater · live water levels', 'ThaiWater · mực nước thực tế', 'ThaiWater · ระดับน้ำ', 'ThaiWater · Tinggi muka air'), url: 'http://www.thaiwater.net/', kind: 'wx' },
@@ -96,13 +118,20 @@
         { id: 'bangkok', name: L('曼谷', 'Bangkok', 'Bangkok', 'กรุงเทพฯ', 'Bangkok'), lat: 13.7563, lon: 100.5018, airport: 'BKK', flood: true, coastal: false, island: false, mountain: false },
         { id: 'chiangmai', name: L('清迈', 'Chiang Mai', 'Chiang Mai', 'เชียงใหม่', 'Chiang Mai'), lat: 18.7883, lon: 98.9853, airport: 'CNX', flood: false, coastal: false, island: false, mountain: true },
         { id: 'phuket', name: L('普吉', 'Phuket', 'Phú Quốc (Phuket)', 'ภูเก็ต', 'Phuket'), lat: 7.8804, lon: 98.3923, airport: 'HKT', flood: true, coastal: true, island: true, mountain: false },
-        { id: 'pattaya', name: L('芭提雅', 'Pattaya', 'Pattaya', 'พัทยา', 'Pattaya'), lat: 12.9236, lon: 100.8825, airport: 'BKK', flood: true, coastal: true, island: false, mountain: false }
+        { id: 'pattaya', name: L('芭提雅', 'Pattaya', 'Pattaya', 'พัทยา', 'Pattaya'), lat: 12.9236, lon: 100.8825, airport: 'BKK', flood: true, coastal: true, island: false, mountain: false },
+        { id: 'chonburi', name: L('春武里', 'Chonburi', 'Chonburi', 'ชลบุรี', 'Chonburi'), lat: 13.3611, lon: 100.9847, airport: 'BKK', flood: true, coastal: true, island: false, mountain: false },
+        { id: 'rayong', name: L('罗勇', 'Rayong', 'Rayong', 'ระยอง', 'Rayong'), lat: 12.6833, lon: 101.2833, airport: 'UTP', flood: false, coastal: true, island: false, mountain: false },
+        { id: 'chachoengsao', name: L('北柳', 'Chachoengsao', 'Chachoengsao', 'ฉะเชิงเทรา', 'Chachoengsao'), lat: 13.6900, lon: 101.0833, airport: 'BKK', flood: true, coastal: false, island: false, mountain: false },
+        { id: 'ayutthaya', name: L('大城', 'Ayutthaya', 'Ayutthaya', 'อยุธยา', 'Ayutthaya'), lat: 14.3532, lon: 100.5765, airport: 'BKK', flood: true, coastal: false, island: false, mountain: false },
+        { id: 'samutprakan', name: L('北榄', 'Samut Prakan', 'Samut Prakan', 'สมุทรปราการ', 'Samut Prakan'), lat: 13.5990, lon: 100.5968, airport: 'BKK', flood: true, coastal: true, island: false, mountain: false },
+        { id: 'samutsakhon', name: L('龙仔厝', 'Samut Sakhon', 'Samut Sakhon', 'สมุทรสาคร', 'Samut Sakhon'), lat: 13.5479, lon: 100.2748, airport: 'BKK', flood: true, coastal: true, island: false, mountain: false },
       ],
       airports: [
         { iata: 'BKK', name: L('素万那普机场', 'Suvarnabhumi', 'Suvarnabhumi', 'สุวรรณภูมิ', 'Suvarnabhumi'), city: 'bangkok', lat: 13.6900, lon: 100.7501, board: link('official', 'https://www.suvarnabhumi.airportthai.co.th/flight-information', 'AOT'), live: 'https://www.flightaware.com/live/airport/VTBS' },
         { iata: 'DMK', name: L('廊曼机场', 'Don Mueang', 'Don Mueang', 'ดอนเมือง', 'Don Mueang'), city: 'bangkok', lat: 13.9126, lon: 100.6068, board: link('official', 'https://www.donmueang.airportthai.co.th/', 'AOT'), live: 'https://www.flightaware.com/live/airport/VTBD' },
         { iata: 'CNX', name: L('清迈机场', 'Chiang Mai Intl', 'Chiang Mai', 'เชียงใหม่', 'Chiang Mai'), city: 'chiangmai', lat: 18.7768, lon: 98.9626, board: link('official', 'https://www.chiangmai.airportthai.co.th/', 'AOT'), live: 'https://www.flightaware.com/live/airport/VTCC' },
-        { iata: 'HKT', name: L('普吉机场', 'Phuket Intl', 'Phuket', 'ภูเก็ต', 'Phuket'), city: 'phuket', lat: 8.1132, lon: 98.3069, board: link('official', 'https://www.phuket.airportthai.co.th/', 'AOT'), live: 'https://www.flightaware.com/live/airport/VTSP' }
+        { iata: 'HKT', name: L('普吉机场', 'Phuket Intl', 'Phuket', 'ภูเก็ต', 'Phuket'), city: 'phuket', lat: 8.1132, lon: 98.3069, board: link('official', 'https://www.phuket.airportthai.co.th/', 'AOT'), live: 'https://www.flightaware.com/live/airport/VTSP' },
+        { iata: 'UTP', name: L('乌塔堡国际机场（罗勇/芭提雅）', 'U-Tapao Intl (Rayong/Pattaya)', 'U-Tapao (Rayong/Pattaya)', 'อู่ตะเภา (ระยอง/พัทยา)', 'U-Tapao (Rayong/Pattaya)'), city: 'rayong', lat: 12.6736, lon: 101.0063, board: link('public', 'https://www.flightaware.com/live/airport/VTBU', 'FlightAware'), live: 'https://www.flightaware.com/live/airport/VTBU' },
       ],
       airlines: [
         { code: 'TG', name: L('泰国国际航空', 'Thai Airways', 'Thai Airways', 'การบินไทย', 'Thai Airways'), url: 'https://www.thaiairways.com/' },
@@ -131,6 +160,11 @@
           'Cầu Causeway sang Johor Bahru hay tắc khi mưa và giờ cao điểm; nên dự phòng thời gian cho lịch họp.',
           'สะพาน Causeway ไปยะโฮร์ติดขัดเมื่อฝนตก+ชั่วโมงเร่งด่วน เผื่อเวลาสำหรับนัดหมายธุรกิจ',
           'Causeway ke Johor Bahru macet saat hujan + jam sibuk; sediakan waktu ekstra untuk rapat.')
+      ],
+      controls: [
+        { id: 'SG-LTA', kind: 'road', label: L('陆路交通管理局 · 道路封闭与交通公告', 'LTA · road closures & traffic notices', 'LTA · đóng đường & thông báo giao thông', 'LTA · ปิดถนนและประกาศจราจร', 'LTA · penutupan jalan & notisi lalu lintas'), url: 'https://www.lta.gov.sg/' },
+        { id: 'SG-NEA', kind: 'gov', label: L('国家环境局 · 天气与烟雾公告', 'NEA · weather & haze advisories', 'NEA · cảnh báo thời tiết & sương mù', 'NEA · ประกาศอากาศและหมอกควัน', 'NEA · peringatan cuaca & kabut asap'), url: 'https://www.nea.gov.sg/' },
+        { id: 'SG-MPA', kind: 'marine', label: L('海事及港务管理局 · 港口通航通告', 'MPA · port & navigation notices', 'MPA · thông báo cảng & hàng hải', 'MPA · ประกาศท่าเรือและเดินเรือ', 'MPA · notisi pelabuhan & navigasi'), url: 'https://www.mpa.gov.sg/' }
       ],
       sources: [
         { id: 'SG-MSS', label: L('新加坡气象署 MSS · 天气与预警', 'Meteorological Service Singapore (MSS)', 'MSS · Cục Khí tượng Singapore', 'MSS · กรมอุตุนิยมวิทยาสิงคโปร์', 'MSS · Badan Meteorologi Singapura'), url: 'http://www.weather.gov.sg/', kind: 'wx' },
@@ -171,6 +205,11 @@
           'Phà đảo bờ Đông và Sabah hay ngưng mùa gió mùa; tránh khứ hồi đảo trong ngày khi đi công tác.',
           'เรือเกาะฝั่งตะวันออก/ซาบาห์มักหยุดในมรสุม หลีกเลี่ยงไป–กลับเกาะวันเดียวสำหรับงานธุรกิจ',
           'Feri pulau pantai timur/Sabah sering berhenti saat monsun; hindari pulang-pergi pulau sehari untuk perjalanan bisnis.')
+      ],
+      controls: [
+        { id: 'MY-LLM', kind: 'road', label: L('马来西亚大道局 · 高速封闭与路况', 'LLM · highway closures & traffic', 'LLM · đóng cao tốc & giao thông', 'LLM · ปิดทางด่วนและจราจร', 'LLM · penutupan tol & lalu lintas'), url: 'https://www.llm.gov.my/' },
+        { id: 'MY-NADMA', kind: 'gov', label: L('国家灾害管理局 · 灾情与管制公告', 'NADMA · disaster & control notices', 'NADMA · thông báo thiên tai', 'NADMA · ประกาศภัยพิบัติ', 'NADMA · pengumuman bencana'), url: 'https://www.nadma.gov.my/' },
+        { id: 'MY-MET', kind: 'wx', label: L('马来西亚气象局 · 暴雨与大风预警', 'MetMalaysia · heavy rain & wind warnings', 'MetMalaysia · cảnh báo mưa lớn & gió', 'MetMalaysia · เตือนฝนหนักและลมแรง', 'BMKG Malaysia · peringatan hujan & angin'), url: 'https://www.met.gov.my/' }
       ],
       sources: [
         { id: 'MY-MET', label: L('马来西亚气象局 MET Malaysia', 'Malaysian Meteorological Department (MET)', 'Cục Khí tượng Malaysia (MET)', 'กรมอุตุนิยมวิทยามาเลเซีย', 'Badan Meteorologi Malaysia (MET)'), url: 'https://www.met.gov.my/', kind: 'wx' },
@@ -217,6 +256,11 @@
           'ถนนบนเขาบาหลี/ชวาเสี่ยงดินถล่ม เตือนเถ้าภูเขาไฟอาจปิดสนามบิน ตรวจสอบ BMKG และสายการบิน',
           'Jalan pegunungan Bali/Jawa rawan longsor; peringatan abu vulkanik dapat menutup bandara — cek BMKG dan maskapai.')
       ],
+      controls: [
+        { id: 'ID-BNPB', kind: 'gov', label: L('国家抗灾署 · 灾情与道路管制', 'BNPB · disaster & road control reports', 'BNPB · báo cáo thiên tai & đường', 'BNPB · รายงานภัยพิบัติและถนน', 'BNPB · laporan bencana & jalan'), url: 'https://bnpb.go.id/' },
+        { id: 'ID-BMKG', kind: 'wx', label: L('气象气候地球物理局 · 极端天气预警', 'BMKG · extreme weather warnings', 'BMKG · cảnh báo thời tiết cực đoan', 'BMKG · เตือนอากาศรุนแรง', 'BMKG · peringatan cuaca ekstrem'), url: 'https://www.bmkg.go.id/' },
+        { id: 'ID-HUBDAT', kind: 'road', label: L('交通部陆路运输总局 · 道路与渡轮', 'Directorate of Land Transport · roads & ferries', 'Tổng cục Đường bộ · đường & phà', 'กรมการขนส่งทางบก · ถนนและเรือข้ามฟาก', 'Ditjen Perhubungan Darat · jalan & feri'), url: 'https://www.dephub.go.id/' }
+      ],
       sources: [
         { id: 'ID-BMKG', label: L('印尼气象气候地球物理局 BMKG', 'BMKG · Agency for Meteorology, Climatology & Geophysics', 'BMKG · Cơ quan Khí tượng Khí hậu', 'BMKG · กรมอุตุนิยมวิทยา', 'BMKG · Badan Meteorologi'), url: 'https://www.bmkg.go.id/', kind: 'wx' },
         { id: 'ID-CUACA', label: L('BMKG 逐小时天气', 'BMKG · hourly weather', 'BMKG · Thời tiết theo giờ', 'BMKG · สภาพอากาศรายชั่วโมง', 'BMKG · Cuaca per jam'), url: 'https://cuaca.bmkg.go.id/', kind: 'wx' },
@@ -262,6 +306,12 @@
           'ฝนตกหนักมะนิลาทำให้ EDSA ติดขัดหนัก ออกเดินทางไป NAIA ล่วงหน้า 4 ชม.',
           'Hujan deras Manila memacetkan EDSA; berangkat 4 jam sebelum penerbangan dari NAIA.')
       ],
+      controls: [
+        { id: 'PH-DPWH', kind: 'road', label: L('公共工程与公路部 · 封路通告', 'DPWH · road closure notices', 'DPWH · thông báo đóng đường', 'DPWH · ประกาศปิดถนน', 'DPWH · pengumuman penutupan jalan'), url: 'https://www.dpwh.gov.ph/' },
+        { id: 'PH-MARINA', kind: 'marine', label: L('海事工业局 · 停航与港口通告', 'MARINA · port & sailing notices', 'MARINA · thông báo cảng & tàu', 'MARINA · ประกาศท่าเรือและเดินเรือ', 'MARINA · notisi pelabuhan & pelayaran'), url: 'https://marina.gov.ph/' },
+        { id: 'PH-CAAP', kind: 'aviation', label: L('民航局 · 机场与空域通告', 'CAAP · airport & airspace notices', 'CAAP · thông báo sân bay', 'CAAP · ประกาศสนามบิน', 'CAAP · notisi bandara'), url: 'https://caap.gov.ph/' },
+        { id: 'PH-NDRRMC', kind: 'gov', label: L('国家减灾管理委员会 · 灾情通报', 'NDRRMC · situation reports', 'NDRRMC · báo cáo tình hình', 'NDRRMC · รายงานสถานการณ์', 'NDRRMC · laporan situasi'), url: 'https://ndrrmc.gov.ph/' }
+      ],
       sources: [
         { id: 'PH-PAGASA', label: L('菲律宾大气地球物理和天文管理局 PAGASA', 'PAGASA · Philippine weather & typhoon bureau', 'PAGASA · Cơ quan Khí tượng Philippines', 'PAGASA · กรมอุตุนิยมวิทยาฟิลิปปินส์', 'PAGASA · Badan Cuaca Filipina'), url: 'https://www.pagasa.dost.gov.ph/', kind: 'wx' },
         { id: 'PH-NDRRMC', label: L('国家减灾管理委员会 NDRRMC', 'NDRRMC · disaster management council', 'NDRRMC · Hội đồng giảm nhẹ thiên tai', 'NDRRMC · สภาป้องกันภัย', 'NDRRMC · Dewan Penanggulangan Bencana'), url: 'https://ndrrmc.gov.ph/', kind: 'gov' },
@@ -287,6 +337,15 @@
     }
   ];
 
+
+  // 旧「东南亚供应链天灾预警看板」的四级口径（仅作定义参照，本站不沿用其 PO/在险件数算法）
+  var LEGACY_LEVELS = [
+    { level: 3, key: 'red', delayDays: 10, deterioration: 85, nameKey: 'def.legacy.redName', ruleKey: 'def.legacy.redRule' },
+    { level: 2, key: 'orange', delayDays: 5, deterioration: 60, nameKey: 'def.legacy.orangeName', ruleKey: 'def.legacy.orangeRule' },
+    { level: 1, key: 'yellow', delayDays: 2, deterioration: 35, nameKey: 'def.legacy.yellowName', ruleKey: 'def.legacy.yellowRule' },
+    { level: 0, key: 'green', delayDays: 0, deterioration: 0, nameKey: 'def.legacy.greenName', ruleKey: 'def.legacy.greenRule' }
+  ];
+
   // 风险阈值（单位固定，口径公开写在页面上，便于复核）
   var THRESHOLDS = {
     rain: { watch: 2, alert: 8, critical: 20 },        // mm / 小时
@@ -300,10 +359,11 @@
   };
 
   root.SEA_DATA = {
-    version: '1.0.0',
+    version: '2.0.0',
     languages: ['zh', 'en', 'vi', 'th', 'id'],
     countries: COUNTRIES,
     thresholds: THRESHOLDS,
+    legacyLevels: LEGACY_LEVELS,
     // 航班数据提供方：默认关闭（免 Key 模式）；配置 Key 后由本机每日任务启用，前端永不接触密钥
     flightProvider: {
       mode: 'off',

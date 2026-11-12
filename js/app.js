@@ -17,6 +17,7 @@
   var CID = document.body.getAttribute('data-country') || '';
   var WEATHER = null;
   var FLIGHTS = null;
+  var ADV = null;
   var LANGS = [
     ['zh', 'lang.zh', '中文'], ['en', 'lang.en', 'English'], ['vi', 'lang.vi', 'Tiếng Việt'],
     ['th', 'lang.th', 'ไทย'], ['id', 'lang.id', 'Bahasa Indonesia']
@@ -257,6 +258,10 @@
       (near.outOfScope ? '<br><b>!</b> ' + esc(t('trip.limitTitle')) : '') +
       '</div>';
 
+    var evNear = eventsFor(country.id);
+    if (evNear.length) html += '<div class="notice warn" style="margin-bottom:12px">' +
+      esc(t('trip.eventNotice')) + '</div>';
+
     html += '<div class="result-grid">';
     // ① 事实
     html += '<div class="result-box facts"><h4>' + esc(t('trip.factTitle')) + '</h4><ul>';
@@ -284,9 +289,271 @@
       '<li><a href="' + esc(wx.url) + '" target="_blank" rel="noopener">' + esc(loc(wx.label)) + ' ↗</a></li>' +
       '<li><a href="' + esc(ap.board.url) + '" target="_blank" rel="noopener">' + esc(ap.iata) + ' · ' + esc(t('flight.board')) + ' ↗</a></li>' +
       '<li><a href="' + esc(maps) + '" target="_blank" rel="noopener">' + esc(t('trip.openMaps')) + ' ↗</a></li>' +
+      (function () {
+        var ctl = country.controls.filter(function (x) { return x.kind === 'road'; })[0] || country.controls[0];
+        return ctl ? '<li><a href="' + esc(ctl.url) + '" target="_blank" rel="noopener">' +
+          esc(t('trip.ctrlVerify')) + ' ↗</a></li>' : '';
+      })() +
       '</ul></div>';
     html += '</div>';
     return html;
+  }
+
+  /* =========================================================================
+   * 台风 / 洪水 / 封路与官方管制 / 颜色等级定义
+   * ======================================================================= */
+  var ISO2CID = { VNM: 'vn', THA: 'th', SGP: 'sg', MYS: 'my', IDN: 'id', PHL: 'ph' };
+  var CTRL_KEY = {
+    road: 'adv.ctrlRoad', aviation: 'adv.ctrlAviation', gov: 'adv.ctrlGov',
+    marine: 'adv.ctrlMarine', wx: 'adv.ctrlWx'
+  };
+  function allEvents() { return (ADV && ADV.events) ? ADV.events : []; }
+  function eventsFor(cid) {
+    return allEvents().filter(function (e) { return !cid || ISO2CID[e.iso3] === cid; });
+  }
+  function dayDiff(a, b) {
+    var x = Date.parse(a + 'T00:00:00Z'), y = Date.parse(b + 'T00:00:00Z');
+    return (isNaN(x) || isNaN(y)) ? 999 : Math.round((y - x) / 86400000);
+  }
+  // 活跃事件 = 当日落在事件窗口内；recent = 事件在该日之前 7 天内刚结束（半透明角标）
+  function marksForDay(day, cid) {
+    var hit = { tc: false, fl: false, rtc: false, rfl: false, names: [] };
+    allEvents().forEach(function (e) {
+      if (cid && ISO2CID[e.iso3] !== cid) return;
+      var f = String(e.from || '').slice(0, 10), u = String(e.to || '').slice(0, 10);
+      var active = (!f || f <= day) && (!u || u >= day);
+      var recent = !active && u && u < day && dayDiff(u, day) <= 7;
+      if (!active && !recent) return;
+      var isTC = e.type === 'TC';
+      if (active) { if (isTC) hit.tc = true; else hit.fl = true; }
+      else { if (isTC) hit.rtc = true; else hit.rfl = true; }
+      hit.names.push(e.name + (active ? '' : ' (' + t('adv.ended') + ')'));
+    });
+    return hit;
+  }
+
+  // 单格雨量 + 台风/洪水角标（总览表与国家页表共用）
+  function rainCellHtml(v, day, cid) {
+    var bg = '#f1f5fb', fg = '#475569';
+    if (v !== null && !isNaN(v)) {
+      if (v >= 50) { bg = '#f6b7ae'; fg = '#7f1d1d'; }
+      else if (v >= 25) { bg = '#f9cf9a'; fg = '#8a4b00'; }
+      else if (v >= 10) { bg = '#bcd6fb'; fg = '#1c4f9c'; }
+      else if (v >= 2) { bg = '#dbeafe'; fg = '#1c4f9c'; }
+    }
+    var mk = marksForDay(day, cid), marks = '';
+    if (mk.tc) marks += '<span class="cell-mark tc">🌀</span>';
+    if (mk.fl) marks += '<span class="cell-mark fl">🌊</span>';
+    if (mk.rtc) marks += '<span class="cell-mark tc recent">🌀</span>';
+    if (mk.rfl) marks += '<span class="cell-mark fl recent">🌊</span>';
+    return '<td class="rain-cell" style="text-align:center;background:' + bg + ';color:' + fg +
+      ';border-radius:7px;padding:8px 4px;font-weight:700"' +
+      (mk.names.length ? ' title="' + esc(mk.names.join(' / ')) + '"' : '') + '>' +
+      marks + (v === null || isNaN(v) ? '—' : Number(v).toFixed(1)) + '</td>';
+  }
+
+  function rainLegendHtml() {
+    return '<div class="chart-legend"><span><i style="background:#f1f5fb"></i>&lt; 2 mm</span>' +
+      '<span><i style="background:#dbeafe"></i>2–10 mm</span><span><i style="background:#bcd6fb"></i>10–25 mm</span>' +
+      '<span><i style="background:#f9cf9a"></i>25–50 mm</span><span><i style="background:#f6b7ae"></i>≥ 50 mm</span></div>' +
+      '<div class="legend-extra"><span>' + esc(t('trend.eventLegend')) + '</span></div>' +
+      '<div class="legend-extra"><span>' + esc(t('trend.levelLegend')) + '</span></div>';
+  }
+
+  // 事件横幅：按国家过滤；状态标签按是否存在进行中事件动态给出
+  function eventBannerHtml(cid) {
+    var evs = eventsFor(cid);
+    if (!evs.length) return '';
+    var activeN = evs.filter(function (e) { return e.active; }).length;
+    return '<div class="notice info" style="margin-bottom:12px"><b>🌀 🌊 ' +
+      esc(t('adv.eventTitle')) + ' · ' + esc(activeN ? t('adv.active') + ' ' + activeN : t('adv.ended')) +
+      '</b><br>' + evs.slice(0, 5).map(function (e) {
+        return (e.type === 'TC' ? '🌀 ' : '🌊 ') + esc(e.name) +
+          ' <span class="ev-badge ' + esc(e.level) + '">' + esc(e.level) + '</span> ' +
+          esc(String(e.from || '').slice(0, 10)) + ' → ' + esc(String(e.to || '').slice(0, 10)) +
+          ' · ' + esc(e.active ? t('adv.active') : t('adv.ended'));
+      }).join(' &nbsp;·&nbsp; ') + (evs.length > 5 ? ' …' : '') + '</div>';
+  }
+
+  // 国家页：逐城市 7 天雨量表（叠加该国 GDACS 事件角标）
+  function countryTrendHtml(c) {
+    var first = c.cities[0];
+    var ref = first ? weatherCity(c.id, first.id) : null;
+    var days = ref && ref.daily ? R.dailyRows(ref.daily) : [];
+    var dayLabels = days.slice(0, 7).map(function (d) { return String(d.time).slice(0, 10); });
+    if (!dayLabels.length) return '';
+    var html = '<div class="section">' + sectionHead('country.trendTitle', 'country.trendHint') +
+      '<div class="panel">' + eventBannerHtml(c.id) +
+      '<div style="overflow-x:auto"><table style="width:100%;border-collapse:separate;border-spacing:4px;min-width:620px;font-size:12px">' +
+      '<thead><tr><th style="text-align:left;min-width:130px">' + esc(t('country.trendCity')) + '</th>';
+    days.slice(0, 7).forEach(function (d) {
+      html += '<th style="font-weight:700;color:var(--sub);min-width:62px">' + esc(d.time.slice(5)) + '</th>';
+    });
+    html += '</tr></thead><tbody>';
+    c.cities.forEach(function (city) {
+      var wc = weatherCity(c.id, city.id);
+      var dd = wc && wc.daily ? R.dailyRows(wc.daily) : [];
+      html += '<tr><td style="font-weight:700">' + esc(loc(city.name)) + '</td>';
+      for (var di = 0; di < 7; di++) {
+        var v = (dd[di] && dd[di].precipitation_sum !== null && dd[di].precipitation_sum !== undefined)
+          ? Number(dd[di].precipitation_sum) : null;
+        html += rainCellHtml(v, dayLabels[di], c.id);
+      }
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>' + rainLegendHtml() + '</div></div>';
+    return html;
+  }
+
+  function eventItemHtml(e) {
+    return '<div class="ev-item' + (e.active ? '' : ' ended') + '">' +
+      '<div class="ev-icon">' + (e.type === 'TC' ? '🌀' : '🌊') + '</div>' +
+      '<div class="ev-body"><div class="ev-title">' +
+      '<span class="ev-badge ' + esc(e.level) + '">GDACS ' + esc(e.level) + '</span>' + esc(e.name) + '</div>' +
+      '<div class="ev-meta">' + esc(e.type === 'TC' ? t('map.eventTC') : t('map.eventFL')) +
+      ' · ' + esc(e.country || '—') + ' · ' + esc(String(e.from || '').slice(0, 10)) +
+      ' → ' + esc(String(e.to || '').slice(0, 10)) +
+      ' · ' + esc(e.active ? t('adv.active') : t('adv.ended')) + '</div>' +
+      (e.severity ? '<div class="ev-sub">' + esc(e.severity) + '</div>' : '') +
+      (!e.inCoverage ? '<div class="ev-sub">⚠ ' + esc(t('adv.outside')) + '</div>' : '') +
+      (e.url ? '<div class="ev-sub"><a href="' + esc(e.url) + '" target="_blank" rel="noopener">' +
+        esc(t('adv.report')) + ' ↗</a></div>' : '') +
+      '</div></div>';
+  }
+
+  function controlsHtml(country) {
+    if (country) {
+      return country.controls.map(function (x) {
+        return '<div class="ctrl-item"><span class="ctrl-kind ' + esc(x.kind) + '">' +
+          esc(t(CTRL_KEY[x.kind] || 'adv.ctrlGov')) + '</span>' +
+          '<div class="ctrl-body">' + esc(loc(x.label)) + '<br>' +
+          '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(t('adv.viewOfficial')) + ' ↗</a>' +
+          '</div></div>';
+      }).join('');
+    }
+    return D.countries.map(function (c) {
+      return '<div class="ctrl-item"><span class="ctrl-kind">' + c.flag + '</span>' +
+        '<div class="ctrl-body">' + esc(loc(c.name)) + ' · ' +
+        c.controls.map(function (x) {
+          return '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">' +
+            esc(t(CTRL_KEY[x.kind] || 'adv.ctrlGov')) + '</a>';
+        }).join(' · ') + '</div></div>';
+    }).join('');
+  }
+
+  function floodHtml(country) {
+    var list = ((ADV && ADV.flood) ? ADV.flood : []).filter(function (f) {
+      return f.status === 'ok' && (!country || f.country === country.id);
+    });
+    if (!list.length) return '<div class="ev-empty">' + esc(t('adv.floodHint')) + '</div>';
+    return list.map(function (f) {
+      var vals = (f.discharge || []).map(function (v) { return Number(v) || 0; });
+      var mx = Math.max.apply(null, vals.concat([0.1]));
+      var spark = vals.map(function (v) {
+        var h = Math.max(2, Math.round(v / mx * 24));
+        return '<i class="' + (v >= mx * .8 ? 'hi' : '') + '" style="height:' + h + 'px"></i>';
+      }).join('');
+      return '<div class="flood-row"><div class="nm">' + esc(t('river.' + f.id)) + '</div>' +
+        '<div class="v">' + esc(f.peak) + ' m³/s</div>' +
+        '<div class="v ' + (f.changePct > 20 ? 'up' : '') + '">' +
+        (f.changePct === null ? '—' : (f.changePct > 0 ? '+' : '') + f.changePct + '%') + '</div>' +
+        '<div class="flood-spark">' + spark + '</div></div>';
+    }).join('');
+  }
+
+  function advSection(country) {
+    var cid = country ? country.id : null;
+    var evs = eventsFor(cid);
+    var active = evs.filter(function (e) { return e.active; });
+    var ended = evs.filter(function (e) { return !e.active; });
+    var html = '<div class="section">' + sectionHead('map.title', 'map.hint') +
+      '<div id="seaMapHost"></div></div>';
+
+    html += '<div class="section">' + sectionHead('adv.title', 'adv.hint') + '<div class="adv-grid">';
+    // 事件
+    html += '<div class="adv-card"><h3>🌀 ' + esc(t('adv.eventTitle')) + '</h3>' +
+      '<div class="sub">' + esc(t('adv.eventHint')) + '</div>';
+    if (!evs.length) html += '<div class="ev-empty">' + esc(t('adv.noEvents')) + '</div>';
+    else {
+      html += '<div class="ev-list">';
+      if (active.length) html += '<div class="sub"><b>' + esc(t('adv.active')) + '</b></div>' +
+        active.map(eventItemHtml).join('');
+      if (ended.length) html += '<div class="sub" style="margin-top:6px"><b>' + esc(t('adv.ended')) +
+        '</b></div>' + ended.map(eventItemHtml).join('');
+      if (!active.length) html += '<div class="ev-empty">' + esc(t('adv.noActive')) + '</div>';
+      html += '</div>';
+    }
+    html += '</div>';
+    // 管制
+    html += '<div class="adv-card"><h3>🚧 ' + esc(t('adv.ctrlTitle')) + '</h3>' +
+      '<div class="sub">' + esc(t('adv.ctrlHint')) + '</div>' +
+      '<div class="ctrl-list">' + controlsHtml(country) + '</div>' +
+      '<div class="def-note" style="margin-top:11px">' + esc(t('adv.ctrlNote')) + '</div></div>';
+    html += '</div>';
+
+    // 洪水趋势（全宽）
+    html += '<div class="adv-card" style="margin-top:14px"><h3>🌊 ' + esc(t('adv.floodTitle')) + '</h3>' +
+      '<div class="sub">' + esc(t('adv.floodHint')) + '</div>' + floodHtml(country) +
+      '<div class="flood-note">' + esc(t('adv.floodNote')) + '</div></div>';
+
+    if (active.some(function (e) { return e.level === 'Red' || e.level === 'Orange'; })) {
+      html += '<div class="notice warn" style="margin-top:14px"><b>' + esc(t('adv.impactTitle')) +
+        '</b><p>' + esc(t('adv.impactText')) + '</p></div>';
+    }
+
+    // 人工核实条目
+    var closures = ((ADV && ADV.confirmedClosures) ? ADV.confirmedClosures : [])
+      .filter(function (x) { return !country || x.country === country.id; });
+    html += '<div class="adv-card" style="margin-top:14px"><h3>📋 ' + esc(t('adv.closureTitle')) + '</h3>';
+    if (!closures.length) html += '<div class="closure-empty">' + esc(t('adv.closureEmpty')) + '</div>';
+    else html += '<div class="ev-list">' + closures.map(function (x) {
+      return '<div class="ev-item"><div class="ev-icon">⛔</div><div class="ev-body">' +
+        '<div class="ev-title">' + esc(x.area || '—') + '</div><div class="ev-meta">' +
+        esc(x.type || '') + ' · ' + esc(x.status || '') + ' · ' + esc(x.since || '') + ' → ' + esc(x.until || '') +
+        '</div><div class="ev-sub">' + esc(x.sourceName || '') +
+        (x.sourceUrl ? ' · <a href="' + esc(x.sourceUrl) + '" target="_blank" rel="noopener">' +
+          esc(t('adv.report')) + ' ↗</a>' : '') + '</div></div></div>';
+    }).join('') + '</div>';
+    html += '</div>';
+
+    if (ADV && ADV.meta) html += '<div class="hint" style="margin-top:10px;font-size:11px;color:var(--sub)">' +
+      esc(t('adv.dataTime')) + ': ' + esc(String(ADV.meta.generatedAt).slice(0, 16).replace('T', ' ')) + '</div>';
+    return html + '</div>';
+  }
+
+  function defSection(open) {
+    var cur = [
+      ['red', 'def.cur.redTrigger', 'def.cur.redMeaning'],
+      ['orange', 'def.cur.orangeTrigger', 'def.cur.orangeMeaning'],
+      ['yellow', 'def.cur.yellowTrigger', 'def.cur.yellowMeaning'],
+      ['green', 'def.cur.greenTrigger', 'def.cur.greenMeaning']
+    ];
+    var curRows = cur.map(function (x) {
+      return '<tr><td><span class="def-pill ' + x[0] + '">' + esc(t('level.' + x[0])) + '</span></td>' +
+        '<td>' + esc(t(x[1])) + '</td><td>' + esc(t(x[2])) + '</td></tr>';
+    }).join('');
+    var legacyRows = D.legacyLevels.map(function (x) {
+      return '<tr><td><span class="def-pill ' + x.key + '">' + esc(t(x.nameKey)) + '</span></td>' +
+        '<td>' + esc(t(x.ruleKey)) + '</td><td>' + (x.delayDays ? x.delayDays + ' d' : '0') + '</td>' +
+        '<td>' + (x.deterioration ? x.deterioration + '%' : '—') + '</td></tr>';
+    }).join('');
+    return '<div class="section"><details class="def-details"' + (open ? ' open' : '') + ' id="defs">' +
+      '<summary>' + esc(t('def.title')) + ' <span class="hint">' + esc(t('def.hint')) + '</span></summary>' +
+      '<div class="panel" style="margin-top:12px"><div class="def-two">' +
+      '<div class="def-box"><h4>' + esc(t('def.currentTitle')) + '</h4>' +
+      '<div class="desc">' + esc(t('def.currentDesc')) + '</div><div style="overflow-x:auto">' +
+      '<table class="def-table"><thead><tr><th>' + esc(t('def.level')) + '</th><th>' +
+      esc(t('def.trigger')) + '</th><th>' + esc(t('def.meaning')) + '</th></tr></thead><tbody>' +
+      curRows + '</tbody></table></div></div>' +
+      '<div class="def-box"><h4>' + esc(t('def.legacyTitle')) + '</h4>' +
+      '<div class="desc">' + esc(t('def.legacyDesc')) + '</div><div style="overflow-x:auto">' +
+      '<table class="def-table"><thead><tr><th>' + esc(t('def.level')) + '</th><th>' +
+      esc(t('def.trigger')) + '</th><th>' + esc(t('def.colDelay')) + '</th><th>' +
+      esc(t('def.colDeterioration')) + '</th></tr></thead><tbody>' + legacyRows +
+      '</tbody></table></div><div class="def-note">' +
+      ['def.extra1', 'def.extra2', 'def.extra3'].map(function (k) { return esc(t(k)); }).join('<br>') +
+      '</div></div></div>' +
+      '<div class="def-note"><b>⚠ </b>' + esc(t('def.notMix')) + '</div></div></details></div>';
   }
 
   /* =========================================================================
@@ -321,12 +588,14 @@
     });
     html += '</div></div>';
 
-    // 7 天雨量热力表
-    html += '<div class="section">' + sectionHead('home.trendTitle', 'home.trendHint') +
-      '<div class="panel"><div style="overflow-x:auto"><table style="width:100%;border-collapse:separate;border-spacing:4px;min-width:620px;font-size:12px">' +
-      '<thead><tr><th style="text-align:left;min-width:130px">' + esc(t('nav.section')) + '</th>';
+    // 7 天雨量热力表（叠加 GDACS 台风 / 洪水事件角标）
     var ref = weatherCity('vn', 'hcm');
     var days = ref && ref.daily ? R.dailyRows(ref.daily) : [];
+    var dayLabels = days.slice(0, 7).map(function (d) { return String(d.time).slice(0, 10); });
+    html += '<div class="section">' + sectionHead('home.trendTitle', 'home.trendHint') +
+      '<div class="panel">' + eventBannerHtml(null) +
+      '<div style="overflow-x:auto"><table style="width:100%;border-collapse:separate;border-spacing:4px;min-width:620px;font-size:12px">' +
+      '<thead><tr><th style="text-align:left;min-width:130px">' + esc(t('nav.section')) + '</th>';
     days.slice(0, 7).forEach(function (d) {
       html += '<th style="font-weight:700;color:var(--sub);min-width:62px">' + esc(d.time.slice(5)) + '</th>';
     });
@@ -345,24 +614,14 @@
         });
         sums.push(arr.length ? arr.reduce(function (x, y) { return x + y; }, 0) / arr.length : null);
       }
-      sums.forEach(function (v) {
-        var bg = '#f1f5fb', fg = '#475569';
-        if (v !== null) {
-          if (v >= 50) { bg = '#f6b7ae'; fg = '#7f1d1d'; }
-          else if (v >= 25) { bg = '#f9cf9a'; fg = '#8a4b00'; }
-          else if (v >= 10) { bg = '#bcd6fb'; fg = '#1c4f9c'; }
-          else if (v >= 2) { bg = '#dbeafe'; fg = '#1c4f9c'; }
-        }
-        html += '<td style="text-align:center;background:' + bg + ';color:' + fg + ';border-radius:7px;padding:8px 4px;font-weight:700">' +
-          (v === null ? '—' : v.toFixed(1)) + '</td>';
-      });
+      sums.forEach(function (v, di) { html += rainCellHtml(v, dayLabels[di], c.id); });
       html += '</tr>';
     });
-    html += '</tbody></table></div>' +
-      '<div class="chart-legend"><span><i style="background:#dbeafe"></i>2–10 mm</span><span><i style="background:#bcd6fb"></i>10–25 mm</span>' +
-      '<span><i style="background:#f9cf9a"></i>25–50 mm</span><span><i style="background:#f6b7ae"></i>≥ 50 mm</span></div></div></div>';
+    html += '</tbody></table></div>' + rainLegendHtml() + '</div></div>';
 
-    // 行程查询
+    // 地图 / 灾害 / 管制 / 等级定义 / 行程查询
+    html += advSection(null);
+    html += defSection(true);
     html += tripFormHtml(null);
     return html;
   }
@@ -445,6 +704,9 @@
     c.cities.forEach(function (city) { html += cityCard(c, city); });
     html += '</div></div>';
 
+    // 逐城市 7 天雨量 + 台风/洪水角标
+    html += countryTrendHtml(c);
+
     // 机场与航班
     var flightOn = FLIGHTS && FLIGHTS.mode && FLIGHTS.mode !== 'off';
     var flightNotice = flightOn
@@ -501,7 +763,9 @@
     c.tips.forEach(function (tip) { html += '<li>' + esc(loc(tip)) + '</li>'; });
     html += '</ul></div></div>';
 
-    // 行程查询
+    // 地图 / 灾害 / 管制 / 等级定义 / 行程查询
+    html += advSection(c);
+    html += defSection(false);
     html += tripFormHtml(c);
     return html;
   }
@@ -520,6 +784,22 @@
     main.innerHTML = warn + (PAGE === 'country' ? renderCountry() : renderOverview());
     applyI18nDynamic();
     initTrip(PAGE === 'country' ? R.countryById(CID) : null);
+    initMap();
+  }
+
+  function initMap() {
+    var host = document.getElementById('seaMapHost');
+    if (!host || !window.SEA_MAP) return;
+    try {
+      window.SEA_MAP.init(host, {
+        t: t, lang: LANG, data: D, weather: WEATHER || {}, advisories: ADV || {},
+        country: PAGE === 'country' ? R.countryById(CID) : null,
+        hourKey: hourKey
+      });
+    } catch (e) {
+      host.innerHTML = '<div class="notice warn">' + esc(t('map.cdnFail')) + '</div>';
+      console.warn('map init failed', e);
+    }
   }
 
   // render 后主内容里若有 data-i18n 也需要补一次（当前模板均已在 render 时直接 t()）
@@ -555,6 +835,12 @@
       if (f.ok) FLIGHTS = await f.json();
     } catch (e) {
       FLIGHTS = null;   // 缺文件时按「未接入」呈现，不影响天气功能
+    }
+    try {
+      var a = await fetch('data/advisories.json?_=' + Date.now(), { cache: 'no-store' });
+      if (a.ok) ADV = await a.json();
+    } catch (e) {
+      ADV = null;       // 缺文件时管制/灾害板块按「无数据」呈现
     }
     render();
   }

@@ -195,3 +195,131 @@ button{cursor:pointer}
 .footer p + p{margin-top:6px}
 .footer .credit{margin-top:10px;text-align:center;font-size:11px;color:var(--muted)}
 .loading{padding:30px;text-align:center;color:var(--sub);font-size:13px}
+
+/* ===========================================================================
+   v2.0 · 地图 / 灾害 / 管制 / 等级定义
+   =========================================================================== */
+[hidden]{display:none!important}
+
+/* ---------------- 地图 ---------------- */
+.map-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.map-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:11px 14px;border-bottom:1px solid var(--line);background:var(--panel2)}
+.map-tabs{display:flex;gap:6px}
+.map-tab{border:1.5px solid var(--line);background:var(--panel);color:var(--sub);border-radius:9px;padding:7px 13px;font-size:12.5px;font-weight:700}
+.map-tab:hover{border-color:var(--blue);color:var(--blue)}
+.map-tab.on{background:var(--blue-soft);border-color:#bcd3fb;color:var(--blue)}
+.map-toggles{display:flex;gap:12px;flex-wrap:wrap}
+.map-tg{display:flex;align-items:center;gap:5px;font-size:11.8px;color:var(--sub);cursor:pointer;white-space:nowrap}
+.map-tg input{accent-color:var(--blue);cursor:pointer}
+.map-subbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:9px 14px;border-bottom:1px solid var(--line);font-size:11.5px;color:var(--sub)}
+.map-time-label{min-width:150px;font-weight:700;color:var(--txt);font-size:11.5px}
+.map-subbar input[type=range]{flex:1;min-width:120px;max-width:260px;accent-color:var(--blue)}
+.map-mini{border:1px solid var(--line);background:var(--panel);color:var(--sub);border-radius:8px;padding:5px 10px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.map-mini:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-soft)}
+.map-keybox{padding:12px 14px;background:#f7faff;border-bottom:1px solid var(--line)}
+.map-key-title{font-size:12.5px;font-weight:800;color:var(--txt)}
+.map-key-hint{font-size:11.3px;color:var(--sub);line-height:1.6;margin:5px 0 9px}
+.map-key-row{display:flex;gap:7px;flex-wrap:wrap}
+.map-key-row input{flex:1;min-width:200px;border:1.5px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;background:var(--panel);color:var(--txt)}
+.map-key-status{font-size:11.3px;color:var(--blue);margin-top:7px;font-weight:700}
+.map-stage{position:relative;height:440px;background:#eaf3fb}
+.map-canvas,.map-iframe,.map-fallback{position:absolute;inset:0;width:100%;height:100%}
+.map-canvas{z-index:1}
+.map-iframe{border:0;z-index:2;background:#eaf3fb}
+.map-fallback{z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#eaf3fb}
+.map-fallback-note{font-size:11.5px;color:var(--sub);padding:7px 14px;text-align:center;background:rgba(255,255,255,.86);border-radius:9px;margin-top:6px}
+.map-legend{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:11px 14px;border-top:1px solid var(--line);background:var(--panel2)}
+.map-legend-col{display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--sub)}
+.map-legend-col b{font-size:11.5px;color:var(--txt)}
+.map-ramp{display:flex;height:9px;border-radius:5px;overflow:hidden;max-width:210px}
+.map-ramp i{flex:1}
+.map-legend-dots{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.map-legend-dots span{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.map-legend-dots i{width:10px;height:10px;border-radius:50%;display:inline-block;font-style:normal;color:#fff;font-size:9px;text-align:center;line-height:10px}
+.map-status{padding:7px 14px;font-size:11.5px;color:var(--blue);background:var(--blue-soft)}
+.map-status.warn{color:#8a4b00;background:#fff6e6}
+.map-credit{padding:8px 14px;font-size:10.8px;color:var(--muted);border-top:1px solid var(--line);text-align:center}
+.map-noevents{grid-column:1/-1;font-size:11.3px;color:var(--sub);padding-top:4px}
+.map-river-icon{background:rgba(255,255,255,.9);border:1.5px solid #0e5aa7;border-radius:5px;color:#0e5aa7;text-align:center;line-height:16px;font-weight:800;font-size:13px}
+.map-pop{font-size:11.6px;line-height:1.65;color:#16202e;min-width:150px}
+.map-pop b{font-size:12.3px}
+.leaflet-container{font-family:inherit!important}
+.leaflet-popup-content{margin:9px 12px!important}
+
+/* ---------------- 灾害事件 / 管制 / 河流 ---------------- */
+.adv-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.adv-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:var(--shadow)}
+.adv-card h3{font-size:13px;font-weight:800;color:var(--txt);display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.adv-card .sub{font-size:11.2px;color:var(--sub);line-height:1.6;margin-bottom:10px}
+.ev-list{display:flex;flex-direction:column;gap:9px}
+.ev-item{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 11px;background:var(--panel2)}
+.ev-item.ended{opacity:.78}
+.ev-icon{font-size:18px;line-height:1.2;flex:0 0 auto}
+.ev-body{min-width:0;flex:1}
+.ev-title{font-size:12.4px;font-weight:800;color:var(--txt);line-height:1.45}
+.ev-meta{font-size:11px;color:var(--sub);line-height:1.6;margin-top:3px}
+.ev-sub{font-size:10.8px;color:var(--muted);margin-top:3px;line-height:1.5}
+.ev-badge{display:inline-block;font-size:10px;font-weight:800;border-radius:5px;padding:1px 7px;margin-right:5px;color:#fff;white-space:nowrap}
+.ev-badge.Red{background:#d92d20}.ev-badge.Orange{background:#e0620d}.ev-badge.Green{background:#1f6feb}
+.ev-badge.grey{background:#e2e8f0;color:var(--sub)}
+.ev-empty{font-size:12px;color:var(--sub);background:var(--panel2);border:1px dashed var(--line);border-radius:10px;padding:14px;text-align:center;line-height:1.7}
+.ctrl-list{display:flex;flex-direction:column;gap:8px}
+.ctrl-item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--panel2)}
+.ctrl-kind{font-size:9.6px;font-weight:800;letter-spacing:.4px;color:var(--blue);background:var(--blue-soft);border-radius:5px;padding:3px 6px;min-width:58px;text-align:center}
+.ctrl-kind.gov{color:#8a4b00;background:#fff2dd}
+.ctrl-kind.wx{color:#0f9956;background:#e8f8f0}
+.ctrl-kind.marine{color:#0e7490;background:#e2f5fa}
+.ctrl-body{flex:1;min-width:0;font-size:12px;font-weight:700;color:var(--txt);line-height:1.45}
+.ctrl-body a{font-size:11.3px;font-weight:600}
+.flood-row{display:grid;grid-template-columns:minmax(120px,1.2fr) 90px 74px minmax(90px,1fr);gap:10px;align-items:center;padding:9px 2px;border-bottom:1px dashed var(--line);font-size:11.6px}
+.flood-row:last-child{border-bottom:0}
+.flood-row .nm{font-weight:700;color:var(--txt);line-height:1.4}
+.flood-row .v{color:var(--sub);font-variant-numeric:tabular-nums}
+.flood-row .up{color:var(--red);font-weight:800}
+.flood-spark{display:flex;align-items:flex-end;gap:2px;height:24px}
+.flood-spark i{flex:1;min-width:3px;background:#bfd8f7;border-radius:2px 2px 0 0}
+.flood-spark i.hi{background:#5b93e0}
+.flood-note{font-size:11px;color:var(--sub);line-height:1.6;margin-top:9px;border-top:1px dashed var(--line);padding-top:9px}
+.closure-empty{font-size:11.5px;color:var(--sub);background:var(--panel2);border:1px dashed var(--line);border-radius:9px;padding:10px;line-height:1.65}
+
+/* ---------------- 7 天雨量表：事件角标 ---------------- */
+.rain-cell{position:relative}
+.cell-mark{position:absolute;top:2px;right:3px;font-size:10px;line-height:1}
+.cell-mark.tc{color:#d92d20}.cell-mark.fl{color:#1f6feb}
+.cell-mark.recent{opacity:.42}
+.legend-extra{display:flex;gap:14px;flex-wrap:wrap;margin-top:9px;padding-top:9px;border-top:1px dashed var(--line);font-size:11.2px;color:var(--sub)}
+
+/* ---------------- 等级定义 ---------------- */
+.def-table{width:100%;border-collapse:collapse;font-size:11.8px;min-width:560px}
+.def-table th{text-align:left;background:var(--panel2);color:var(--sub);font-weight:800;font-size:11px;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.def-table td{padding:10px;border-bottom:1px dashed var(--line);vertical-align:top;line-height:1.65;color:var(--txt)}
+.def-table tr:last-child td{border-bottom:0}
+.def-table td:first-child{white-space:nowrap}
+.def-pill{display:inline-block;font-size:10.5px;font-weight:800;color:#fff;border-radius:6px;padding:2px 9px;white-space:nowrap}
+.def-pill.red{background:#d92d20}.def-pill.orange{background:#e0620d}
+.def-pill.yellow{background:#b78103}.def-pill.green{background:#0f9956}
+.def-note{font-size:11.2px;color:var(--sub);line-height:1.7;background:var(--panel2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:9px 12px;margin-top:11px}
+.def-note b{color:var(--txt)}
+.def-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.def-box h4{font-size:12.5px;font-weight:800;margin-bottom:6px}
+.def-box .desc{font-size:11.3px;color:var(--sub);line-height:1.65;margin-bottom:9px}
+
+.def-details summary{cursor:pointer;list-style:none;display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;font-size:15px;font-weight:800;color:var(--txt);padding:2px 0}
+.def-details summary::-webkit-details-marker{display:none}
+.def-details summary:before{content:"▸";color:var(--blue);font-size:13px}
+.def-details[open] summary:before{content:"▾"}
+.def-details summary .hint{font-size:11.5px;font-weight:500;color:var(--sub)}
+
+@media(max-width:900px){
+  .map-legend{grid-template-columns:1fr}
+  .map-stage{height:380px}
+  .adv-grid,.def-two{grid-template-columns:1fr}
+  .map-time-label{min-width:120px}
+}
+@media(max-width:620px){
+  .map-stage{height:320px}
+  .map-toggles{gap:8px}
+  .flood-row{grid-template-columns:1fr 70px 60px;gap:6px}
+  .flood-spark{display:none}
+}
+
