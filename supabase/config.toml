@@ -1,0 +1,4 @@
+[functions.flight-proxy]
+# The function verifies the user token itself (auth.getUser), so the gateway check
+# can stay off; this also works with the new publishable/secret key + asymmetric JWTs.
+verify_jwt = false

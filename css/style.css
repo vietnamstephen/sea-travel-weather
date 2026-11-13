@@ -323,3 +323,16 @@ button{cursor:pointer}
   .flood-spark{display:none}
 }
 
+
+/* My Trips */
+.trips-panel{margin-bottom:16px}
+.trips-panel h2{font-size:18px;margin:10px 0}
+.trips-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0}
+.trips-panel textarea{font-family:inherit;min-height:70px;resize:vertical;width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;color:var(--txt);background:var(--panel)}
+.trips-panel button:disabled{opacity:.5;cursor:not-allowed}
+.trips-weather{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+.trips-note{white-space:pre-wrap;overflow-wrap:anywhere}
+.trips-flight{max-width:100%;overflow:auto}
+.trips-flight pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:10px;background:var(--panel2)}
+.trips-flight th,.trips-flight td{padding:8px;border-bottom:1px solid var(--line);text-align:left}
+#trips-message:not(:empty){padding:10px 0;color:var(--blue)}

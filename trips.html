@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="东南亚旅游与商务出行天气、机场与交通风险简易查询">
+<title>东南亚出行天气与交通预警 · 我的行程</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="trips" data-country="">
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <div class="brand-logo">✈</div>
+      <div class="brand-txt">
+        <div class="brand-title" data-i18n="app.title">东南亚出行天气与交通预警</div>
+        <div class="brand-sub" data-i18n="app.sub">给旅游与商务出行者的简易查询</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="stamp" id="stamp"><span data-i18n="app.updated">数据更新</span> <b>—</b></div>
+      <div class="lang-wrap">
+        <button class="lang-btn" id="langBtn" type="button" aria-haspopup="true" aria-expanded="false">
+          <span class="globe">🌐</span><span id="langCurrent">中文</span><span class="caret">▾</span>
+        </button>
+        <div class="lang-menu" id="langMenu" role="menu"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <aside class="sidebar"><nav class="nav-card" id="nav"></nav></aside>
+  <main class="main" id="main"><div class="loading" data-i18n="app.loading">正在载入天气数据…</div></main>
+</div>
+
+<div class="footer">
+  <div class="panel">
+    <h4 data-i18n="footer.disclaimerTitle">重要说明</h4>
+    <p data-i18n="footer.disclaimer"></p>
+    <h4 style="margin-top:12px" data-i18n="common.method">口径与方法</h4>
+    <p data-i18n="footer.method"></p>
+    <div class="credit" data-i18n="footer.credit">每日 01:00（GMT+7）自动更新</div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/risk.js"></script>
+<script src="js/map.js"></script>
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+<script src="js/trips.js"></script>
+</body>
+</html>

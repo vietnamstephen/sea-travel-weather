@@ -18,6 +18,12 @@
   var WEATHER = null;
   var FLIGHTS = null;
   var ADV = null;
+  // Small read-only bridge; trips owns its page and subscribes to shell updates.
+  window.SEA_APP = { lang: LANG, weather: WEATHER };
+  function notifyTrips() {
+    window.SEA_APP.lang = LANG; window.SEA_APP.weather = WEATHER;
+    window.dispatchEvent(new Event('sea:updated'));
+  }
   var LANGS = [
     ['zh', 'lang.zh', '中文'], ['en', 'lang.en', 'English'], ['vi', 'lang.vi', 'Tiếng Việt'],
     ['th', 'lang.th', 'ไทย'], ['id', 'lang.id', 'Bahasa Indonesia']
@@ -119,7 +125,7 @@
       var k = el.getAttribute('data-i18n');
       if (k) el.textContent = t(k);
     });
-    document.title = t('app.title') + ' · ' + (PAGE === 'overview' ? t('nav.overview') : loc(R.countryById(CID).name));
+    document.title = t('app.title') + ' · ' + (PAGE === 'overview' ? t('nav.overview') : PAGE === 'trips' ? t('nav.trips') : loc(R.countryById(CID).name));
   }
 
   /* ---------------- 导航 ---------------- */
@@ -127,6 +133,7 @@
     var nav = document.getElementById('nav');
     var html = '<div class="nav-label">' + esc(t('nav.section')) + '</div>';
     html += '<a class="nav-link' + (PAGE === 'overview' ? ' on' : '') + '" href="index.html"><span>🧭</span>' + esc(t('nav.overview')) + '</a>';
+    html += '<a class="nav-link' + (PAGE === 'trips' ? ' on' : '') + '" href="trips.html"><span>🧳</span>' + esc(t('nav.trips')) + '</a>';
     D.countries.forEach(function (c) {
       var cr = R.countryRisk(WEATHER, c.id, hourKey(c.tz));
       var k = R.LEVEL_KEYS[cr.level];
@@ -773,6 +780,7 @@
   /* ---------------- 主流程 ---------------- */
   function render() {
     buildNav(); updateStamp();
+    if (PAGE === 'trips') { notifyTrips(); return; }
     var main = document.getElementById('main');
     var stale = false;
     if (WEATHER && WEATHER.meta && WEATHER.meta.generatedAt) {
