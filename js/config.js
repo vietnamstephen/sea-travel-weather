@@ -6,6 +6,6 @@
 window.SEA_CONFIG = {
   SUPABASE_URL: 'https://nhrapkbdveuitczbjkee.supabase.co',
   SUPABASE_ANON_KEY: 'sb_publishable_HAFZ_qe7vO-qegDNRn45RQ_kGDNV0LN',
-  FLIGHT_PROXY_URL: '',
+  FLIGHT_PROXY_URL: 'https://nhrapkbdveuitczbjkee.supabase.co/functions/v1/flight-proxy',
   AUTH_PROVIDERS: { google: true, zalo: false }
 };
