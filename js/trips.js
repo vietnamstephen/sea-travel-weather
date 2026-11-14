@@ -5,6 +5,7 @@
   var main = document.getElementById('main'), client = null, session = null;
   var trips = [], editing = null, busy = false, message = '', ready = false, revision = 0;
   var fields = ['origin', 'destination', 'trip_date', 'flight_no', 'note'];
+  var entitlement = null;
   var draft = {}, role = 'normal', users = [], account = null, roleRevision = 0;
   var flightResults = {}, suggestionCache = {}, suggestTimer = null, suggestRevision = 0;
   function premium() { return role === 'vip' || role === 'admin'; }
@@ -15,7 +16,7 @@
   function switchAccount() {
     var uid = session && session.user.id;
     if (uid === account) return;
-    account = uid; role = 'normal'; users = []; roleRevision++; closeSuggestions();
+    account = uid; entitlement = null; role = 'normal'; users = []; roleRevision++; closeSuggestions();
     flightResults = uid ? stored('sea-trips-flights:') : {};
     suggestionCache = uid ? stored('sea-trips-suggest:') : {};
   }
@@ -23,8 +24,22 @@
     if (!session) return;
     var uid = session.user.id, version = ++roleRevision, nextRole = 'normal';
     try {
-      var result = await client.from('profiles').select('role').eq('id', uid).maybeSingle();
-      if (!result.error && result.data && /^(normal|vip|admin)$/.test(result.data.role)) nextRole = result.data.role;
+      var result;
+      if (C.PAYMENTS_ENABLED) {
+        result = await client.rpc('my_entitlement');
+        if (!result.error && result.data) {
+          if (account !== uid || version !== roleRevision) return;
+          entitlement = result.data; nextRole = result.data.effective_role;
+        }
+      }
+      if (!C.PAYMENTS_ENABLED || !entitlement || (result && result.error)) {
+        result = await client.from('profiles').select(C.PAYMENTS_ENABLED ? 'role,vip_until' : 'role').eq('id', uid).maybeSingle();
+        if (result.error && C.PAYMENTS_ENABLED) result = await client.from('profiles').select('role').eq('id', uid).maybeSingle();
+        if (!result.error && result.data && /^(normal|vip|admin)$/.test(result.data.role)) {
+          nextRole = result.data.role;
+          if (C.PAYMENTS_ENABLED && nextRole === 'vip' && result.data.vip_until && Date.parse(result.data.vip_until) <= Date.now()) nextRole = 'normal';
+        }
+      }
     } catch (err) { /* Profiles may not be installed yet. */ }
     if (account !== uid || version !== roleRevision) return;
     role = nextRole; users = [];
@@ -33,7 +48,8 @@
   async function loadUsers() {
     var uid = account;
     try {
-      var result = await client.from('profiles').select('id,email,role,created_at').order('created_at', { ascending: true });
+      var result = await client.from('profiles').select(C.PAYMENTS_ENABLED ? 'id,email,role,vip_until,created_at' : 'id,email,role,created_at').order('created_at', { ascending: true });
+      if (result.error && C.PAYMENTS_ENABLED) result = await client.from('profiles').select('id,email,role,created_at').order('created_at', { ascending: true });
       if (uid !== account || role !== 'admin') return;
       if (result.error) throw result.error;
       users = result.data || [];
@@ -41,8 +57,8 @@
   }
   function adminHtml() {
     if (role !== 'admin') return '';
-    return '<section class="panel trips-admin"><h2>' + e(ft('adminPanel')) + '</h2><p class="hint">' + e(ft('paymentHint')) + '</p>' + users.map(function (u, i) {
-      return '<div class="trips-admin-row"><span><b>' + e(u.email || '') + '</b><small>' + e(ft('created')) + ': ' + e(timeLabel(u.created_at)) + '</small></span><label>' + e(ft('role')) + '<select data-user-role="' + e(i) + '">' + ['normal', 'vip', 'admin'].map(function (r) { return '<option value="' + e(r) + '"' + (r === u.role ? ' selected' : '') + '>' + e(ft('role_' + r)) + '</option>'; }).join('') + '</select></label><button class="pill" data-action="set-role" data-user="' + e(i) + '" type="button">' + e(ft('saveRole')) + '</button></div>';
+    return '<section class="panel trips-admin"><h2>' + e(ft('adminPanel')) + '</h2><p class="hint">' + e(C.PAYMENTS_ENABLED ? t('pricing.expiry') : ft('paymentHint')) + '</p>' + users.map(function (u, i) {
+      return '<div class="trips-admin-row"><span><b>' + e(u.email || '') + '</b><small>' + e(ft('created')) + ': ' + e(timeLabel(u.created_at)) + '</small></span><label>' + e(ft('role')) + '<select data-user-role="' + e(i) + '">' + ['normal', 'vip', 'admin'].map(function (r) { return '<option value="' + e(r) + '"' + (r === u.role ? ' selected' : '') + '>' + e(ft('role_' + r)) + '</option>'; }).join('') + '</select></label>' + (C.PAYMENTS_ENABLED ? '<label>' + e(t('pricing.expiry')) + '<input type="date" data-user-expiry="' + e(i) + '" value="' + e((u.vip_until || '').slice(0, 10)) + '"></label>' : '') + '<button class="pill" data-action="set-role" data-user="' + e(i) + '" type="button">' + e(ft('saveRole')) + '</button></div>';
     }).join('') + '</section>';
   }
   function restoreFlights() {
@@ -103,8 +119,16 @@
   function remember() {
     fields.forEach(function (f) { var el = document.getElementById('trips-' + f); if (el) draft[f] = el.value; });
   }
+  function lockCard() {
+    return '<span class="trips-upgrade"><span>' + e(t('pricing.lock')) + '</span><a href="pricing.html">' + e(t('pricing.upgrade')) + '</a></span>';
+  }
+  function showLock(host, key) {
+    if (C.PAYMENTS_ENABLED) host.innerHTML = lockCard();
+    else host.textContent = ft(key);
+  }
   function button(key, action, disabled) {
     var locked = (action === 'status' || action === 'route') && !premium();
+    if (locked && C.PAYMENTS_ENABLED) return lockCard();
     return '<button type="button" class="pill' + (locked ? ' trips-locked' : '') + '" data-action="' + e(action) + '"' + (disabled && !locked ? ' disabled' : '') + '>' + e(t(key)) + (locked ? ' <span class="trips-vip">&#128274; ' + e(ft('vipBadge')) + '</span>' : '') + '</button>';
   }
   function weather(value, date) {
@@ -158,13 +182,18 @@
       html += '</div>';
     } else {
       html += '<div class="trips-actions"><span>' + e(session.user.email || '') + '</span>' + button('trips.signOut', 'signout', busy) + '</div>';
+      if (C.PAYMENTS_ENABLED) {
+        html += '<p>' + e(premium() ? t(entitlement && entitlement.vip_until ? 'pricing.until' : 'pricing.unlimited') + (entitlement && entitlement.vip_until ? ' ' + new Date(entitlement.vip_until).toLocaleDateString() : '') : '') +
+          ' <a class="pill" href="pricing.html">' + e(t(premium() ? 'pricing.current' : 'pricing.upgrade')) + '</a></p>';
+        if (entitlement && entitlement.cancel_at) html += '<p class="hint">' + e(t('pricing.cancelAt')) + ' ' + e(new Date(entitlement.cancel_at).toLocaleDateString()) + '</p>';
+      }
       html += '<h2>' + e(t(editing ? 'trips.edit' : 'trips.add')) + '</h2><form id="trips-form"><div class="form-row">';
       fields.forEach(function (f) {
         html += '<div class="field"><label for="trips-' + f + '">' + e(t('trips.' + f)) + '</label>';
         if (f === 'note') html += '<textarea id="trips-note" maxlength="2000">' + e(draft[f] || '') + '</textarea>';
         else html += '<input id="trips-' + f + '" type="' + (f === 'trip_date' ? 'date' : 'text') + '" value="' + e(draft[f] || '') + '"' +
           (f === 'origin' || f === 'destination' ? ' list="trips-cities" maxlength="120" required' : f === 'trip_date' ? ' required' : ' maxlength="7"') + '>';
-        if (f === 'flight_no') html += '<p id="trips-suggest-hint" class="hint">' + e(ft(premium() ? 'suggestHint' : 'suggestVip')) + '</p><div id="trips-suggestions" class="trips-suggestions" role="listbox" aria-label="' + e(ft('suggestions')) + '" hidden></div>';
+        if (f === 'flight_no') html += '<p id="trips-suggest-hint" class="hint">' + (!premium() && C.PAYMENTS_ENABLED ? lockCard() : e(ft(premium() ? 'suggestHint' : 'suggestVip'))) + '</p><div id="trips-suggestions" class="trips-suggestions" role="listbox" aria-label="' + e(ft('suggestions')) + '" hidden></div>';
         html += '</div>';
       });
       html += '</div><p class="hint">' + e(t('trips.placeHint')) + '</p><div class="trips-actions"><button class="btn-primary" type="submit"' + (busy ? ' disabled' : '') + '>' + e(t('trips.save')) + '</button>' + button('trips.cancel', 'cancel', busy) + '</div></form><datalist id="trips-cities">';
@@ -500,7 +529,7 @@
           var response = await fetch(C.FLIGHT_PROXY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + auth.data.session.access_token, apikey: C.SUPABASE_ANON_KEY }, body: JSON.stringify({ tool: 'searchFlightsByDepArr', args: args }) });
           var json = await response.json();
           if (uid !== account || version !== suggestRevision || !premium()) return;
-          if (response.status === 403 && /vip|premium|paid/i.test(json.error || '')) { closeSuggestions(); document.getElementById('trips-suggest-hint').textContent = ft('suggestVip'); return; }
+          if (response.status === 403 && /vip|premium|paid/i.test(json.error || '')) { closeSuggestions(); showLock(document.getElementById('trips-suggest-hint'), 'suggestVip'); return; }
           if (!response.ok || !json.ok) throw new Error('proxy');
           rows = extractFlights(json).filter(function (f) { return present(f.FlightNo); });
           rows.sort(function (a, b) { var x = minute(a.FlightDeptimePlanDate), y = minute(b.FlightDeptimePlanDate); return (x === null ? Infinity : x) - (y === null ? Infinity : y); });
@@ -532,7 +561,7 @@
   }
   window.SEA_TRIPS = { parseFlightPayload: parseFlightPayload, flightHtml: flightHtml, suggestionOptions: suggestionOptions, extractFlights: extractFlights };
   async function flight(trip, action, host, btn) {
-    if (!premium()) { host.textContent = ft('flightVip'); return; }
+    if (!premium()) { showLock(host, 'flightVip'); return; }
     if (!C.FLIGHT_PROXY_URL) { host.textContent = t('trips.flightUnconfigured'); return; }
     var uid = account;
     btn.disabled = true; host.textContent = t('trips.loading');
@@ -553,7 +582,7 @@
       var response = await fetch(C.FLIGHT_PROXY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + auth.data.session.access_token, apikey: C.SUPABASE_ANON_KEY }, body: JSON.stringify({ tool: action === 'status' ? 'searchFlightsByNumber' : 'searchFlightsByDepArr', args: args }) });
       var json = await response.json();
       if (uid !== account || !premium()) return;
-      if (response.status === 403 && /vip|premium|paid/i.test(json.error || '')) { host.textContent = ft('flightVip'); return; }
+      if (response.status === 403 && /vip|premium|paid/i.test(json.error || '')) { showLock(host, 'flightVip'); return; }
       if (!response.ok || !json.ok) throw new Error('proxy');
       extractFlights(json); // Reject malformed/provider-error payloads before persisting.
       if (!trips.some(function (item) { return item.id === trip.id; })) return;
@@ -576,10 +605,12 @@
       if (!user || !/^(normal|vip|admin)$/.test(selected)) return;
       btn.disabled = true;
       try {
-        var updated = await client.from('profiles').update({ role: selected }).eq('id', user.id).select('id');
+        var patch = { role: selected };
+        if (C.PAYMENTS_ENABLED) { var expiry = main.querySelector('[data-user-expiry="' + index + '"]').value; patch.vip_until = selected === 'vip' && expiry ? new Date(expiry + 'T23:59:59Z').toISOString() : null; }
+        var updated = await client.from('profiles').update(patch).eq('id', user.id).select('id');
         if (account !== uid) return;
         if (updated.error || !updated.data || !updated.data.length) throw new Error('role');
-        if (user.id === uid) role = selected;
+        if (user.id === uid) { role = selected; await loadRole(); }
         if (role === 'admin') await loadUsers(); else users = [];
       } catch (err) { if (account === uid) message = 'trips.adminError'; }
       render(); return;
@@ -598,6 +629,7 @@
     busy = false; render();
   });
   window.addEventListener('sea:updated', render);
+  if (C.PAYMENTS_ENABLED) window.addEventListener('sea:entitlement', function () { loadRole().then(render); });
   readAuthError();
   render();
   if (!C.SUPABASE_URL || !C.SUPABASE_ANON_KEY) return;
@@ -607,6 +639,7 @@
   script.onload = async function () {
     try {
       client = window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY);
+      if (C.PAYMENTS_ENABLED) window.SEA_TRIPS_CLIENT = client;
       client.auth.onAuthStateChange(function (event, next) {
         var changed = (!session && next) || (session && (!next || session.user.id !== next.user.id));
         session = next; switchAccount(); ready = true;

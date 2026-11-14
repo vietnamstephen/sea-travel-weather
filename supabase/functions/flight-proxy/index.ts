@@ -144,8 +144,8 @@ Deno.serve(async (request: Request) => {
     const { data: auth, error } = await userClient.auth.getUser(authorization.replace(/^Bearer\s+/i, ''));
     if (error || !auth.user) throw new Failure(401, 'Invalid session');
     const admin = createClient(url, service, { auth: { persistSession: false, autoRefreshToken: false } });
-    const { data: profile, error: profileError } = await admin.from('profiles').select('role').eq('id', auth.user.id).maybeSingle();
-    if (profileError || !profile || !['vip', 'admin'].includes(profile.role)) return reply(403, { ok: false, error: 'VIP only' });
+    const { data: profile, error: profileError } = await admin.from('profiles').select('role,vip_until').eq('id', auth.user.id).maybeSingle();
+    if (profileError || !profile || !(profile.role === 'admin' || (profile.role === 'vip' && (profile.vip_until == null || Date.parse(profile.vip_until) > Date.now())))) return reply(403, { ok: false, error: 'VIP only' });
     const text = await request.text();
     if (text.length > 4096) throw new Failure(413, 'Request too large');
     let body;

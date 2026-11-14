@@ -2,3 +2,7 @@
 # The function verifies the user token itself (auth.getUser), so the gateway check
 # can stay off; this also works with the new publishable/secret key + asymmetric JWTs.
 verify_jwt = false
+
+[functions.paddle-webhook]
+# Paddle authenticates the raw request using its endpoint HMAC secret.
+verify_jwt = false

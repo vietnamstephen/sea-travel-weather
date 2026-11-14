@@ -19,7 +19,7 @@ button{cursor:pointer}
 /* ---------------- top bar ---------------- */
 .topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .topbar-in{max-width:1440px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.brand{display:flex;align-items:center;gap:11px;min-width:0;max-width:100%}
 .brand-logo{width:38px;height:38px;flex:0 0 38px;border-radius:11px;background:linear-gradient(135deg,#1f6feb,#12a4a4);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800}
 .brand-txt{min-width:0}
 .brand-title{font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -46,7 +46,7 @@ button{cursor:pointer}
 /* ---------------- layout ---------------- */
 .shell{max-width:1440px;margin:0 auto;padding:18px 20px 40px;display:grid;grid-template-columns:216px minmax(0,1fr);gap:18px;align-items:start}
 @media(max-width:960px){.shell{grid-template-columns:1fr;gap:12px}}
-.sidebar{position:sticky;top:76px}
+.sidebar{position:sticky;top:76px;min-width:0}
 @media(max-width:960px){.sidebar{position:static}}
 .nav-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px}
 .nav-label{font-size:var(--body-size,14px);color:var(--muted);font-weight:800;letter-spacing:.6px;padding:4px 10px 8px}
@@ -474,3 +474,5 @@ input:focus-visible,select:focus-visible,textarea:focus-visible {
 }
 .skip-link{position:fixed;top:8px;left:8px;z-index:10000;padding:10px 16px;background:#fff;color:#1746a2;border-radius:6px;max-width:calc(100vw - 16px);transform:translateY(calc(-100% - 16px))}
 .skip-link:focus{transform:translateY(0)}
+html[lang="th"] body, html[lang="th"] button, html[lang="th"] input, html[lang="th"] select{line-height:1.7}
+.trips-upgrade{display:inline-flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--blue);border-radius:10px;background:var(--panel);font-size:12px;max-width:100%;overflow-wrap:anywhere}

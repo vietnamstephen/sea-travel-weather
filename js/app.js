@@ -12,6 +12,7 @@
     return localStorage.getItem('sea_lang') || 'zh';
   })();
   if (!I.order.hasOwnProperty(LANG)) LANG = 'zh';
+  document.documentElement.setAttribute('lang', LANG === 'zh' ? 'zh-CN' : LANG);
 
   var PAGE = document.body.getAttribute('data-page') || 'overview';
   var CID = document.body.getAttribute('data-country') || '';
@@ -128,7 +129,7 @@
       var k = el.getAttribute('data-i18n');
       if (k) el.textContent = t(k);
     });
-    document.title = t('app.title') + ' · ' + (PAGE === 'overview' ? t('nav.overview') : PAGE === 'trips' ? t('nav.trips') : loc(R.countryById(CID).name));
+    document.title = t('app.title') + ' · ' + (PAGE === 'overview' ? t('nav.overview') : PAGE === 'trips' ? t('nav.trips') : PAGE === 'pricing' ? t('pricing.title') : PAGE === 'terms' || PAGE === 'privacy' ? t('legal.' + PAGE) : loc(R.countryById(CID).name));
   }
 
   /* ---------------- 导航 ---------------- */
@@ -137,6 +138,7 @@
     var html = '<div class="nav-label">' + esc(t('nav.section')) + '</div>';
     html += '<a class="nav-link' + (PAGE === 'overview' ? ' on' : '') + '" href="index.html"><span>🧭</span>' + esc(t('nav.overview')) + '</a>';
     html += '<a class="nav-link' + (PAGE === 'trips' ? ' on' : '') + '" href="trips.html"><span>🧳</span>' + esc(t('nav.trips')) + '</a>';
+    if ((PAGE === 'trips' || PAGE === 'pricing') && (window.SEA_CONFIG || {}).PAYMENTS_ENABLED) html += '<a class="nav-link" href="pricing.html">' + esc(t('pricing.title')) + '</a>';
     D.countries.forEach(function (c) {
       var cr = R.countryRisk(WEATHER, c.id, hourKey(c.tz));
       var k = R.LEVEL_KEYS[cr.level];
@@ -825,7 +827,7 @@
   /* ---------------- 主流程 ---------------- */
   function render() {
     buildNav(); updateStamp();
-    if (PAGE === 'trips') { notifyTrips(); return; }
+    if (['trips', 'pricing', 'terms', 'privacy'].includes(PAGE)) { notifyTrips(); return; }
     var main = document.getElementById('main');
     var stale = false;
     if (WEATHER && WEATHER.meta && WEATHER.meta.generatedAt) {
