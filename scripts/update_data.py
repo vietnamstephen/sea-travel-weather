@@ -37,6 +37,7 @@ SEA Travel Weather · 每日数据更新脚本（本机运行，无需任何第�
 import argparse
 import datetime as dt
 import json
+import random
 import os
 import re
 import sys
@@ -114,7 +115,7 @@ def log(msg):
     print('[%s] %s' % (dt.datetime.now().strftime('%H:%M:%S'), msg), flush=True)
 
 
-def http_json(url, tries=3, timeout=25, headers=None):
+def http_json(url, tries=4, timeout=25, headers=None):
     last = None
     base = {'User-Agent': UA, 'Accept': 'application/json'}
     if headers:
@@ -127,7 +128,8 @@ def http_json(url, tries=3, timeout=25, headers=None):
         except Exception as e:                       # noqa: BLE001 - 网络层统一降级
             last = e
             if i < tries - 1:
-                time.sleep(1.5 * (i + 1))
+                # 指数退避 + 抖动：应对 SSL EOF / 连接重置等瞬时网络错误
+                time.sleep(min(2 ** (i + 1), 15) + random.uniform(0, 1))
     raise last
 
 
@@ -482,20 +484,41 @@ def main():
         return 0
 
     countries, failed, degraded = {}, [], []
+    pending = []                                     # (cid, tz, name, lat, lon, err)
+
+    def try_city(cid, tz, name, lat, lon):
+        bucket = countries[cid]['cities']
+        bucket[name] = pull_city(lat, lon, tz)
+        if not bucket[name]['visibilityAvailable']:
+            degraded.append('%s/%s' % (cid, name))
+        log('OK  %s/%s' % (cid, name))
 
     for cid, tz, cities in LOCATIONS:
-        bucket = {}
+        countries[cid] = {'timezone': tz, 'cities': {}}
         for name, lat, lon in cities:
             try:
-                bucket[name] = pull_city(lat, lon, tz)
-                if not bucket[name]['visibilityAvailable']:
-                    degraded.append('%s/%s' % (cid, name))
-                log('OK  %s/%s' % (cid, name))
+                try_city(cid, tz, name, lat, lon)
             except Exception as e:                  # noqa: BLE001 - 单城失败不影响全局
-                failed.append('%s/%s: %s' % (cid, name, str(e)[:120]))
-                log('FAIL %s/%s → %s' % (cid, name, str(e)[:120]))
+                pending.append((cid, tz, name, lat, lon, str(e)[:120]))
+                log('FAIL %s/%s → %s（稍后重试）' % (cid, name, str(e)[:120]))
             time.sleep(0.35)                         # 对公开 API 保持礼貌
-        countries[cid] = {'timezone': tz, 'cities': bucket}
+
+    # 失败城市补拉：最多 2 轮，每轮前冷却，避免半夜瞬时网络抖动导致丢数据
+    for rnd, wait in enumerate((20, 60), start=1):
+        if not pending:
+            break
+        log('补拉第 %d 轮：%d 个城市，先等待 %ds' % (rnd, len(pending), wait))
+        time.sleep(wait)
+        still = []
+        for cid, tz, name, lat, lon, _ in pending:
+            try:
+                try_city(cid, tz, name, lat, lon)
+            except Exception as e:                  # noqa: BLE001
+                still.append((cid, tz, name, lat, lon, str(e)[:120]))
+                log('FAIL %s/%s → %s' % (cid, name, str(e)[:120]))
+            time.sleep(1.0)
+        pending = still
+    failed = ['%s/%s: %s' % (c, n, err) for c, _, n, _, _, err in pending]
 
     ok_countries = sum(1 for c in countries.values() if c['cities'])
     if ok_countries == 0:
