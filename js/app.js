@@ -121,6 +121,8 @@
     applyI18n(); buildLangMenu(); render();
   }
   function applyI18n() {
+    document.documentElement.lang = LANG === "zh" ? "zh-CN" : LANG;
+    document.getElementById("langBtn").setAttribute("aria-label", t("lang.label"));
     document.querySelectorAll('[data-i18n]').forEach(function (el) {
       var k = el.getAttribute('data-i18n');
       if (k) el.textContent = t(k);
@@ -143,6 +145,8 @@
     });
     html += '<div class="nav-note">' + esc(t('nav.section')) + ' · ' + esc(t('footer.credit')) + '</div>';
     nav.innerHTML = html;
+    var current = nav.querySelector(".nav-link.on");
+    if (current && window.matchMedia("(max-width:960px)").matches) nav.scrollLeft = current.offsetLeft - nav.offsetLeft - 12;
   }
 
   /* ---------------- 更新时间戳 ---------------- */
@@ -168,7 +172,7 @@
     var def = localIso(country ? country.tz : 'Asia/Bangkok', 2);
     return '<div class="section" id="trip">' + sectionHead('trip.title', null) +
       '<div class="panel">' +
-      '<p class="hint" style="font-size:12.5px;color:var(--sub);margin-bottom:14px">' + esc(t('trip.sub')) + '</p>' +
+      '<p class="hint" style="font-size:var(--body-size,14px);color:var(--sub);margin-bottom:14px">' + esc(t('trip.sub')) + '</p>' +
       '<div class="form-row">' +
       '<div class="field"><label for="tripAddr">' + esc(t('trip.addrLabel')) + '</label>' +
       '<input id="tripAddr" type="text" placeholder="' + esc(t('trip.addrPlaceholder')) + '" autocomplete="off">' +
@@ -414,7 +418,7 @@
     if (!dayLabels.length) return '';
     var html = '<div class="section">' + sectionHead('country.trendTitle', 'country.trendHint') +
       '<div class="panel">' + eventBannerHtml(c.id) +
-      '<div class="rain-table-scroll"><table style="width:100%;border-collapse:separate;border-spacing:4px;min-width:620px;font-size:12px">' +
+      '<div class="rain-table-scroll"><table style="width:100%;border-collapse:separate;border-spacing:4px;min-width:620px;font-size:var(--body-size,14px)">' +
       '<thead><tr><th style="text-align:left;min-width:130px">' + esc(t('country.trendCity')) + '</th>';
     days.slice(0, 7).forEach(function (d) {
       html += '<th style="font-weight:700;color:var(--sub);min-width:62px">' + esc(d.time.slice(5)) + '</th>';
@@ -546,7 +550,7 @@
     }).join('') + '</div>';
     html += '</div>';
 
-    if (ADV && ADV.meta) html += '<div class="hint" style="margin-top:10px;font-size:11px;color:var(--sub)">' +
+    if (ADV && ADV.meta) html += '<div class="hint" style="margin-top:10px;font-size:var(--body-size,14px);color:var(--sub)">' +
       esc(t('adv.dataTime')) + ': ' + esc(String(ADV.meta.generatedAt).slice(0, 16).replace('T', ' ')) + '</div>';
     return html + '</div>';
   }
@@ -590,7 +594,7 @@
    * 总览页
    * ======================================================================= */
   function renderOverview() {
-    var html = '<div class="hero"><h1>' + esc(t('home.heroTitle')) + '</h1><p>' + esc(t('home.heroSub')) + '</p></div>';
+    var html = '';
 
     // 六国卡片
     html += '<div class="section">' + sectionHead('home.riskTitle', 'home.riskHint') + '<div class="grid c3">';
@@ -603,6 +607,13 @@
     }).sort(function (a, b) {
       return b.risk.level - a.risk.level || b.atMax - a.atMax || b.risk.rainToday - a.risk.rainToday;
     });
+    var warnings = ranked.filter(function (e) { return e.risk.level >= 2; });
+    var watched = ranked.filter(function (e) { return e.risk.level > 0; });
+    var normal = ranked.filter(function (e) { return e.risk.level === 0; }).length;
+    var summaryKey = !WEATHER || !WEATHER.countries ? 'home.summaryMissing' : warnings.length ? 'home.summaryWarning' : watched.length ? 'home.summaryWatch' : 'home.summaryNormal';
+    var values = { n: warnings.length, m: normal, countries: (warnings.length ? warnings : watched).slice(0, 3).map(function (e) { return loc(e.country.name); }).join(LANG === 'zh' ? '、' : ', ') };
+    var summary = t(summaryKey).replace(/\{(n|m|countries)\}/g, function (_, key) { return values[key]; });
+    html = '<div class="hero"><h1>' + esc(t('home.heroTitle')) + '</h1><p class="overview-summary">' + esc(summary) + '</p><p>' + esc(t('home.heroSub')) + '</p><a class="btn-primary hero-trips" href="trips.html">' + esc(t('home.myTrips')) + '</a></div>' + html;
     ranked.forEach(function (entry) {
       var c = entry.country;
       var cr = R.countryRisk(WEATHER, c.id, hourKey(c.tz));
@@ -620,8 +631,8 @@
         '<div class="cc-sub">' + esc(loc(c.capital)) + ' · ' + esc(c.utc) + '</div></div>' +
         '<div style="margin-left:auto">' + badge(cr.level) + '</div></div>' +
         '<div class="cc-metrics">' +
-        '<div class="cc-metric"><div class="v">' + esc(n(cr.rainToday, 1)) + ' <span style="font-size:11px;font-weight:600">mm</span></div><div class="l">' + esc(t('city.rain')) + ' · ' + esc(t('city.today')) + '</div></div>' +
-        '<div class="cc-metric"><div class="v">' + esc(n(maxTemp, 1)) + ' <span style="font-size:11px;font-weight:600">°C</span></div><div class="l">' + esc(t('city.temp')) + '</div></div>' +
+        '<div class="cc-metric"><div class="v">' + esc(n(cr.rainToday, 1)) + ' <span style="font-size:var(--body-size,14px);font-weight:600">mm</span></div><div class="l">' + esc(t('city.rain')) + ' · ' + esc(t('city.today')) + '</div></div>' +
+        '<div class="cc-metric"><div class="v">' + esc(n(maxTemp, 1)) + ' <span style="font-size:var(--body-size,14px);font-weight:600">°C</span></div><div class="l">' + esc(t('city.temp')) + '</div></div>' +
         '</div>' +
         '<div class="cc-foot"><span>' + c.cities.length + ' ' + esc(t('home.card.cities')) + ' · ' + c.airports.length + ' ' + esc(t('home.card.airports')) + '</span><span>' + esc(t('home.card.cta')) + ' →</span></div>' +
         '</a>';
@@ -634,7 +645,7 @@
     var dayLabels = days.slice(0, 7).map(function (d) { return String(d.time).slice(0, 10); });
     html += '<div class="section">' + sectionHead('home.trendTitle', 'home.trendHint') +
       '<div class="panel">' + eventBannerHtml(null) +
-      '<div class="rain-table-scroll"><table style="width:100%;border-collapse:separate;border-spacing:4px;min-width:620px;font-size:12px">' +
+      '<div class="rain-table-scroll"><table style="width:100%;border-collapse:separate;border-spacing:4px;min-width:620px;font-size:var(--body-size,14px)">' +
       '<thead><tr><th style="text-align:left;min-width:130px">' + esc(t('nav.section')) + '</th>';
     days.slice(0, 7).forEach(function (d) {
       html += '<th style="font-weight:700;color:var(--sub);min-width:62px">' + esc(d.time.slice(5)) + '</th>';
@@ -707,10 +718,10 @@
       '<div><span class="k">' + esc(t('city.gust')) + '</span><span class="v">' + esc(n(cur.wind_gusts_10m, 1)) + ' km/h</span></div>' +
       '<div><span class="k">' + esc(t('city.humidity')) + '</span><span class="v">' + esc(n(cur.relative_humidity_2m, 0)) + ' %</span></div>' +
       '</div>' +
-      '<div style="font-size:11px;color:var(--sub);margin-top:12px">' + esc(t('city.hourly')) + ' · mm</div>' +
+      '<div style="font-size:var(--body-size,14px);color:var(--sub);margin-top:12px">' + esc(t('city.hourly')) + ' · mm</div>' +
       '<div class="spark">' + (spark || '<i style="height:2px"></i>') + '</div>' +
       '<div class="spark-labels"><span>' + esc(t('city.current')) + '</span><span>+24h</span></div>' +
-      '<div style="font-size:11px;color:var(--sub);margin-top:10px">' + esc(t('city.forecast7')) + ' · mm/日</div>' +
+      '<div style="font-size:var(--body-size,14px);color:var(--sub);margin-top:10px">' + esc(t('city.forecast7')) + ' · mm/日</div>' +
       '<div class="spark">' + (spark7 || '<i style="height:2px"></i>') + '</div>' +
       '<div class="spark-labels"><span>' + (daily[0] ? esc(daily[0].time.slice(5)) : '') + '</span><span>' + (daily[6] ? esc(daily[6].time.slice(5)) : '') + '</span></div>' +
       '</div>';
@@ -735,7 +746,7 @@
 
     var html = '<div class="hero"><h1>' + c.flag + ' ' + esc(loc(c.name)) + ' ' + badge(cr.level) + '</h1>' +
       '<p>' + esc(loc(c.intro)) + '</p>' +
-      '<p style="margin-top:8px;font-size:12px;color:var(--sub)">' + esc(loc(c.capital)) + ' · ' + esc(c.utc) +
+      '<p style="margin-top:8px;font-size:var(--body-size,14px);color:var(--sub)">' + esc(loc(c.capital)) + ' · ' + esc(c.utc) +
       ' · ' + esc(t('app.updated')) + ' ' + esc(WEATHER && WEATHER.meta ? WEATHER.meta.generatedAt.slice(0, 16).replace('T', ' ') : '—') +
       ' · ☎ ' + esc(t('country.emergencyLabel')) + ': ' + c.dial + ' / ' + c.emergency.police + ' / ' + c.emergency.ambulance + '</p></div>';
 
@@ -799,7 +810,7 @@
     html += '</div></div></div>';
 
     // 常识提醒
-    html += '<div class="section">' + sectionHead('country.tipsTitle', 'country.tipsHint') + '<div class="panel"><ul style="padding-left:18px;font-size:12.5px;line-height:1.8">';
+    html += '<div class="section">' + sectionHead('country.tipsTitle', 'country.tipsHint') + '<div class="panel"><ul style="padding-left:18px;font-size:var(--body-size,14px);line-height:1.8">';
     c.tips.forEach(function (tip) { html += '<li>' + esc(loc(tip)) + '</li>'; });
     html += '</ul></div></div>';
 

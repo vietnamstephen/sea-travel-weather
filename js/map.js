@@ -70,13 +70,13 @@
           '<button type="button" class="map-tab on" data-view="layers">🛰 <span>' + esc(t('map.viewLayers')) + '</span></button>' +
           '<button type="button" class="map-tab" data-view="google">🗺 <span>' + esc(t('map.viewGoogle')) + '</span></button>' +
         '</div>' +
-        '<div class="map-toggles">' +
+        '<div class="map-layer-control"><button type="button" class="map-mini map-layer-button" aria-expanded="false" aria-controls="mapLayerOptions">' + esc(t('map.layers')) + '</button><div class="map-toggles" id="mapLayerOptions">' +
           '<label class="map-tg"><input type="checkbox" id="mapRadar" checked> <span>' + esc(t('map.layerRadar')) + '</span></label>' +
           '<label class="map-tg"><input type="checkbox" id="mapEvents" checked> <span>' + esc(t('map.layerEvents')) + '</span></label>' +
           '<label class="map-tg"><input type="checkbox" id="mapCities" checked> <span>' + esc(t('map.layerCities')) + '</span></label>' +
           '<label class="map-tg"><input type="checkbox" id="mapRiver" checked> <span>' + esc(t('map.layerRiver')) + '</span></label>' +
         '</div>' +
-      '</div>' +
+      '</div></div>' +
       '<div class="map-subbar">' +
         '<span class="map-time-label">' + esc(t('map.radarTime')) + '</span>' +
         '<input type="range" id="mapTime" min="0" max="0" value="0" disabled>' +
@@ -108,6 +108,22 @@
         ' · <a href="https://www.gdacs.org/" target="_blank" rel="noopener">GDACS</a>' +
         ' · <a href="https://open-meteo.com/en/docs/flood-api" target="_blank" rel="noopener">GloFAS</a></div>' +
       '</div>';
+
+    var layerControl = host.querySelector('.map-layer-control');
+    var layerButton = host.querySelector('.map-layer-button');
+    function closeLayers() { layerButton.setAttribute('aria-expanded', 'false'); }
+    layerButton.addEventListener('click', function () {
+      layerButton.setAttribute('aria-expanded', String(layerButton.getAttribute('aria-expanded') !== 'true'));
+    });
+    // Abort old document listeners when the map is rebuilt on a language change.
+    if (root.SEA_LAYER_LISTENERS) root.SEA_LAYER_LISTENERS.abort();
+    root.SEA_LAYER_LISTENERS = new AbortController();
+    document.addEventListener('click', function (event) {
+      if (!layerControl.contains(event.target)) closeLayers();
+    }, { signal: root.SEA_LAYER_LISTENERS.signal });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && layerButton.getAttribute('aria-expanded') === 'true') { closeLayers(); layerButton.focus(); }
+    }, { signal: root.SEA_LAYER_LISTENERS.signal });
 
     var $ = function (id) { return host.querySelector('#' + id); };
     var status = function (msg, kind) {
@@ -398,7 +414,7 @@
       return '<div class="map-pop"><b>≈ ' + esc(t('river.' + f.id)) + '</b>' +
         '<div>' + esc(t('map.riverPeak')) + ': ' + esc(f.peak) + ' m³/s</div>' +
         '<div>' + esc(t('map.riverChange')) + ': ' + (f.changePct === null ? '—' : (f.changePct > 0 ? '+' : '') + f.changePct + '%') + '</div>' +
-        '<div style="font-size:11px;color:#64748b">GloFAS · ' + esc(t('map.modelNotWarning')) + '</div></div>';
+        '<div style="font-size:var(--body-size,14px);color:#596579">GloFAS · ' + esc(t('map.modelNotWarning')) + '</div></div>';
     }
 
     /* ---------------- 静态 SVG 降级 ---------------- */
@@ -412,15 +428,15 @@
       var py = function (la) { return ((y1 - la) / (y1 - y0)) * H0; };
       var svg = '<svg viewBox="0 0 ' + W0 + ' ' + H0 + '" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%">' +
         '<rect width="' + W0 + '" height="' + H0 + '" fill="#eaf3fb"/>';
-      for (var lo = 95; lo <= 140; lo += 5) svg += '<line x1="' + px(lo) + '" y1="0" x2="' + px(lo) + '" y2="' + H0 + '" stroke="#cbdcec" stroke-width="1"/><text x="' + (px(lo) + 3) + '" y="14" fill="#7b93ab" font-size="10">' + lo + '°E</text>';
-      for (var la = -10; la <= 25; la += 5) svg += '<line x1="0" y1="' + py(la) + '" x2="' + W0 + '" y2="' + py(la) + '" stroke="#cbdcec" stroke-width="1"/><text x="4" y="' + (py(la) - 4) + '" fill="#7b93ab" font-size="10">' + la + '°N</text>';
+      for (var lo = 95; lo <= 140; lo += 5) svg += '<line x1="' + px(lo) + '" y1="0" x2="' + px(lo) + '" y2="' + H0 + '" stroke="#cbdcec" stroke-width="1"/><text x="' + (px(lo) + 3) + '" y="14" fill="#596579" font-size="12">' + lo + '°E</text>';
+      for (var la = -10; la <= 25; la += 5) svg += '<line x1="0" y1="' + py(la) + '" x2="' + W0 + '" y2="' + py(la) + '" stroke="#cbdcec" stroke-width="1"/><text x="4" y="' + (py(la) - 4) + '" fill="#596579" font-size="12">' + la + '°N</text>';
       cityPoints().forEach(function (p) {
         svg += '<circle cx="' + px(p.lon) + '" cy="' + py(p.lat) + '" r="4" fill="' + RISK_COLORS[p.level] + '" stroke="#fff" stroke-width="1.4"><title>' + esc(p.name) + '</title></circle>';
       });
       eventPoints().forEach(function (e) {
         var col = EVENT_COLORS[e.level] || '#2563eb';
         svg += '<circle cx="' + px(e.lon) + '" cy="' + py(e.lat) + '" r="9" fill="none" stroke="' + col + '" stroke-width="2"><title>' + esc(e.name) + '</title></circle>';
-        svg += '<text x="' + (px(e.lon) + 8) + '" y="' + (py(e.lat) - 8) + '" fill="' + col + '" font-size="11">' + (e.type === 'TC' ? '🌀' : '🌊') + '</text>';
+        svg += '<text x="' + (px(e.lon) + 8) + '" y="' + (py(e.lat) - 8) + '" fill="' + col + '" font-size="12">' + (e.type === 'TC' ? '🌀' : '🌊') + '</text>';
       });
       svg += '</svg><div class="map-fallback-note">' + esc(t('map.staticTitle')) + ' · ' + esc(t('map.staticHint')) + '</div>';
       box.innerHTML = svg;
