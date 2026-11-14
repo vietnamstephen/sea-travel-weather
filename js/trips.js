@@ -151,12 +151,15 @@
       rows.forEach(function (row, i) { if (row.time.slice(0, 10) === day.time.slice(0, 10)) selected.push(i); });
     }
     if (!selected.length) return '<p>' + e(loc(place.city.name)) + ': ' + e(t('trips.noWeather')) + '</p>';
-    var temps = [], rain = 0;
+    var temps = [], rain = 0, softHours = 0;
     selected.forEach(function (i) {
-      level = Math.max(level, R.hourRisk(rows[i], rows, i, place.city).level);
+      var risk = R.hourRisk(rows[i], rows, i, place.city);
+      if (risk.soft) softHours++;
+      level = Math.max(level, risk.soft ? 1 : risk.level);
       if (rows[i].temperature_2m != null) temps.push(Number(rows[i].temperature_2m));
       rain += Number(rows[i].precipitation) || 0;
     });
+    if (softHours >= 2) level = Math.max(level, 2);
     var k = R.LEVEL_KEYS[level];
     return '<div class="trips-weather"><b>' + e(loc(place.city.name)) + '</b> · ' + e(rows[selected[0]].time.slice(0, 10)) +
       ' <span class="badge ' + k + '">' + '<span aria-hidden="true">' + ({green:'✓',yellow:'!',orange:'▲',red:'✕'})[k] + '</span> ' + e(t('level.' + k)) + '</span><p>' + e(t(exact ? 'trips.forecast' : 'trips.forecastFallback')) + '</p><p>' +
@@ -177,9 +180,12 @@
         html += '<li><span aria-hidden="true">' + ['📍', '🌦️', '✈️'][i] + '</span><span>' + e(t('trips.benefit' + key)) +
           (i === 2 ? ' <span class="trips-vip">' + e(t('trips.vipBadge')) + '</span>' : '') + '</span></li>';
       });
+      var exampleDate = new Date();
+      exampleDate.setDate(exampleDate.getDate() + 14);
+      var exampleDateLabel = exampleDate.toLocaleDateString(({ zh: 'zh-CN', en: 'en', vi: 'vi', th: 'th', id: 'id' })[window.SEA_APP.lang], { year: 'numeric', month: 'short', day: 'numeric' });
       var origin = R.countryById('vn').cities[0], destination = R.countryById('th').cities[0];
       html += '</ul><article class="trips-example"><strong>' + e(t('trips.example')) + '</strong><h3>' +
-        e(loc(origin.name)) + ' (SGN) → ' + e(loc(destination.name)) + ' (BKK)</h3><p>2026-12-01 · 28 °C</p>' +
+        e(loc(origin.name)) + ' (SGN) → ' + e(loc(destination.name)) + ' (BKK)</h3><p>' + e(exampleDateLabel) + ' · 28 °C</p>' +
         '<span class="badge yellow"><span aria-hidden="true">!</span>' + e(t('level.yellow')) + '</span></article>';
       if ((C.AUTH_PROVIDERS || {}).google) html += '<button type="button" class="btn-primary trips-google" data-action="google"' +
         (busy || !client ? ' disabled' : '') + '>' + e(t('trips.google')) + '</button>';

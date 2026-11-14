@@ -606,7 +606,8 @@
     var ranked = D.countries.map(function (c) {
       var risk = R.countryRisk(WEATHER, c.id, hourKey(c.tz));
       var atMax = c.cities.filter(function (city) {
-        return R.cityRisk(weatherCity(c.id, city.id), city, hourKey(c.tz)).level === risk.level;
+        var cr = R.cityRisk(weatherCity(c.id, city.id), city, hourKey(c.tz));
+        return cr.level === risk.level || (risk.level === 2 && risk.softCities >= 2 && cr.softHours > 0);
       }).length;
       return { country: c, risk: risk, atMax: atMax };
     }).sort(function (a, b) {
@@ -616,6 +617,7 @@
     var watched = ranked.filter(function (e) { return e.risk.level > 0; });
     var normal = ranked.filter(function (e) { return e.risk.level === 0; }).length;
     var summaryKey = !WEATHER || !WEATHER.countries ? 'home.summaryMissing' : warnings.length ? 'home.summaryWarning' : watched.length ? 'home.summaryWatch' : 'home.summaryNormal';
+    if (normal === 0 && (summaryKey === 'home.summaryWarning' || summaryKey === 'home.summaryWatch')) summaryKey += 'NoNormal';
     var values = { n: warnings.length, m: normal, countries: (warnings.length ? warnings : watched).slice(0, 3).map(function (e) { return loc(e.country.name); }).join(LANG === 'zh' ? '、' : ', ') };
     var summary = t(summaryKey).replace(/\{(n|m|countries)\}/g, function (_, key) { return values[key]; });
     html = '<div class="hero"><h1>' + esc(t('home.heroTitle')) + '</h1><p class="overview-summary">' + esc(summary) + '</p><p>' + esc(t('home.heroSub')) + '</p><a class="btn-primary hero-trips" href="trips.html">' + esc(t('home.myTrips')) + '</a></div>' + html;
@@ -889,6 +891,15 @@
       document.getElementById('langBtn').setAttribute('aria-expanded', 'false');
     });
     var version = dataVersion();
+    try {
+      var vr = await fetch('data/version.json', { cache: 'no-store' });
+      if (vr.ok) {
+        var vd = await vr.json();
+        if (vd && typeof vd.generatedAt === 'string' && vd.generatedAt.trim() && !isNaN(Date.parse(vd.generatedAt))) {
+          version = encodeURIComponent(vd.generatedAt);
+        }
+      }
+    } catch (e) { /* Keep the six-hour fallback when version metadata is unavailable. */ }
     try {
       var r = await fetch('data/weather.json?v=' + version);
       if (!r.ok) throw new Error('HTTP ' + r.status);

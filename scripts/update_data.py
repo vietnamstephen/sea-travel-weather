@@ -568,6 +568,11 @@ def main():
                 (OUT_ADVISORIES.relative_to(ROOT), len(adv['events']), len(adv['flood'])))
     except Exception as e:                        # noqa: BLE001
         log('警告：advisories.json 生成异常（不影响天气数据）→ %s' % str(e)[:150])
+    # Publish the cache key last, including when existing advisories were retained.
+    version = OUT_WEATHER.parent / 'version.json'
+    vtmp = version.with_suffix('.json.tmp')
+    vtmp.write_text(json.dumps({'generatedAt': now_iso}), encoding='utf-8')
+    vtmp.replace(version)
     return 0
 
 

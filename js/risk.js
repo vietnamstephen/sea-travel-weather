@@ -70,7 +70,8 @@
   }
 
   /* ---------- 单小时风险分级 ---------- */
-  // 返回 { level:0..3, hits:{rain,gust,thunder,vis,heat,rain24} }
+  // soft marks orange caused only by thunder/visibility; hourly level stays unchanged.
+  // 返回 { level:0..3, hits:{rain,gust,thunder,vis,heat,rain24}, soft:boolean }
   function hourRisk(row, rows, idx, city) {
     var rain = num(row.precipitation) || 0;
     var gust = num(row.wind_gusts_10m) || num(row.wind_speed_10m) || 0;
@@ -99,7 +100,8 @@
              (vis !== null && vis <= T.visibility.watch) ||
              (temp !== null && temp >= T.heat) || rain24 >= T.rain24.watch) level = 1;
     // 夜间到达与高峰不升级「天气等级」，只在行程推断里单独提示
-    return { level: level, hits: hits };
+    return { level: level, hits: hits, soft: level === 2 && rain < T.rain.alert &&
+      gust < T.gust.alert && rain24 < T.rain24.alert };
   }
 
   /* ---------- 城市 / 国家级别（未来 24 小时最高） ---------- */
@@ -111,26 +113,29 @@
   }
 
   function cityRisk(wCity, cityMeta, nowLocalIso) {
-    if (!wCity || !wCity.hourly) return { level: 0, current: null, peakRain: 0, rows: [] };
+    if (!wCity || !wCity.hourly) return { level: 0, current: null, peakRain: 0, softHours: 0, rows: [] };
     var rows = hourlyRows(wCity.hourly);
     var start = uptimeIndex(rows, nowLocalIso);
-    var level = 0, peak = 0, peakRain = 0;
+    var level = 0, peak = 0, peakRain = 0, softHours = 0;
     for (var i = start; i < Math.min(rows.length, start + 24); i++) {
       var r = hourRisk(rows[i], rows, i, cityMeta);
-      if (r.level > level) level = r.level;
+      if (r.soft) softHours++;
+      level = Math.max(level, r.soft ? 1 : r.level);
       peakRain = Math.max(peakRain, num(rows[i].precipitation) || 0);
       peak = i;
     }
-    return { level: level, current: wCity.current, rows: rows, start: start, peakIndex: peak, peakRain: peakRain };
+    if (softHours >= 2) level = Math.max(level, 2);
+    return { level: level, softHours: softHours, current: wCity.current, rows: rows, start: start, peakIndex: peak, peakRain: peakRain };
   }
 
   function countryRisk(weather, countryId, nowLocalIso) {
     var c = countryById(countryId);
     var wc = weather && weather.countries && weather.countries[countryId];
-    var max = 0, rainToday = 0, count = 0;
+    var max = 0, rainToday = 0, count = 0, softCities = 0;
     if (c && wc) {
       c.cities.forEach(function (city) {
         var cr = cityRisk(wc.cities[city.id], city, nowLocalIso);
+        if (cr.softHours) softCities++;
         if (cr.level > max) max = cr.level;
         var d = dailyRows(wc.cities[city.id] && wc.cities[city.id].daily);
         if (d.length) rainToday += num(d[0].precipitation_sum) || 0;
@@ -138,7 +143,8 @@
       });
       if (count) rainToday = rainToday / count;
     }
-    return { level: max, rainToday: rainToday };
+    if (softCities >= 2) max = Math.max(max, 2);
+    return { level: max, rainToday: rainToday, softCities: softCities };
   }
 
   /* ---------- 航班影响推断（明确标注推断） ---------- */
