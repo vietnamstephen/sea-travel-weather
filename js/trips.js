@@ -131,7 +131,7 @@
     });
     var k = R.LEVEL_KEYS[level];
     return '<div class="trips-weather"><b>' + e(loc(place.city.name)) + '</b> · ' + e(rows[selected[0]].time.slice(0, 10)) +
-      ' <span class="badge ' + k + '">' + e(t('level.' + k)) + '</span><p>' + e(t(exact ? 'trips.forecast' : 'trips.forecastFallback')) + '</p><p>' +
+      ' <span class="badge ' + k + '">' + '<span aria-hidden="true">' + ({green:'✓',yellow:'!',orange:'▲',red:'✕'})[k] + '</span> ' + e(t('level.' + k)) + '</span><p>' + e(t(exact ? 'trips.forecast' : 'trips.forecastFallback')) + '</p><p>' +
       e(t('fact.temp')) + ': ' + (temps.length ? e(Math.min.apply(null, temps).toFixed(1) + '–' + Math.max.apply(null, temps).toFixed(1)) : '—') + ' °C · ' +
       e(t('fact.rain')) + ': ' + e(rain.toFixed(1)) + ' mm</p><p class="hint">' + e(t('trips.riskNote')) + '</p></div>';
   }
@@ -144,8 +144,18 @@
     html += '<div class="panel trips-panel"><div id="trips-message" role="status" aria-live="polite">' + e(message ? t(message) : '') + '</div>';
     if (!ready) html += '<p>' + e(t('trips.loading')) + '</p>';
     else if (!session) {
-      if ((C.AUTH_PROVIDERS || {}).google) html += button('trips.google', 'google', busy || !client);
-      html += button('trips.zalo', 'zalo', true);
+      html += '<div class="trips-welcome"><h2>' + e(t('trips.welcome')) + '</h2><ul class="trips-benefits">';
+      ['Save', 'Weather', 'Flight'].forEach(function (key, i) {
+        html += '<li><span aria-hidden="true">' + ['📍', '🌦️', '✈️'][i] + '</span><span>' + e(t('trips.benefit' + key)) +
+          (i === 2 ? ' <span class="trips-vip">' + e(t('trips.vipBadge')) + '</span>' : '') + '</span></li>';
+      });
+      var origin = R.countryById('vn').cities[0], destination = R.countryById('th').cities[0];
+      html += '</ul><article class="trips-example"><strong>' + e(t('trips.example')) + '</strong><h3>' +
+        e(loc(origin.name)) + ' (SGN) → ' + e(loc(destination.name)) + ' (BKK)</h3><p>2026-12-01 · 28 °C</p>' +
+        '<span class="badge yellow"><span aria-hidden="true">!</span>' + e(t('level.yellow')) + '</span></article>';
+      if ((C.AUTH_PROVIDERS || {}).google) html += '<button type="button" class="btn-primary trips-google" data-action="google"' +
+        (busy || !client ? ' disabled' : '') + '>' + e(t('trips.google')) + '</button>';
+      html += '</div>';
     } else {
       html += '<div class="trips-actions"><span>' + e(session.user.email || '') + '</span>' + button('trips.signOut', 'signout', busy) + '</div>';
       html += '<h2>' + e(t(editing ? 'trips.edit' : 'trips.add')) + '</h2><form id="trips-form"><div class="form-row">';

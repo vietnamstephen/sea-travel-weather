@@ -117,7 +117,7 @@
       cities: [
         { id: 'bangkok', name: L('曼谷', 'Bangkok', 'Bangkok', 'กรุงเทพฯ', 'Bangkok'), lat: 13.7563, lon: 100.5018, airport: 'BKK', flood: true, coastal: false, island: false, mountain: false },
         { id: 'chiangmai', name: L('清迈', 'Chiang Mai', 'Chiang Mai', 'เชียงใหม่', 'Chiang Mai'), lat: 18.7883, lon: 98.9853, airport: 'CNX', flood: false, coastal: false, island: false, mountain: true },
-        { id: 'phuket', name: L('普吉', 'Phuket', 'Phú Quốc (Phuket)', 'ภูเก็ต', 'Phuket'), lat: 7.8804, lon: 98.3923, airport: 'HKT', flood: true, coastal: true, island: true, mountain: false },
+        { id: 'phuket', name: L('普吉', 'Phuket', 'Phuket', 'ภูเก็ต', 'Phuket'), lat: 7.8804, lon: 98.3923, airport: 'HKT', flood: true, coastal: true, island: true, mountain: false },
         { id: 'pattaya', name: L('芭提雅', 'Pattaya', 'Pattaya', 'พัทยา', 'Pattaya'), lat: 12.9236, lon: 100.8825, airport: 'BKK', flood: true, coastal: true, island: false, mountain: false },
         { id: 'chonburi', name: L('春武里', 'Chonburi', 'Chonburi', 'ชลบุรี', 'Chonburi'), lat: 13.3611, lon: 100.9847, airport: 'BKK', flood: true, coastal: true, island: false, mountain: false },
         { id: 'rayong', name: L('罗勇', 'Rayong', 'Rayong', 'ระยอง', 'Rayong'), lat: 12.6833, lon: 101.2833, airport: 'UTP', flood: false, coastal: true, island: false, mountain: false },

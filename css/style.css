@@ -383,3 +383,44 @@ button{cursor:pointer}
 @media(max-width:960px){body[data-page="trips"] .shell{grid-template-columns:minmax(0,1fr)}body[data-page="trips"] .sidebar{min-width:0}}
 #trips-form .field{min-width:0}#trips-form .form-row{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
 @media(max-width:620px){#trips-form .form-row{grid-template-columns:minmax(0,1fr)}}
+
+/* Content must be able to shrink inside shared grid and flex layouts. */
+*,*::before,*::after{box-sizing:border-box}
+img,svg,table{max-width:100%}
+.sidebar,.nav-card,.grid > *,.panel,.panel > *,.hero,.shell > *,
+.cc-head > *,.cc-metrics > *,.city-head > *,.result-grid > *,
+.form-row > *,.map-bar > *,.map-subbar > *,.topbar-in > *{min-width:0}
+.nav-card{max-width:100%}
+.cc-head,.city-head,.map-tabs{flex-wrap:wrap}
+.map-bar,.map-subbar,.map-tabs{min-width:0;max-width:100%}
+.panel,.country-card,.city-card,.trips-panel{overflow-wrap:anywhere}
+.rain-table-scroll{min-width:0;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.rain-table-scroll th:first-child,.rain-table-scroll td:first-child{position:sticky;left:0;background:var(--panel);z-index:1}
+.rain-table-scroll thead th:first-child{z-index:2}
+.country-card.risk-green,.city-card.risk-green{border-left:4px solid var(--green)}
+.country-card.risk-yellow,.city-card.risk-yellow{border-left:4px solid var(--yellow)}
+.country-card.risk-orange,.city-card.risk-orange{border-left:4px solid var(--orange)}
+.country-card.risk-red,.city-card.risk-red{border-left:4px solid var(--red)}
+/* Dark foregrounds retain the four hues with accessible contrast. */
+.badge.green,.nav-link .mini.green{color:#086638;background:#e8f5ee}
+.badge.yellow,.nav-link .mini.yellow{color:#765200;background:#fff4d6}
+.badge.orange,.nav-link .mini.orange{color:#983b00;background:#fff0e5}
+.badge.red,.nav-link .mini.red{color:#a61e16;background:#fdece9}
+.def-pill.green{background:#086638}.def-pill.yellow{background:#765200}
+.def-pill.orange{background:#983b00}.def-pill.red{background:#a61e16}
+.trips-welcome{max-width:680px;margin:0 auto;padding:12px 0}
+.trips-welcome h2{font-size:24px;line-height:1.4}
+.trips-benefits{list-style:none;display:grid;gap:14px;margin:24px 0}
+.trips-benefits li{display:flex;align-items:baseline;gap:12px}
+.trips-example{background:var(--panel2);border:1px dashed #93a0b4;border-radius:12px;padding:16px;margin:20px 0;color:#526075}
+.trips-example h3{font-size:16px;margin:8px 0}
+.trips-example .badge{margin-top:8px}
+.trips-google{min-height:48px;padding:12px 24px;font-size:16px}
+@media(max-width:960px){.shell{grid-template-columns:minmax(0,1fr)}.sidebar{min-width:0}.nav-card{min-width:0;max-width:100%}}
+@media(max-width:640px){.grid.c3{grid-template-columns:minmax(0,1fr);width:100%}.trips-google{width:100%}}
+.def-two > *,.adv-grid > *,.map-legend > *,.kv > *, .chart > *,
+.list-item > *,.ev-item > *,.ctrl-item > *,.flight-timeline > *,
+.flight-charts > *,.trips-actions > *,.trips-admin-row > *{min-width:0}
+.flight-results > *,.flight-card > *,.flight-timeline dl > *,
+.flight-timeline dl div > *,.trips-suggestion > *,.flood-row > *,
+.map-toggles > *,.result-head > *{min-width:0}

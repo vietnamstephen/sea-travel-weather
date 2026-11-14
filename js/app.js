@@ -84,7 +84,7 @@
   /* ---------------- 通用片段 ---------------- */
   function badge(level) {
     var k = R.LEVEL_KEYS[level] || 'green';
-    return '<span class="badge ' + k + '"><i class="dot"></i>' + esc(t('level.' + k)) + '</span>';
+    return '<span class="badge ' + k + '"><span aria-hidden="true">' + ['✓', '!', '▲', '✕'][level] + '</span>' + esc(t('level.' + k)) + '</span>';
   }
   function panelTitle(key, tag) {
     return '<div class="panel-title">' + esc(t(key)) +
@@ -139,7 +139,7 @@
       var k = R.LEVEL_KEYS[cr.level];
       html += '<a class="nav-link' + (CID === c.id ? ' on' : '') + '" href="' + c.id + '.html">' +
         '<span class="flag">' + c.flag + '</span><span>' + esc(loc(c.name)) + '</span>' +
-        '<span class="mini ' + k + '">' + esc(t('level.short.' + k)) + '</span></a>';
+        '<span class="mini ' + k + '">' + '<span aria-hidden="true">' + ({green:'✓',yellow:'!',orange:'▲',red:'✕'})[k] + '</span> ' + esc(t('level.short.' + k)) + '</span></a>';
     });
     html += '<div class="nav-note">' + esc(t('nav.section')) + ' · ' + esc(t('footer.credit')) + '</div>';
     nav.innerHTML = html;
@@ -414,7 +414,7 @@
     if (!dayLabels.length) return '';
     var html = '<div class="section">' + sectionHead('country.trendTitle', 'country.trendHint') +
       '<div class="panel">' + eventBannerHtml(c.id) +
-      '<div style="overflow-x:auto"><table style="width:100%;border-collapse:separate;border-spacing:4px;min-width:620px;font-size:12px">' +
+      '<div class="rain-table-scroll"><table style="width:100%;border-collapse:separate;border-spacing:4px;min-width:620px;font-size:12px">' +
       '<thead><tr><th style="text-align:left;min-width:130px">' + esc(t('country.trendCity')) + '</th>';
     days.slice(0, 7).forEach(function (d) {
       html += '<th style="font-weight:700;color:var(--sub);min-width:62px">' + esc(d.time.slice(5)) + '</th>';
@@ -559,7 +559,7 @@
       ['green', 'def.cur.greenTrigger', 'def.cur.greenMeaning']
     ];
     var curRows = cur.map(function (x) {
-      return '<tr><td><span class="def-pill ' + x[0] + '">' + esc(t('level.' + x[0])) + '</span></td>' +
+      return '<tr><td><span class="def-pill ' + x[0] + '">' + '<span aria-hidden="true">' + ({green:'✓',yellow:'!',orange:'▲',red:'✕'})[x[0]] + '</span> ' + esc(t('level.' + x[0])) + '</span></td>' +
         '<td>' + esc(t(x[1])) + '</td><td>' + esc(t(x[2])) + '</td></tr>';
     }).join('');
     var legacyRows = D.legacyLevels.map(function (x) {
@@ -594,7 +594,17 @@
 
     // 六国卡片
     html += '<div class="section">' + sectionHead('home.riskTitle', 'home.riskHint') + '<div class="grid c3">';
-    D.countries.forEach(function (c) {
+    var ranked = D.countries.map(function (c) {
+      var risk = R.countryRisk(WEATHER, c.id, hourKey(c.tz));
+      var atMax = c.cities.filter(function (city) {
+        return R.cityRisk(weatherCity(c.id, city.id), city, hourKey(c.tz)).level === risk.level;
+      }).length;
+      return { country: c, risk: risk, atMax: atMax };
+    }).sort(function (a, b) {
+      return b.risk.level - a.risk.level || b.atMax - a.atMax || b.risk.rainToday - a.risk.rainToday;
+    });
+    ranked.forEach(function (entry) {
+      var c = entry.country;
       var cr = R.countryRisk(WEATHER, c.id, hourKey(c.tz));
       var maxTemp = null;
       c.cities.forEach(function (city) {
@@ -604,7 +614,7 @@
           if (maxTemp === null || v > maxTemp) maxTemp = v;
         }
       });
-      html += '<a class="country-card" href="' + c.id + '.html">' +
+      html += '<a class="country-card risk-' + R.LEVEL_KEYS[cr.level] + '" href="' + c.id + '.html">' +
         '<div class="cc-head"><span class="cc-flag">' + c.flag + '</span><div>' +
         '<div class="cc-name">' + esc(loc(c.name)) + '</div>' +
         '<div class="cc-sub">' + esc(loc(c.capital)) + ' · ' + esc(c.utc) + '</div></div>' +
@@ -624,7 +634,7 @@
     var dayLabels = days.slice(0, 7).map(function (d) { return String(d.time).slice(0, 10); });
     html += '<div class="section">' + sectionHead('home.trendTitle', 'home.trendHint') +
       '<div class="panel">' + eventBannerHtml(null) +
-      '<div style="overflow-x:auto"><table style="width:100%;border-collapse:separate;border-spacing:4px;min-width:620px;font-size:12px">' +
+      '<div class="rain-table-scroll"><table style="width:100%;border-collapse:separate;border-spacing:4px;min-width:620px;font-size:12px">' +
       '<thead><tr><th style="text-align:left;min-width:130px">' + esc(t('nav.section')) + '</th>';
     days.slice(0, 7).forEach(function (d) {
       html += '<th style="font-weight:700;color:var(--sub);min-width:62px">' + esc(d.time.slice(5)) + '</th>';
@@ -686,7 +696,7 @@
       spark7 += '<i class="' + cls + '" style="height:' + hh + 'px" title="' + esc(d.time) + ' · ' + v.toFixed(1) + ' mm"></i>';
     });
 
-    return '<div class="city-card">' +
+    return '<div class="city-card risk-' + R.LEVEL_KEYS[cr.level] + '">' +
       '<div class="city-head"><div class="city-name">' + esc(loc(city.name)) + '</div>' +
       '<div style="margin-left:auto">' + badge(cr.level) + '</div></div>' +
       '<div class="city-temp">' + esc(n(cur.temperature_2m, 1)) + ' °C</div>' +

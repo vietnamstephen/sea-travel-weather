@@ -5,6 +5,12 @@
 (function (root) {
   'use strict';
   var DICT = {
+    "trips.welcome": ["规划行程，提前看天气和航班风险", "Plan your trips and see weather and flight risks ahead", "Lên kế hoạch chuyến đi, xem trước thời tiết và rủi ro chuyến bay", "วางแผนทริป พร้อมดูสภาพอากาศและความเสี่ยงเที่ยวบินล่วงหน้า", "Rencanakan perjalanan dan lihat cuaca serta risiko penerbangan lebih awal"],
+    "trips.benefitSave": ["保存行程和常用地点", "Save trips and named places", "Lưu chuyến đi và địa điểm đã đặt tên", "บันทึกทริปและสถานที่ที่ตั้งชื่อไว้", "Simpan perjalanan dan tempat bernama"],
+    "trips.benefitWeather": ["查看每个目的地的每日天气和风险", "Daily weather and risk for each destination", "Xem thời tiết và rủi ro hằng ngày tại từng điểm đến", "ดูสภาพอากาศและความเสี่ยงรายวันของแต่ละจุดหมาย", "Cuaca dan risiko harian untuk setiap tujuan"],
+    "trips.benefitFlight": ["航班状态和延误风险", "Flight status and delay risk", "Tình trạng chuyến bay và nguy cơ chậm chuyến", "สถานะเที่ยวบินและความเสี่ยงล่าช้า", "Status penerbangan dan risiko keterlambatan"],
+    "trips.example": ["示例", "Example", "Ví dụ", "ตัวอย่าง", "Contoh"],
+
     "trips.vipBadge": ["VIP", "VIP", "VIP", "VIP", "VIP"],
     "trips.flightVip": ["航班查询为 VIP 专属功能，请联系管理员开通。", "Flight lookups are for VIP members. Contact the admin for access.", "Tra cứu chuyến bay dành cho VIP. Liên hệ quản trị viên để được cấp quyền.", "การค้นหาเที่ยวบินสำหรับ VIP โปรดติดต่อผู้ดูแลเพื่อขอสิทธิ์", "Pencarian penerbangan khusus VIP. Hubungi admin untuk akses."],
     "trips.suggestVip": ["航班推荐仅限 VIP；您仍可手动输入航班号。", "Flight suggestions are VIP-only. You can still type a flight number.", "Gợi ý chuyến bay dành cho VIP. Bạn vẫn có thể nhập số chuyến bay.", "คำแนะนำเที่ยวบินสำหรับ VIP คุณยังพิมพ์หมายเลขเที่ยวบินเองได้", "Saran penerbangan khusus VIP. Anda tetap dapat mengetik nomor penerbangan."],
@@ -137,14 +143,14 @@
     'country.emergencyLabel': ['紧急电话', 'Emergency numbers', 'Số khẩn cấp', 'เบอร์ฉุกเฉิน', 'Nomor darurat'],
     'home.card.highest': ['最高风险', 'Highest risk', 'Rủi ro cao nhất', 'ความเสี่ยงสูงสุด', 'Risiko tertinggi'],
 
-    'level.red': ['红色 · 高危', 'Red · Critical', 'Đỏ · Nguy hiểm', 'แดง · วิกฤต', 'Merah · Kritis'],
-    'level.orange': ['橙色 · 预警', 'Orange · Alert', 'Cam · Cảnh báo', 'ส้ม · เฝ้าระวัง', 'Oranye · Waspada'],
-    'level.yellow': ['黄色 · 关注', 'Yellow · Watch', 'Vàng · Theo dõi', 'เหลือง · ติดตาม', 'Kuning · Perhatian'],
-    'level.green': ['绿色 · 正常', 'Green · Normal', 'Xanh · Bình thường', 'เขียว · ปกติ', 'Hijau · Normal'],
-    'level.short.red': ['红', 'Red', 'Đỏ', 'แดง', 'Merah'],
-    'level.short.orange': ['橙', 'Orange', 'Cam', 'ส้ม', 'Oranye'],
-    'level.short.yellow': ['黄', 'Yellow', 'Vàng', 'เหลือง', 'Kuning'],
-    'level.short.green': ['绿', 'Green', 'Xanh', 'เขียว', 'Hijau'],
+    'level.red': ["避免", "Avoid", "Tránh", "หลีกเลี่ยง", "Hindari"],
+    'level.orange': ["警告", "Warning", "Cảnh báo", "เตือน", "Peringatan"],
+    'level.yellow': ["留意", "Watch", "Lưu ý", "เฝ้าระวัง", "Waspada"],
+    'level.green': ["正常", "Normal", "Bình thường", "ปกติ", "Normal"],
+    'level.short.red': ["避免", "Avoid", "Tránh", "หลีกเลี่ยง", "Hindari"],
+    'level.short.orange': ["警告", "Warning", "Cảnh báo", "เตือน", "Peringatan"],
+    'level.short.yellow': ["留意", "Watch", "Lưu ý", "เฝ้าระวัง", "Waspada"],
+    'level.short.green': ["正常", "Normal", "Bình thường", "ปกติ", "Normal"],
 
     'country.introTitle': ['当地出行提示', 'Local travel context', 'Bối cảnh đi lại địa phương', 'บริบทการเดินทางท้องถิ่น', 'Konteks perjalanan lokal'],
     'country.citiesTitle': ['主要城市天气', 'Weather by city', 'Thời tiết theo thành phố', 'สภาพอากาศตามเมือง', 'Cuaca per kota'],

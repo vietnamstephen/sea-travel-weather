@@ -95,7 +95,7 @@
           '<span>' + esc(t('map.legendRadarHint')) + '</span></div>' +
         '<div class="map-legend-col"><b>' + esc(t('map.legendRisk')) + '</b><div class="map-legend-dots">' +
           ['green', 'yellow', 'orange', 'red'].map(function (k, i) {
-            return '<span><i style="background:' + RISK_COLORS[i] + '"></i>' + esc(t('level.short.' + k)) + '</span>';
+            return '<span><span aria-hidden="true" style="color:' + RISK_COLORS[i] + '">' + ['✓', '!', '▲', '✕'][i] + '</span>' + esc(t('level.short.' + k)) + '</span>';
           }).join('') + '</div><span>' + esc(t('map.legendRiskHint')) + '</span></div>' +
         '<div class="map-legend-col"><b>' + esc(t('map.legendEvent')) + '</b><div class="map-legend-dots">' +
           '<span><i style="background:#dc2626">●</i>GDACS Red</span><span><i style="background:#ea580c">●</i>GDACS Orange</span>' +
