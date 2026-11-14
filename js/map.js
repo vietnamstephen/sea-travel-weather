@@ -1,22 +1,15 @@
-/* =============================================================================
- * SEA Travel Weather · 内嵌 Google 地图 + 台风 / 大雨图层
- * -----------------------------------------------------------------------------
- * 三种运行模式，按可用性自动降级，任何情况下都不留空白：
- *   A. 免 Key：Google Maps iframe（可看地点/实时路况）+ Leaflet 天气图层视图
- *   B. 填了 Google Maps JS API Key：图层视图改用 Google 底图，叠加同样的数据
- *   C. CDN / 接口全挂：静态 SVG 位置示意图 + Google iframe 仍可用
- *
- * 数据源：RainViewer 降雨雷达瓦片（免 Key，需署名）、GDACS 台风/洪水事件、
- *         Open-Meteo GloFAS 河流流量、本站 weather.json 城市风险等级。
- * Key 只存当前浏览器 localStorage，不写入任何仓库文件。
- * =========================================================================== */
+/* SEA Travel Weather · Free CARTO/OSM basemap with weather overlays.
+ * Live traffic opens Google Maps in a new tab; the embedded map needs no key.
+ * An optional site-owned Google Maps JS key is read only from SEA_CONFIG.
+ * RainViewer radar, GDACS events, GloFAS rivers and city risk overlays remain
+ * available on the free basemap, with a static SVG fallback if Leaflet is down.
+ */
 (function (root) {
   'use strict';
 
   var LEAFLET_JS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
   var LEAFLET_CSS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
   var RAIN_MANIFEST = 'https://api.rainviewer.com/public/weather-maps.json';
-  var KEY_STORE = 'sea_gmap_key';
   var ACTIVE_TIMER = null;   // 语言切换 / 重建时清掉上一张地图的播放定时器
   var RISK_COLORS = ['#16a34a', '#ca8a04', '#ea580c', '#dc2626'];
   var EVENT_COLORS = { Red: '#dc2626', Orange: '#ea580c', Green: '#2563eb' };
@@ -42,6 +35,7 @@
     var t = opts.t, lang = opts.lang || 'zh';
     var D = opts.data, W = opts.weather || {}, A = opts.advisories || {};
     var country = opts.country || null;
+    var googleKey = String((root.SEA_CONFIG || {}).GOOGLE_MAPS_KEY || '').trim();
     var events = (A.events || []).slice();
     var rivers = (A.flood || []).filter(function (f) { return f.status === 'ok'; });
     var cities = [];
@@ -65,8 +59,7 @@
       view: 'layers',              // 'google' | 'layers'
       radar: true, showEvents: true, showCities: true, showRiver: true,
       frames: [], frameIdx: 0, host: '', timer: null, radarLoaded: false,
-      adapter: null, ready: false, degraded: false,
-      key: (function () { try { return localStorage.getItem(KEY_STORE) || ''; } catch (e) { return ''; } })()
+      adapter: null, ready: false, degraded: false
     };
 
     /* ---------------- HTML 骨架 ---------------- */
@@ -88,17 +81,8 @@
         '<span class="map-time-label">' + esc(t('map.radarTime')) + '</span>' +
         '<input type="range" id="mapTime" min="0" max="0" value="0" disabled>' +
         '<button type="button" class="map-mini" id="mapPlay">▶ ' + esc(t('map.play')) + '</button>' +
-        '<button type="button" class="map-mini" id="mapTraffic">🚗 ' + esc(t('map.traffic')) + '</button>' +
-        '<button type="button" class="map-mini" id="mapStorms">🌀 ' + esc(t('map.storms')) + '</button>' +
-        '<button type="button" class="map-mini" id="mapKeyBtn">🔑 <span id="mapKeyLabel">' + esc(t('map.keyBtn')) + '</span></button>' +
-      '</div>' +
-      '<div class="map-keybox" id="mapKeyBox" hidden>' +
-        '<div class="map-key-title">' + esc(t('map.keyTitle')) + '</div>' +
-        '<p class="map-key-hint">' + esc(t('map.keyHint')) + '</p>' +
-        '<div class="map-key-row"><input type="password" id="mapKeyInput" placeholder="AIza..." autocomplete="off">' +
-        '<button type="button" class="map-mini" id="mapKeySave">' + esc(t('map.keySave')) + '</button>' +
-        '<button type="button" class="map-mini" id="mapKeyClear">' + esc(t('map.keyClear')) + '</button></div>' +
-        '<div class="map-key-status" id="mapKeyStatus"></div>' +
+        '<a class="map-mini" id="mapTraffic" target="_blank" rel="noopener">🚗 ' + esc(t('map.traffic')) + '</a>' +
+        '<a class="map-mini" id="mapStorms" href="https://zoom.earth/storms/" target="_blank" rel="noopener">🌀 ' + esc(t('map.storms')) + '</a>' +
       '</div>' +
       '<div class="map-stage">' +
         '<div class="map-canvas" id="mapCanvas"></div>' +
@@ -209,10 +193,41 @@
       var L = root.L;
       var map = L.map(canvas, { zoomControl: true, attributionControl: true, worldCopyJump: true })
         .setView([center.lat, center.lon], center.zoom);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(map);
+      var osmAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+      var carto = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd', maxZoom: 20,
+        attribution: osmAttribution + ' &copy; <a href="https://carto.com/attributions">CARTO</a>'
+      });
+      var basemapFallback = false;
+      function fallbackBasemap() {
+        if (basemapFallback) return;
+        basemapFallback = true;
+        map.removeLayer(carto);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19, attribution: osmAttribution
+        }).addTo(map);
+      }
+      carto.on('tileerror', fallbackBasemap);
+      // CARTO can return an HTTP-200 "API KEY REQUIRED" PNG. Recognize the
+      // known denial image as well as its watermark ETag (when CORS exposes it).
+      carto.once('tileload', function (e) {
+        fetch(e.tile.src).then(function (response) {
+          if (/^"?wm-/.test(response.headers.get('etag') || '')) {
+            fallbackBasemap(); return;
+          }
+          return response.arrayBuffer().then(function (bytes) {
+            if (bytes.byteLength !== 2049 || !root.crypto || !root.crypto.subtle) return;
+            return root.crypto.subtle.digest('SHA-256', bytes).then(function (digest) {
+              var hash = Array.from(new Uint8Array(digest)).map(function (b) {
+                return ('0' + b.toString(16)).slice(-2);
+              }).join('');
+              if (hash === '69be4aecf9f814ba45d585801a5aa41e79b16fc88eafec5b1954a9f06a69e6be') fallbackBasemap();
+            });
+          });
+        }).catch(function () { /* tileerror handles network failures */ });
+      });
+      carto.addTo(map);
+      map.on('moveend zoomend', updateTrafficLink);
       var groups = { radar: null, events: L.layerGroup().addTo(map), cities: L.layerGroup().addTo(map), river: L.layerGroup().addTo(map) };
 
       function drawEvents() {
@@ -280,6 +295,7 @@
         center: { lat: center.lat, lng: center.lon }, zoom: center.zoom,
         mapTypeId: 'roadmap', streetViewControl: false, fullscreenControl: true
       });
+      map.addListener('idle', updateTrafficLink);
       var overlays = { radar: null, events: [], cities: [], river: [], infos: [] };
       function clear(arr) { arr.forEach(function (o) { o.setMap(null); }); arr.length = 0; }
       function popup(e) {
@@ -433,7 +449,12 @@
         else { canvas.hidden = false; fb.hidden = true; if (state.adapter) setTimeout(function () { state.adapter.invalidate(); }, 60); }
       }
     }
-    function openExternal(url) { root.open(url, '_blank', 'noopener'); }
+    function updateTrafficLink() {
+      var v = (state.adapter && state.adapter.getView()) || center;
+      $('mapTraffic').href = v && Number.isFinite(v.lat) && Number.isFinite(v.lon)
+        ? 'https://www.google.com/maps/@' + v.lat.toFixed(5) + ',' + v.lon.toFixed(5) + ',' + v.zoom + 'z/data=!5m1!1e1'
+        : 'https://www.google.com/maps/search/?api=1&query=Southeast+Asia';
+    }
 
     /* ---------------- 事件绑定 ---------------- */
     host.querySelectorAll('.map-tab').forEach(function (b) {
@@ -477,35 +498,6 @@
       }, 900);
       ACTIVE_TIMER = state.timer;
     });
-    $('mapTraffic').addEventListener('click', function () {
-      var v = (state.adapter && state.adapter.getView()) || center;
-      openExternal('https://www.google.com/maps/@' + v.lat.toFixed(5) + ',' + v.lon.toFixed(5) + ',' + v.zoom + 'z/data=!5m1!1e1');
-    });
-    $('mapStorms').addEventListener('click', function () {
-      openExternal('https://zoom.earth/storms/');
-    });
-    $('mapKeyBtn').addEventListener('click', function () {
-      var box = $('mapKeyBox'); box.hidden = !box.hidden;
-      if (!box.hidden) $('mapKeyInput').value = state.key;
-    });
-    $('mapKeySave').addEventListener('click', function () {
-      var k = $('mapKeyInput').value.trim();
-      if (!k) { $('mapKeyStatus').textContent = t('map.keyEmpty'); return; }
-      try { localStorage.setItem(KEY_STORE, k); } catch (e) { /* 隐私模式忽略 */ }
-      state.key = k;
-      $('mapKeyStatus').textContent = t('map.keySaved');
-      $('mapKeyLabel').textContent = t('map.keyActive');
-      bootMap(true);
-    });
-    $('mapKeyClear').addEventListener('click', function () {
-      try { localStorage.removeItem(KEY_STORE); } catch (e) { /* 忽略 */ }
-      state.key = ''; $('mapKeyInput').value = '';
-      $('mapKeyStatus').textContent = t('map.keyCleared');
-      $('mapKeyLabel').textContent = t('map.keyBtn');
-      bootMap(true);
-    });
-    if (state.key) $('mapKeyLabel').textContent = t('map.keyActive');
-
     /* ---------------- 启动 ---------------- */
     function bootMap(force) {
       if (state.ready && !force) return;
@@ -514,7 +506,7 @@
       if (state.adapter && state.adapter.destroy) state.adapter.destroy();
       state.adapter = null;
       var canvas = $('mapCanvas');
-      if (state.key) {
+      if (googleKey) {
         if (root.google && root.google.maps) {
           try { state.adapter = makeGoogle(canvas); afterReady(); }
           catch (e) { status(t('map.keyFail') + ' (' + e.message + ')', 'warn'); useLeaflet(); }
@@ -533,7 +525,7 @@
           status(t('map.keyFail'), 'warn');
           useLeaflet();
         };
-        loadScript('https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(state.key) +
+        loadScript('https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(googleKey) +
           '&callback=__seaGmapReady&v=weekly', function () { /* callback 触发 */ }, root.__seaGmapFail);
         setTimeout(function () {
           if (!settled && !state.ready) {
@@ -569,6 +561,7 @@
       // 雷达清单可能比底图库先/后返回：只在「已确定失败」时告警，避免留下过期提示
       if (state.radarLoaded && !state.frames.length) status(t('map.radarFail'), 'warn');
       else status('');
+      updateTrafficLink();
       setView(state.view);
       if (!eventPoints().length) {
         var note = host.querySelector('.map-legend');
@@ -577,6 +570,7 @@
       }
     }
 
+    updateTrafficLink();
     setView('layers');
     var radarPromise = loadRadar();   // 雷达清单与底图库并行拉取，避免地图迟迟不出现
     bootMap();

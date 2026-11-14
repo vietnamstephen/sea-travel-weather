@@ -143,6 +143,9 @@ Deno.serve(async (request: Request) => {
     const userClient = createClient(url, anon, { global: { headers: { Authorization: authorization } }, auth: { persistSession: false, autoRefreshToken: false } });
     const { data: auth, error } = await userClient.auth.getUser(authorization.replace(/^Bearer\s+/i, ''));
     if (error || !auth.user) throw new Failure(401, 'Invalid session');
+    const admin = createClient(url, service, { auth: { persistSession: false, autoRefreshToken: false } });
+    const { data: profile, error: profileError } = await admin.from('profiles').select('role').eq('id', auth.user.id).maybeSingle();
+    if (profileError || !profile || !['vip', 'admin'].includes(profile.role)) return reply(403, { ok: false, error: 'VIP only' });
     const text = await request.text();
     if (text.length > 4096) throw new Failure(413, 'Request too large');
     let body;
@@ -150,7 +153,6 @@ Deno.serve(async (request: Request) => {
     if (!body || typeof body.tool !== 'string') throw new Failure(400, 'Tool required');
     const tool = body.tool, args = sanitize(tool, body.args);
     const cacheKey = tool + ':' + JSON.stringify(args);
-    const admin = createClient(url, service, { auth: { persistSession: false, autoRefreshToken: false } });
     const { data: cached } = await admin.from('flight_cache').select('response, expires_at').eq('cache_key', cacheKey).maybeSingle();
     if (cached && Date.parse(cached.expires_at) > Date.now()) return reply(200, { ok: true, cached: true, data: cached.response });
     const apiKey = Deno.env.get('VARIFLIGHT_API_KEY');
