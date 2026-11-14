@@ -40,3 +40,9 @@ body[data-page="pricing"] .sidebar { min-width: 0; }
 body[data-page="pricing"] .brand { max-width: 100%; }
 
 .payment-features { margin: 0; padding-left: 22px; line-height: 2; }
+
+.payment-buy:disabled { background: #e2e5e9; border-color: #c8cdd3; color: #59616b; opacity: 1; cursor: not-allowed; box-shadow: none; }
+.payment-plan-note { color: var(--sub); font-size: .9rem; margin: 0; }
+
+.payment-plan.payment-pass { align-items: stretch; }
+.payment-plan.payment-pass > .payment-price { flex: initial; }

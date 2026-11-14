@@ -476,3 +476,21 @@ input:focus-visible,select:focus-visible,textarea:focus-visible {
 .skip-link:focus{transform:translateY(0)}
 html[lang="th"] body, html[lang="th"] button, html[lang="th"] input, html[lang="th"] select{line-height:1.7}
 .trips-upgrade{display:inline-flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--blue);border-radius:10px;background:var(--panel);font-size:12px;max-width:100%;overflow-wrap:anywhere}
+
+/* Shared account badge and membership details. */
+.account-wrap{position:relative;flex-shrink:0}
+.account-button{position:relative;display:flex;align-items:center;gap:7px;padding:4px;border:1px solid var(--line);border-radius:24px;background:var(--panel);color:var(--txt);cursor:pointer;min-height:44px}
+.account-avatar{position:relative;display:grid;place-items:center;width:32px;height:32px;overflow:hidden;border-radius:50%;background:var(--blue-soft);color:var(--blue);font-weight:700}
+.account-avatar img{position:absolute;width:100%;height:100%;object-fit:cover}
+.account-avatar svg{width:24px;height:24px;fill:var(--muted)}
+.account-dot{position:absolute;left:28px;top:29px;width:9px;height:9px;border-radius:50%;background:#89939f;border:2px solid var(--panel)}
+.account-dot.online{background:#23995b}
+.account-tag{font-size:12px;padding-right:7px}
+.account-menu{position:absolute;right:0;top:calc(100% + 8px);width:310px;max-width:calc(100vw - 24px);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:0 12px 32px #10182826;z-index:1100;overflow-wrap:anywhere}
+.account-menu[hidden]{display:none}
+.account-email{font-weight:700}
+.account-menu>a,.account-signout{display:block;margin-top:12px}
+.account-signout{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer}
+.account-beta{display:inline-block;background:var(--blue-soft);color:var(--blue);border-radius:20px;padding:2px 7px;font-size:12px}
+.account-button:focus-visible,.account-menu a:focus-visible,.account-signout:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+@media(max-width:960px){.topbar-in{padding-right:124px}.account-wrap{position:absolute;right:68px;top:12px}.account-menu{right:-52px}.account-tag{display:none}.account-button{width:44px;justify-content:center}}

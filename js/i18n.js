@@ -5,6 +5,16 @@
 (function (root) {
   'use strict';
   var DICT = {
+    "account.admin": ["当前身份：VIP（管理员 · 永久有效）", "Current membership: VIP (Admin · Lifetime)", "Thành viên hiện tại: VIP (Quản trị viên · Vĩnh viễn)", "สมาชิกปัจจุบัน: VIP (ผู้ดูแลระบบ · ตลอดชีพ)", "Keanggotaan saat ini: VIP (Admin · Seumur hidup)"],
+    "account.free": ["免费用户", "Free user", "Người dùng miễn phí", "ผู้ใช้ฟรี", "Pengguna gratis"],
+    "account.freeTag": ["免费", "Free", "Miễn phí", "ฟรี", "Gratis"],
+    "account.renew": ["VIP · 下次续费", "VIP · Next renewal", "VIP · Gia hạn tiếp theo", "VIP · ต่ออายุครั้งถัดไป", "VIP · Perpanjangan berikutnya"],
+    "account.until": ["VIP · 有效期至", "VIP · Valid until", "VIP · Có hiệu lực đến", "VIP · ใช้ได้ถึง", "VIP · Berlaku hingga"],
+    "account.forever": ["VIP · 永久有效", "VIP · Lifetime", "VIP · Vĩnh viễn", "VIP · ตลอดชีพ", "VIP · Seumur hidup"],
+    "account.beta": ["测试账号", "Test account", "Tài khoản thử nghiệm", "บัญชีทดสอบ", "Akun uji"],
+    "account.in": ["已登录", "Signed in", "Đã đăng nhập", "เข้าสู่ระบบแล้ว", "Sudah masuk"],
+    "account.out": ["未登录", "Signed out", "Chưa đăng nhập", "ยังไม่ได้เข้าสู่ระบบ", "Belum masuk"],
+
     "source.wx": ["气象", "Weather", "Thời tiết", "อากาศ", "Cuaca"],
     "source.gov": ["政府", "Government", "Chính phủ", "รัฐบาล", "Pemerintah"],
     "source.road": ["道路", "Roads", "Đường bộ", "ถนน", "Jalan"],
@@ -441,6 +451,8 @@
     "pricing.monthly": ["VIP 月付", "VIP monthly", "VIP hằng tháng", "VIP รายเดือน", "VIP bulanan"],
     "pricing.pass7": ["VIP 7 天通行证", "VIP 7-day pass", "Vé VIP 7 ngày", "VIP 7 วัน", "VIP 7 hari"],
     "pricing.best": ["最超值", "Best value", "Tiết kiệm nhất", "คุ้มที่สุด", "Paling hemat"],
+    "pricing.adminStatus": ["管理员 · 永久 VIP，无需购买，请用测试账号测试付款", "Administrator · Lifetime VIP. No purchase needed; use a test account to test payments.", "Quản trị viên · VIP vĩnh viễn, không cần mua. Hãy dùng tài khoản thử nghiệm để kiểm tra thanh toán.", "ผู้ดูแลระบบ · VIP ถาวร ไม่ต้องซื้อ โปรดใช้บัญชีทดสอบเพื่อทดสอบการชำระเงิน", "Administrator · VIP permanen, tidak perlu membeli. Gunakan akun uji untuk menguji pembayaran."],
+    "pricing.adminNote": ["管理员无需购买", "Administrators do not need to purchase", "Quản trị viên không cần mua", "ผู้ดูแลระบบไม่ต้องซื้อ", "Administrator tidak perlu membeli"],
     "pricing.current": ["当前会员方案", "Current membership plan", "Gói thành viên hiện tại", "แผนสมาชิกปัจจุบัน", "Paket keanggotaan saat ini"],
     "pricing.until": ["VIP 有效期至", "VIP until", "VIP đến", "VIP ถึง", "VIP hingga"],
     "pricing.unlimited": ["VIP 无到期日", "VIP with no expiry", "VIP không hết hạn", "VIP ไม่หมดอายุ", "VIP tanpa kedaluwarsa"],

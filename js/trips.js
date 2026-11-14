@@ -5,7 +5,7 @@
   var main = document.getElementById('main'), client = null, session = null;
   var trips = [], editing = null, busy = false, message = '', ready = false, revision = 0;
   var fields = ['origin', 'destination', 'trip_date', 'flight_no', 'note'];
-  var entitlement = null;
+  var entitlement = null, accountSubscription = null;
   var draft = {}, role = 'normal', users = [], account = null, roleRevision = 0;
   var flightResults = {}, suggestionCache = {}, suggestTimer = null, suggestRevision = 0;
   function paymentsVisible() { return !!window.SEA_PAYMENTS && window.SEA_PAYMENTS.visible(entitlement); }
@@ -192,11 +192,8 @@
       html += '<p class="hint trips-flight-lock">' + e(ft('flightVip')) + '</p></div>';
     } else {
       html += '<div class="trips-actions"><span>' + e(session.user.email || '') + '</span>' + button('trips.signOut', 'signout', busy) + '</div>';
-      if (C.PAYMENTS_ENABLED) {
-        html += '<p>' + e(premium() ? t(entitlement && entitlement.vip_until ? 'pricing.until' : 'pricing.unlimited') + (entitlement && entitlement.vip_until ? ' ' + new Date(entitlement.vip_until).toLocaleDateString() : '') : '') +
-          (paymentsVisible() ? ' <a class="pill" href="pricing.html">' + e(t(premium() ? 'pricing.current' : 'pricing.upgrade')) + '</a>' : '') + '</p>';
-        if (entitlement && entitlement.cancel_at) html += '<p class="hint">' + e(t('pricing.cancelAt')) + ' ' + e(new Date(entitlement.cancel_at).toLocaleDateString()) + '</p>';
-      }
+      html += '<p class="account-status">' + window.SEA_ACCOUNT.statusHtml(entitlement || {effective_role:role}, accountSubscription) + '</p>';
+      if (entitlement && entitlement.cancel_at) html += '<p class="hint">' + e(t('pricing.cancelAt')) + ' ' + e(new Date(entitlement.cancel_at).toLocaleDateString()) + '</p>';
       html += '<h2>' + e(t(editing ? 'trips.edit' : 'trips.add')) + '</h2><form id="trips-form"><div class="form-row">';
       fields.forEach(function (f) {
         html += '<div class="field"><label for="trips-' + f + '">' + e(t('trips.' + f)) + '</label>';
@@ -638,18 +635,15 @@
     } catch (err) { message = errorKey(err, action === 'google'); }
     busy = false; render();
   });
+  window.addEventListener('sea:account', function (event) { accountSubscription = event.detail.subscription; render(); });
   window.addEventListener('sea:updated', render);
   if (C.PAYMENTS_ENABLED) window.addEventListener('sea:entitlement', function () { loadRole().then(render); });
   readAuthError();
   render();
   if (!C.SUPABASE_URL || !C.SUPABASE_ANON_KEY) return;
-  var script = document.createElement('script');
-  script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js'; script.async = true;
-  script.onerror = function () { ready = true; message = 'trips.error'; render(); };
-  script.onload = async function () {
+  window.SEA_ACCOUNT.client().then(async function (db) {
     try {
-      client = window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY);
-      if (C.PAYMENTS_ENABLED) window.SEA_TRIPS_CLIENT = client;
+      client = db;
       client.auth.onAuthStateChange(function (event, next) {
         var changed = (!session && next) || (session && (!next || session.user.id !== next.user.id));
         session = next; switchAccount(); ready = true;
@@ -661,6 +655,5 @@
       var result = await client.auth.getSession(); if (result.error) throw result.error;
       session = result.data.session; switchAccount(); ready = true; await Promise.all([loadRole(), load()]); render();
     } catch (err) { ready = true; message = errorKey(err); render(); }
-  };
-  document.head.appendChild(script);
+  }).catch(function () { ready = true; message = 'trips.error'; render(); });
 })();

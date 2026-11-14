@@ -2,14 +2,18 @@
   'use strict';
   var C = window.SEA_CONFIG || {}, P = C.PADDLE || {}, api = window.SEA_PAYMENTS;
   var page = document.body.getAttribute('data-page'), main = document.getElementById('main');
-  var selectedPlan = 'yearly';
+  var subscription = null, refreshVersion = 0;
   var session = null, entitlement = null, loading = C.PAYMENTS_ENABLED && page === 'pricing';
   function t(key) { return window.I18N.t(key, (window.SEA_APP || {}).lang || 'zh'); }
   function e(value) { return window.SEA_RISK.esc(value == null ? '' : value); }
-  function date(value) { return new Date(value).toLocaleDateString((window.SEA_APP || {}).lang === 'zh' ? 'zh-CN' : (window.SEA_APP || {}).lang); }
   function links() { return '<div class="payment-links"><a href="terms.html">' + e(t('legal.terms')) + '</a><a href="privacy.html">' + e(t('legal.privacy')) + '</a><a href="terms.html#refund">' + e(t('legal.refund')) + '</a></div>'; }
   function render() {
     if (!main) return;
+    // On pricing, reserve the current-plan label for the matching plan card.
+    if (page === 'pricing') {
+      var accountLink = document.querySelector('#account-menu a[href="pricing.html"]');
+      if (accountLink) accountLink.textContent = t('pricing.title');
+    }
     var html = '<div class="section-head"><h1>' + e(t(page === 'pricing' ? 'pricing.headline' : 'legal.' + page)) + '</h1></div>';
     if (page !== 'pricing') {
       html += '<div class="notice warn">' + e(t('legal.draft')) + '</div><article class="panel payment-legal">';
@@ -21,33 +25,39 @@
     if (!api.visible(entitlement)) { main.innerHTML = '<div class="panel"><p>' + e(t('pricing.unavailable')) + '</p><a href="trips.html">' + e(t('nav.trips')) + '</a></div>'; return; }
     if (P.environment === 'sandbox') html += '<div class="notice warn">' + e(t('pricing.sandbox')) + '</div>';
     html += '<p id="payments-message" role="status" aria-live="polite"></p>';
-    if (entitlement && entitlement.is_vip) {
-      html += '<div class="panel"><b>' + e(t('pricing.current')) + (entitlement.plan ? ' · ' + e(t('pricing.' + entitlement.plan)) : '') + '</b><p>' + e(t(entitlement.vip_until ? 'pricing.until' : 'pricing.unlimited')) + (entitlement.vip_until ? ' ' + e(date(entitlement.vip_until)) : '') + '</p>';
-      if (entitlement.cancel_at) html += '<p>' + e(t('pricing.cancelAt')) + ' ' + e(date(entitlement.cancel_at)) + '</p>';
-      html += '</div>';
+    var admin = entitlement && entitlement.effective_role === 'admin';
+    var vip = entitlement && entitlement.is_vip;
+    if (admin || vip) {
+      var status = admin ? t('pricing.adminStatus') : window.SEA_ACCOUNT.statusText(entitlement, subscription);
+      html += '<div class="panel payment-status"><b>' + e(status) + '</b></div>';
     }
     function checkout(key) {
-      return '<button type="button" class="pill payment-buy" data-plan="' + e(key) + '"' + (loading || entitlement && entitlement.is_vip ? ' disabled' : '') + '>' + e(t(loading ? 'trips.loading' : entitlement && entitlement.is_vip ? 'pricing.current' : session ? 'pricing.upgrade' : 'pricing.login')) + '</button>';
+      var current = !admin && subscription && subscription.price_id && P.prices[key].priceId === subscription.price_id &&
+        (/^(active|trialing|past_due)$/.test(subscription.status) || key === 'pass7' && vip);
+      var disabled = loading || admin || vip || current;
+      var noteId = 'payment-note-' + key;
+      return '<button type="button" class="pill payment-buy" data-plan="' + e(key) + '"' +
+        (disabled ? ' disabled aria-disabled="true"' : '') + (admin ? ' aria-describedby="' + noteId + '"' : '') + '>' +
+        e(t(loading ? 'trips.loading' : current ? 'pricing.current' : session ? 'pricing.upgrade' : 'pricing.login')) + '</button>' +
+        (admin ? '<p class="payment-plan-note" id="' + noteId + '">' + e(t('pricing.adminNote')) + '</p>' : '');
     }
     function price(key) {
       var plan = P.prices[key];
       return '<div class="payment-price">' + e(plan.display) + ' <small>/ ' + e(t('pricing.' + plan.period)) + '</small></div>';
     }
     html += '<div class="payment-plans" id="plans"><section class="panel payment-plan payment-free"><h2>' + e(t('pricing.free')) + '</h2><ul class="payment-features">' + ['weatherOnly', 'risk', 'savedTrips'].map(function (key) { return '<li>' + e(t('pricing.' + key)) + '</li>'; }).join('') + '</ul><a class="pill" href="trips.html">' + e(t('trips.google')) + '</a></section>';
-    html += '<section class="panel payment-plan featured"><div class="payment-plan-heading"><h2>VIP</h2><span class="payment-badge">' + e(t('pricing.recommended')) + '</span></div><div class="payment-toggle" role="group" aria-label="' + e(t('pricing.feature')) + '">';
     ['monthly', 'yearly'].forEach(function (key) {
-      html += '<button type="button" class="pill" data-billing="' + key + '" aria-pressed="' + (selectedPlan === key) + '">' + e(t('pricing.' + key)) + '</button>';
+      html += '<section class="panel payment-plan' + (key === 'yearly' ? ' featured' : '') + '"><div class="payment-plan-heading"><h2>' + e(t('pricing.' + key)) + '</h2>' + (key === 'yearly' ? '<span class="payment-badge">' + e(t('pricing.recommended')) + '</span>' : '') + '</div>' + price(key);
+      var monthly = P.prices.monthly, yearly = P.prices.yearly, baseline = monthly.amount * 12;
+      if (key === 'yearly' && monthly.currency === yearly.currency && baseline > yearly.amount && yearly.amount >= 0) {
+        var locale = (window.SEA_APP || {}).lang || 'zh';
+        var saving = new Intl.NumberFormat(locale, { style: 'currency', currency: yearly.currency }).format(baseline - yearly.amount);
+        var percent = new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 }).format((baseline - yearly.amount) / baseline);
+        html += '<p class="payment-saving">' + e(t('pricing.savings').replace('{amount}', saving).replace('{percent}', percent)) + '</p>';
+      }
+      html += '<p>' + e(t('pricing.recurring')) + '</p>' + checkout(key) + '</section>';
     });
-    html += '</div>' + price(selectedPlan);
-    var monthly = P.prices.monthly, yearly = P.prices.yearly, baseline = monthly.amount * 12;
-    if (selectedPlan === 'yearly' && monthly.currency === yearly.currency && baseline > yearly.amount && yearly.amount >= 0) {
-      var locale = (window.SEA_APP || {}).lang || 'zh';
-      var saving = new Intl.NumberFormat(locale, { style: 'currency', currency: yearly.currency }).format(baseline - yearly.amount);
-      var percent = new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 }).format((baseline - yearly.amount) / baseline);
-      html += '<p class="payment-saving">' + e(t('pricing.savings').replace('{amount}', saving).replace('{percent}', percent)) + '</p>';
-    }
-    html += '<p>' + e(t('pricing.recurring')) + '</p>' + checkout(selectedPlan) + '</section></div>';
-    html += '<section class="panel payment-pass"><div><h2>' + e(t('pricing.pass7')) + '</h2><p>' + e(t('pricing.oneTime')) + '</p></div>' + price('pass7') + checkout('pass7') + '</section>';
+    html += '<section class="panel payment-plan payment-pass"><h2>' + e(t('pricing.pass7')) + '</h2><p>' + e(t('pricing.oneTime')) + '</p>' + price('pass7') + checkout('pass7') + '</section></div>';
     html += '<section class="panel payment-comparison"><table class="payment-table"><thead><tr><th scope="col">' + e(t('pricing.feature')) + '</th><th scope="col">' + e(t('pricing.free')) + '</th><th scope="col">VIP</th></tr></thead><tbody>';
     ['weatherOnly', 'risk', 'savedTrips', 'flightStatus', 'suggestions'].forEach(function (key, index) {
       html += '<tr><th scope="row">' + e(t('pricing.' + key)) + '</th><td>' + (index < 3 ? '✓' : '—') + '</td><td>✓</td></tr>';
@@ -56,26 +66,32 @@
     ['cancel', 'methods', 'refund'].forEach(function (key) {
       html += '<details><summary>' + e(t('pricing.' + key + 'Q')) + '</summary><p>' + (key === 'refund' ? '<a href="terms.html#refund">' + e(t('legal.refund')) + '</a>' : e(t('pricing.' + key + 'A'))) + '</p></details>';
     });
-    main.innerHTML = html + '</section><section class="panel payment-cta"><h2>' + e(t('pricing.cta')) + '</h2>' + checkout(selectedPlan) + '</section><button type="button" class="pill" data-payment-refresh>' + e(t('pricing.refresh')) + '</button>' + links();
+    main.innerHTML = html + '</section><button type="button" class="pill" data-payment-refresh>' + e(t('pricing.refresh')) + '</button>' + links();
   }
   async function refresh() {
-    entitlement = null;
+    var version = ++refreshVersion;
+    loading = true; entitlement = null; subscription = null;
     window.dispatchEvent(new CustomEvent('sea:payments-visibility', { detail: null }));
     render();
     try {
       var db = await api.client(), auth = await db.auth.getSession();
       if (auth.error) throw auth.error;
-      session = auth.data.session; entitlement = await api.entitlement(); window.dispatchEvent(new CustomEvent('sea:payments-visibility', { detail: entitlement })); loading = false; render();
-    } catch (err) { loading = false; render(); var host = document.getElementById('payments-message'); if (host) host.textContent = t('pricing.error'); }
+      var nextSession = auth.data.session, nextEntitlement = await api.entitlement(), nextSubscription = null;
+      if (nextSession && api.visible(nextEntitlement) && nextEntitlement.effective_role !== 'admin') {
+        var rows = await db.from('subscriptions').select('plan,price_id,status,current_period_end,cancel_at').order('last_event_at',{ascending:false,nullsFirst:false}).limit(1);
+        if (!rows.error) nextSubscription = (rows.data || [])[0] || null;
+      }
+      if (version !== refreshVersion) return;
+      session = nextSession; entitlement = nextEntitlement; subscription = nextSubscription; window.dispatchEvent(new CustomEvent('sea:payments-visibility', { detail: entitlement })); loading = false; render();
+    } catch (err) { if (version !== refreshVersion) return; loading = false; render(); var host = document.getElementById('payments-message'); if (host) host.textContent = t('pricing.error'); }
   }
   main.addEventListener('click', function (event) {
-    var toggle = event.target.closest('[data-billing]');
-    if (toggle) { selectedPlan = toggle.getAttribute('data-billing'); render(); main.querySelector('[data-billing="' + selectedPlan + '"]').focus(); }
     var button = event.target.closest('[data-plan]');
     if (button && !button.disabled) api.openCheckout(button.getAttribute('data-plan'));
     if (event.target.closest('[data-payment-refresh]')) refresh();
   });
   window.addEventListener('sea:updated', render);
+  window.addEventListener('sea:account', render);
   if (C.PAYMENTS_ENABLED && page === 'pricing') {
     window.addEventListener('sea:entitlement', function (event) { entitlement = event.detail; window.dispatchEvent(new CustomEvent('sea:payments-visibility', { detail: entitlement })); render(); });
     api.client().then(function (db) {
