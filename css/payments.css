@@ -1,7 +1,8 @@
-.payment-plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin: 20px 0; }
+.payment-plans { display: grid; align-items: stretch; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin: 20px 0; }
 .payment-plan { display: flex; flex-direction: column; gap: 14px; }
+.payment-plans > .payment-plan { margin-top: 0; }
 .payment-plan.featured { border: 2px solid var(--blue); }
-.payment-plan .pill { margin-top: auto; text-align: center; }
+.payment-plan > .pill { margin-top: auto; text-align: center; }
 .payment-price { font-size: 1.7rem; font-weight: 700; }
 .payment-table { width: 100%; border-collapse: collapse; }
 .payment-table th, .payment-table td { padding: 12px; border-bottom: 1px solid var(--line); text-align: left; }
@@ -37,3 +38,5 @@ body[data-page="pricing"] .notice.warn { color: var(--sub); background: var(--pa
 }
 body[data-page="pricing"] .sidebar { min-width: 0; }
 body[data-page="pricing"] .brand { max-width: 100%; }
+
+.payment-features { margin: 0; padding-left: 22px; line-height: 2; }

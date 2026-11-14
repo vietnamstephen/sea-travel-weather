@@ -20,6 +20,8 @@
   var FLIGHTS = null;
   var ADV = null;
   // Small read-only bridge; trips owns its page and subscribes to shell updates.
+  var paymentEntitlement = null;
+  window.addEventListener('sea:payments-visibility', function (event) { paymentEntitlement = event.detail; buildNav(); });
   window.SEA_APP = { lang: LANG, weather: WEATHER };
   function notifyTrips() {
     window.SEA_APP.lang = LANG; window.SEA_APP.weather = WEATHER;
@@ -138,7 +140,7 @@
     var html = '<div class="nav-label">' + esc(t('nav.section')) + '</div>';
     html += '<a class="nav-link' + (PAGE === 'overview' ? ' on' : '') + '" href="index.html"><span>🧭</span>' + esc(t('nav.overview')) + '</a>';
     html += '<a class="nav-link' + (PAGE === 'trips' ? ' on' : '') + '" href="trips.html"><span>🧳</span>' + esc(t('nav.trips')) + '</a>';
-    if ((PAGE === 'trips' || PAGE === 'pricing') && (window.SEA_CONFIG || {}).PAYMENTS_ENABLED) html += '<a class="nav-link" href="pricing.html">' + esc(t('pricing.title')) + '</a>';
+    if ((PAGE === 'trips' || PAGE === 'pricing') && window.SEA_PAYMENTS && window.SEA_PAYMENTS.visible(paymentEntitlement)) html += '<a class="nav-link" href="pricing.html">' + esc(t('pricing.title')) + '</a>';
     D.countries.forEach(function (c) {
       var cr = R.countryRisk(WEATHER, c.id, hourKey(c.tz));
       var k = R.LEVEL_KEYS[cr.level];

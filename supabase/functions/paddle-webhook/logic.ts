@@ -53,7 +53,13 @@ export async function processEvent(event: Row, store: Store, config: Config): Pr
   let result = 'ignored';
   const recognized = type === 'transaction.completed' || /^subscription\.(created|updated|activated|resumed|canceled|past_due|paused|trialing|imported)$/.test(type) || /^adjustment\.(created|updated)$/.test(type);
   if (recognized) {
-    if (!userId) throw new Error('Unresolved payment user'); // Retry rather than silently lose a grant.
+    if (!userId) {
+      // Adjustments may resolve after a delayed transaction alias arrives.
+      if (type.startsWith('adjustment.')) throw new Error('Unresolved payment user');
+      await store.insertEvent({ event_id: event.event_id, event_type: type, occurred_at: event.occurred_at,
+        user_id: null, payload: event, result: 'unresolved_user' });
+      return { duplicate: false, result: 'unresolved_user' };
+    }
     const profile = await store.getProfile(userId);
     if (!profile) throw new Error('Payment profile missing');
     const eventTime = stamp(event.occurred_at);

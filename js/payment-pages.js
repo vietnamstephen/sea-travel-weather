@@ -18,7 +18,7 @@
       html += '<h2 id="refund">' + e(t('legal.refund')) + '</h2><p>DRAFT, pending review: a refund may be requested within 14 days of the first purchase via Paddle as Merchant of Record. The 7-day pass is non-refundable after first use, subject to applicable mandatory consumer rights. Contact support through your Paddle receipt or vietnamstephen@gmail.com with the transaction ID. Approved refunds revoke related VIP access immediately. 草稿待审：首次购买后 14 天内可通过名义商户 Paddle 申请退款；7 天通行证首次使用后原则上不退（强制消费者权利除外）。请通过 Paddle 收据或上述邮箱联系，提供交易号。批准退款后相关 VIP 权限立即终止。</p><p>These drafts must be reviewed before live sales. 上线真实支付前须完成审核。</p></article>';
       main.innerHTML = html + links(); return;
     }
-    if (!C.PAYMENTS_ENABLED) { main.innerHTML = html + '<div class="panel">' + e(t('pricing.soon')) + '</div>' + links(); return; }
+    if (!api.visible(entitlement)) { main.innerHTML = '<div class="panel"><p>' + e(t('pricing.unavailable')) + '</p><a href="trips.html">' + e(t('nav.trips')) + '</a></div>'; return; }
     if (P.environment === 'sandbox') html += '<div class="notice warn">' + e(t('pricing.sandbox')) + '</div>';
     html += '<p id="payments-message" role="status" aria-live="polite"></p>';
     if (entitlement && entitlement.is_vip) {
@@ -33,7 +33,7 @@
       var plan = P.prices[key];
       return '<div class="payment-price">' + e(plan.display) + ' <small>/ ' + e(t('pricing.' + plan.period)) + '</small></div>';
     }
-    html += '<div class="payment-plans" id="plans"><section class="panel payment-plan payment-free"><h2>' + e(t('pricing.free')) + '</h2><p>' + e(t('pricing.savedTrips')) + ' · ' + e(t('pricing.risk')) + '</p><a class="pill" href="trips.html">' + e(t('trips.google')) + '</a></section>';
+    html += '<div class="payment-plans" id="plans"><section class="panel payment-plan payment-free"><h2>' + e(t('pricing.free')) + '</h2><ul class="payment-features">' + ['weatherOnly', 'risk', 'savedTrips'].map(function (key) { return '<li>' + e(t('pricing.' + key)) + '</li>'; }).join('') + '</ul><a class="pill" href="trips.html">' + e(t('trips.google')) + '</a></section>';
     html += '<section class="panel payment-plan featured"><div class="payment-plan-heading"><h2>VIP</h2><span class="payment-badge">' + e(t('pricing.recommended')) + '</span></div><div class="payment-toggle" role="group" aria-label="' + e(t('pricing.feature')) + '">';
     ['monthly', 'yearly'].forEach(function (key) {
       html += '<button type="button" class="pill" data-billing="' + key + '" aria-pressed="' + (selectedPlan === key) + '">' + e(t('pricing.' + key)) + '</button>';
@@ -59,11 +59,14 @@
     main.innerHTML = html + '</section><section class="panel payment-cta"><h2>' + e(t('pricing.cta')) + '</h2>' + checkout(selectedPlan) + '</section><button type="button" class="pill" data-payment-refresh>' + e(t('pricing.refresh')) + '</button>' + links();
   }
   async function refresh() {
+    entitlement = null;
+    window.dispatchEvent(new CustomEvent('sea:payments-visibility', { detail: null }));
+    render();
     try {
       var db = await api.client(), auth = await db.auth.getSession();
       if (auth.error) throw auth.error;
-      session = auth.data.session; entitlement = await api.entitlement(); loading = false; render();
-    } catch (err) { loading = false; render(); document.getElementById('payments-message').textContent = t('pricing.error'); }
+      session = auth.data.session; entitlement = await api.entitlement(); window.dispatchEvent(new CustomEvent('sea:payments-visibility', { detail: entitlement })); loading = false; render();
+    } catch (err) { loading = false; render(); var host = document.getElementById('payments-message'); if (host) host.textContent = t('pricing.error'); }
   }
   main.addEventListener('click', function (event) {
     var toggle = event.target.closest('[data-billing]');
@@ -74,11 +77,11 @@
   });
   window.addEventListener('sea:updated', render);
   if (C.PAYMENTS_ENABLED && page === 'pricing') {
-    window.addEventListener('sea:entitlement', function (event) { entitlement = event.detail; render(); });
+    window.addEventListener('sea:entitlement', function (event) { entitlement = event.detail; window.dispatchEvent(new CustomEvent('sea:payments-visibility', { detail: entitlement })); render(); });
     api.client().then(function (db) {
       db.auth.onAuthStateChange(function () { setTimeout(refresh, 0); });
       refresh();
-    }).catch(function () { loading = false; render(); document.getElementById('payments-message').textContent = t('pricing.error'); });
+    }).catch(function () { loading = false; render(); var host = document.getElementById('payments-message'); if (host) host.textContent = t('pricing.error'); });
   }
   render();
 })();

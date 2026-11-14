@@ -409,6 +409,8 @@
     "river.kapuas": ["卡普阿斯河 · 坤甸", "Kapuas · Pontianak", "Sông Kapuas · Pontianak", "แม่น้ำกาปูอัส · ปนตียานัก", "Sungai Kapuas · Pontianak"],
     "river.cagayan": ["卡加延河 · 土格加劳", "Cagayan · Tuguegarao", "Sông Cagayan · Tuguegarao", "แม่น้ำคากายัน · ตูเกกาเรา", "Sungai Cagayan · Tuguegarao"]
 ,
+    "pricing.beta": ["支付测试", "Payments beta", "Thử nghiệm thanh toán", "ทดสอบการชำระเงิน", "Beta pembayaran"],
+    "pricing.unavailable": ["此页面暂不可用，请前往我的行程。", "This page is not available. Continue to My Trips.", "Trang này chưa khả dụng. Tiếp tục đến Hành trình.", "หน้านี้ยังไม่พร้อมใช้งาน ไปที่ทริปของฉัน", "Halaman ini belum tersedia. Lanjut ke Perjalanan Saya."],
     "pricing.headline": ["天气、行程与航班，一处掌握", "Weather, trips and flights in one place", "Thời tiết, hành trình và chuyến bay tại một nơi", "ดูอากาศ ทริป และเที่ยวบินในที่เดียว", "Cuaca, perjalanan dan penerbangan di satu tempat"],
     "pricing.recommended": ["推荐", "Recommended", "Đề xuất", "แนะนำ", "Direkomendasikan"],
     "pricing.savings": ["比月付 × 12 节省 {amount}（{percent}）", "Save {amount} ({percent}) vs 12 monthly payments", "Tiết kiệm {amount} ({percent}) so với 12 tháng", "ประหยัด {amount} ({percent}) เทียบกับจ่ายรายเดือน 12 ครั้ง", "Hemat {amount} ({percent}) dibanding 12 pembayaran bulanan"],

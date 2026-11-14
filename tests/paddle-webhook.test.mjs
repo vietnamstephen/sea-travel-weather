@@ -132,9 +132,9 @@ test('customer lookup and custom plan fallback', async () => {
   await processEvent(event('transaction.completed', { id: 'txn1', custom_data: { plan: 'pass7' }, items: [] }), store, config);
   assert.equal(Date.parse(store.profile().vip_until), NOW + 7 * 86400000);
 });
-test('unresolved recognized event fails without receipt, permitting retry', async () => {
+test('unresolved adjustment fails without receipt, permitting retry', async () => {
   const store = new MemoryStore();
-  await assert.rejects(processEvent(event('subscription.created', { custom_data: null }), store, config), /Unresolved/);
+  await assert.rejects(processEvent(event('adjustment.updated', { custom_data: null }), store, config), /Unresolved/);
   assert.equal(store.events.size, 0);
 });
 test('SQL-equivalent effective VIP: admin, unlimited, future, expired, normal, missing', () => {
@@ -197,3 +197,16 @@ test('partial refunds and chargeback reversals are recorded without revoking', a
     assert.equal(store.events.get('adjustment').result, 'ignored');
   }
 });
+
+for (const type of ['subscription.created', 'transaction.completed']) {
+  test(`unresolved ${type} records receipt without changing profiles or subscriptions`, async () => {
+    const store = new MemoryStore(), before = structuredClone(store.profile());
+    const payload = event(type, { custom_data: null });
+    assert.deepEqual(await processEvent(payload, store, config), { duplicate: false, result: 'unresolved_user' });
+    assert.equal(store.events.get('evt1').user_id, null);
+    assert.equal(store.events.get('evt1').result, 'unresolved_user');
+    assert.deepEqual(store.profile(), before);
+    assert.equal(store.subscriptions.size, 0);
+    assert.deepEqual(await processEvent(payload, store, config), { duplicate: true });
+  });
+}

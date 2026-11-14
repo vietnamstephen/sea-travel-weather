@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.119.0';
+import { PRICE_PLANS } from './prices.ts';
 import { processEvent, verifyPaddleSignature, type Store } from './logic.ts';
 
 Deno.serve(async (request: Request) => {
@@ -37,7 +38,14 @@ Deno.serve(async (request: Request) => {
         findUserByTransaction: subscriptionRead,
         findUserByCustomer: id => read('profiles', 'paddle_customer_id', id),
       };
-      const prices = Object.fromEntries(['YEARLY', 'MONTHLY', 'PASS7'].map(key => [Deno.env.get('PADDLE_PRICE_' + key), key.toLowerCase()]).filter(([id]) => id));
+      const prices: Record<string, string> = { ...PRICE_PLANS };
+      for (const plan of ['yearly', 'monthly', 'pass7']) {
+        const id = Deno.env.get('PADDLE_PRICE_' + plan.toUpperCase());
+        if (id) prices[id] = plan;
+      }
+      for (const id of Object.keys(prices)) {
+        if (id.startsWith('pri_REPLACE_')) delete prices[id];
+      }
       const result = await processEvent(event, store, { prices });
       if (result.duplicate) return reply(200, result);
       const { data, error } = await db.rpc('apply_paddle_event', {

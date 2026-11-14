@@ -1,4 +1,4 @@
-/* Paddle Billing v2. No checkout or SDK requests while payments are disabled. */
+/* Paddle Billing v2. The SDK loads only after a server-gated checkout request. */
 (function () {
   'use strict';
   var C = window.SEA_CONFIG || {}, P = C.PADDLE || {}, clientPromise, paddlePromise, polling = false;
@@ -22,6 +22,7 @@
     }).catch(function (err) { clientPromise = null; throw err; });
     return clientPromise;
   }
+  function visible(value) { return C.PAYMENTS_ENABLED === true && !!value && value.payments_visible === true; }
   async function entitlement() {
     var db = await client(); if (!db) return null;
     var auth = await db.auth.getSession();
@@ -63,6 +64,7 @@
   async function openCheckout(planKey) {
     if (!C.PAYMENTS_ENABLED) return;
     try {
+      if (!visible(await entitlement())) return;
       var plan = (P.prices || {})[planKey]; if (!plan) return;
       if (!P.clientToken || /REPLACE/.test(P.clientToken) || !plan.priceId || /REPLACE/.test(plan.priceId)) { notify('pricing.pending'); return; }
       var db = await client(), result = await db.auth.getSession();
@@ -77,5 +79,5 @@
         customData: { user_id: session.user.id, email: session.user.email, plan: planKey }, settings: settings });
     } catch (err) { notify('pricing.error'); }
   }
-  window.SEA_PAYMENTS = { openCheckout: openCheckout, client: client, entitlement: entitlement, refresh: refresh, login: login };
+  window.SEA_PAYMENTS = { visible: visible, openCheckout: openCheckout, client: client, entitlement: entitlement, refresh: refresh, login: login };
 })();
