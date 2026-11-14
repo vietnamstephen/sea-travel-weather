@@ -222,68 +222,103 @@
   }
 
   /* ---------- 地址 / Google Maps 链接解析 ---------- */
+  function decodeText(text) {
+    var s = String(text || '').replace(/\+/g, ' ');
+    try { return decodeURIComponent(s); } catch (e) { return s; }
+  }
+
   function parseCoords(text) {
-    var s = (text || '').trim();
-    // 直接 "lat,lon"
-    var direct = /^\s*(-?\d{1,2}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)\s*$/.exec(s);
-    if (direct) {
-      var la = parseFloat(direct[1]), lo = parseFloat(direct[2]);
-      if (Math.abs(la) <= 90 && Math.abs(lo) <= 180) return { lat: la, lon: lo, method: 'coords' };
+    var s = decodeText(text).trim(), n = '([+-]?\\d+(?:\\.\\d+)?)';
+    var patterns = [
+      ['^' + n + '\\s*,\\s*' + n + '$', 'coords'],
+      ['@' + n + '\\s*,\\s*' + n, 'maps-at'],
+      ['!3d' + n + '!4d' + n, 'maps-3d4d'],
+      ['[?&](?:q|center|ll|destination|query)=' + n + '[,\\s]+' + n + '(?=$|[&#\\s])', 'maps-query'],
+      ['!2d' + n + '!3d' + n, 'maps-2d3d', true],
+      ['(?:^|\\s)' + n + '\\s*,\\s*' + n + '(?=$|\\s)', 'coords']
+    ];
+    for (var i = 0; i < patterns.length; i++) {
+      var p = patterns[i], m = new RegExp(p[0], 'i').exec(s);
+      if (!m) continue;
+      var lat = Number(m[p[2] ? 2 : 1]), lon = Number(m[p[2] ? 1 : 2]);
+      if (Math.abs(lat) <= 90 && Math.abs(lon) <= 180) return { lat: lat, lon: lon, method: p[1] };
     }
-    // Google Maps: @lat,lon
-    var at = /@(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/.exec(s);
-    if (at) return { lat: parseFloat(at[1]), lon: parseFloat(at[2]), method: 'maps-at' };
-    // Google Maps: !3dLAT!4dLON
-    var d34 = /!3d(-?\d{1,2}\.\d+)!4d(-?\d{1,3}\.\d+)/.exec(s);
-    if (d34) return { lat: parseFloat(d34[1]), lon: parseFloat(d34[2]), method: 'maps-3d4d' };
-    // Google Maps: /@lat,lon 或 q=lat,lon / center=lat,lon
-    var q = /(?:q|center|ll|destination)=(-?\d{1,2}\.\d+)[, ]+(-?\d{1,3}\.\d+)/.exec(s);
-    if (q) return { lat: parseFloat(q[1]), lon: parseFloat(q[2]), method: 'maps-query' };
-    // Maps URL 中 /place/.../@ 已经覆盖；!2d!3d 组合（经度在前）
-    var d23 = /!2d(-?\d{1,3}\.\d+)!3d(-?\d{1,2}\.\d+)/.exec(s);
-    if (d23) return { lat: parseFloat(d23[2]), lon: parseFloat(d23[1]), method: 'maps-2d3d' };
     return null;
   }
 
-  // 判断是不是「只有短链、没有坐标」的 Google 链接
-  function isUnresolvableShortLink(s) {
-    return /^https?:\/\//i.test(s) && !parseCoords(s) &&
-      /(goo\.gl|maps\.app\.goo\.gl|google\.com\/maps|maps\.google)/i.test(s);
+  function mapsPlace(text) {
+    // Split before decoding so encoded spaces remain part of a URL's place name.
+    var urls = String(text || '').match(/(?:https?:\/\/)?(?:www\.)?(?:google\.com\/maps|maps\.google\.com)[^\s<>"']*/gi) || [];
+    for (var i = 0; i < urls.length; i++) {
+      var url = decodeText(urls[i]);
+      var m = /\/(?:place|search)\/([^?#]+)/i.exec(url);
+      var q = /[?&](?:q|query|destination)=([^&#]*)/i.exec(url);
+      var candidates = [q ? q[1] : '', m ? m[1] : ''];
+      for (var j = 0; j < candidates.length; j++) {
+        var name = candidates[j].replace(/\/@.*$/, '').replace(/\/+$/, '').trim();
+        if (name && !parseCoords(name) && !/^[+-]?[\d.]+[,\s]+[+-]?[\d.]+$/.test(name)) return name;
+      }
+    }
+    return null;
   }
 
-  // 文字地名 → Open-Meteo Geocoder →（降级）OSM Nominatim
+  function isShortLink(text) {
+    return /(?:^|[^\w.-])(?:https?:\/\/)?(?:maps\.app\.goo\.gl|goo\.gl)(?:\/|(?=$|\s))/i.test(decodeText(text));
+  }
+
+  // Timeout covers both response headers and JSON body consumption.
+  async function fetchJSON(url, options) {
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, 8000);
+    try {
+      var response = await fetch(url, Object.assign({}, options, { signal: controller.signal }));
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return await response.json();
+    } finally { clearTimeout(timer); }
+  }
+
   async function geocodeText(text, lang) {
-    var q = (text || '').trim();
-    var lg = lang || 'en';
-    if (!q) return null;
-    try {
-      var u1 = 'https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(q) + '&count=5&language=' + encodeURIComponent(lg) + '&format=json';
-      var r1 = await fetch(u1, { cache: 'no-store' });
-      if (r1.ok) {
-        var j1 = await r1.json();
-        if (j1 && j1.results && j1.results.length) {
-          var best = j1.results[0];
-          return { lat: best.latitude, lon: best.longitude, label: best.name + (best.admin1 ? ', ' + best.admin1 : '') + (best.country ? ', ' + best.country : ''), method: 'geocoder', countryCode: best.country_code || null };
-        }
+    var q = decodeText(text).trim(), lg = lang || 'en', sawEmpty = false, sawError = false;
+    if (!q) return { error: 'notfound' };
+    var queries = [q], cleaned = q.split(',')[0].trim();
+    if (cleaned && cleaned !== q) queries.push(cleaned);
+    var langs = lg === 'en' ? ['en'] : [lg, 'en'];
+    for (var i = 0; i < queries.length; i++) {
+      for (var j = 0; j < langs.length; j++) {
+        try {
+          var data = await fetchJSON('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(queries[i]) + '&count=5&language=' + encodeURIComponent(langs[j]) + '&format=json', { cache: 'no-store' });
+          if (data && data.results && data.results.length) {
+            var best = data.results[0];
+            return { lat: best.latitude, lon: best.longitude, label: [best.name, best.admin1, best.country].filter(Boolean).join(', '), method: 'geocoder', countryCode: best.country_code ? String(best.country_code).toUpperCase() : null };
+          }
+        } catch (e) { sawError = true; i = queries.length; break; /* Skip remaining Open-Meteo retries on service failure. */ }
       }
-    } catch (e) { /* 降级到 Nominatim */ }
-    try {
-      var u2 = 'https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=jsonv2&limit=1&addressdetails=1&accept-language=' + encodeURIComponent(lg);
-      var r2 = await fetch(u2, { cache: 'no-store', headers: { 'Accept': 'application/json' } });
-      if (r2.ok) {
-        var j2 = await r2.json();
-        if (j2 && j2.length) {
-          var a = j2[0];
-          return { lat: parseFloat(a.lat), lon: parseFloat(a.lon), label: a.display_name, method: 'nominatim', countryCode: (a.address && a.address.country_code ? a.address.country_code.toUpperCase() : null) };
+    }
+    for (var p = 0; p < queries.length; p++) {
+      try {
+        var photon = await fetchJSON('https://photon.komoot.io/api/?q=' + encodeURIComponent(queries[p]) + '&limit=5', { cache: 'no-store' });
+        if (photon && photon.features && photon.features.length) {
+          var feature = photon.features[0], props = feature.properties || {}, coords = feature.geometry.coordinates;
+          return { lat: coords[1], lon: coords[0], label: [props.name, props.street, props.city, props.country].filter(Boolean).join(', '), method: 'photon', countryCode: props.countrycode ? props.countrycode.toUpperCase() : null };
         }
+        sawEmpty = true;
+      } catch (e) { sawError = true; break; }
+    }
+    try {
+      var osm = await fetchJSON('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=jsonv2&limit=1&addressdetails=1&accept-language=' + encodeURIComponent(lg), { cache: 'no-store', headers: { 'Accept': 'application/json' } });
+      if (osm && osm.length) {
+        var place = osm[0];
+        return { lat: parseFloat(place.lat), lon: parseFloat(place.lon), label: place.display_name, method: 'nominatim', countryCode: place.address && place.address.country_code ? place.address.country_code.toUpperCase() : null };
       }
-    } catch (e) { /* 忽略，交给调用方提示 */ }
-    return null;
+      sawEmpty = true;
+    } catch (e) { sawError = true; }
+    return { error: sawEmpty ? 'notfound' : 'network' };
   }
 
   // 由坐标找最近的监测城市（同时确定国家与静态属性）
   function nearestCity(lat, lon, countryCode) {
     var best = null;
+    if (countryCode) countryCode = String(countryCode).toUpperCase();
     D.countries.forEach(function (c) {
       if (countryCode && c.iso !== countryCode) return;
       c.cities.forEach(function (city) {
@@ -303,13 +338,23 @@
     return best;
   }
 
+  function leftoverText(text) {
+    var s = decodeText(text)
+      .replace(/(?:https?:\/\/)?(?:maps\.app\.goo\.gl|goo\.gl)\/[^\s<>"']*/gi, ' ')
+      .replace(/(?:https?:\/\/)?(?:www\.)?(?:google\.com\/maps|maps\.google\.com)[^\s<>"']*/gi, ' ');
+    return s.replace(/[\s,;|/]+/g, ' ').trim();
+  }
+
   async function resolveLocation(text, lang) {
     var coord = parseCoords(text);
     if (coord) return coord;
-    if (isUnresolvableShortLink(text)) return { error: 'shortlink' };
-    var g = await geocodeText(text, lang);
-    if (!g) return { error: 'notfound' };
-    return g;
+    var place = mapsPlace(text);
+    var leftover = leftoverText(text);
+    var raw = decodeText(text).trim();
+    if (!place && leftover && leftover !== raw) place = leftover;
+    if (place) return geocodeText(place, lang);
+    if (isShortLink(text)) return { error: 'shortlink' };
+    return geocodeText(text, lang);
   }
 
   /* ---------- 坐标级实时预报（浏览器直连 Open-Meteo，免 Key / CORS） ---------- */
@@ -320,9 +365,7 @@
       '&hourly=' + HOURLY_VARS +
       '&daily=precipitation_sum,temperature_2m_max,temperature_2m_min,weather_code' +
       '&timezone=' + encodeURIComponent(tz) + '&forecast_days=7';
-    var r = await fetch(u, { cache: 'no-store' });
-    if (!r.ok) throw new Error('Open-Meteo HTTP ' + r.status);
-    var j = await r.json();
+    var j = await fetchJSON(u, { cache: 'no-store' });
     if (!j || !j.hourly) throw new Error('bad payload');
     return { hourly: j.hourly, daily: j.daily, timezone: j.timezone, source: 'live' };
   }

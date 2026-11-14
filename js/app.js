@@ -178,7 +178,7 @@
       '<div class="hint">' + esc(t('trip.timeHint')) + (country ? ' · ' + esc(loc(country.name)) + ' ' + esc(country.utc) : '') + '</div></div>' +
       '<div class="field"><button class="btn-primary" id="tripGo" type="button">' + esc(t('trip.submit')) + '</button></div>' +
       '</div>' +
-      '<div class="trip-status" id="tripStatus"></div>' +
+      '<div class="trip-status" id="tripStatus" role="status" aria-live="polite"></div>' +
       '<div class="result" id="tripResult"></div>' +
       '<div class="limit"><b>' + esc(t('trip.limitTitle')) + colon() + '</b>' + esc(t('trip.limitText')) + '</div>' +
       '</div></div>';
@@ -199,18 +199,37 @@
     var status = document.getElementById('tripStatus');
     var box = document.getElementById('tripResult');
     var btn = document.getElementById('tripGo');
-    if (!addr || !when) { status.textContent = t('trip.needInput'); box.classList.remove('show'); return; }
+    if (btn.disabled) return;
+    function showError(key) {
+      status.textContent = t(key);
+      status.classList.add('err');
+    }
+    function revealOutcome() {
+      var target = box.classList.contains('show') ? box : status;
+      target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+    status.classList.remove('err');
+    if (!addr || !when) {
+      showError('trip.needInput'); box.classList.remove('show'); revealOutcome(); return;
+    }
 
-    btn.disabled = true; status.textContent = t('trip.resolving'); box.classList.remove('show');
+    var originalLabel = btn.textContent;
+    btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
+    btn.textContent = t('trip.checking');
+    status.classList.add('busy');
+    status.textContent = t('trip.resolving');
+    box.classList.remove('show');
     try {
       var resolved = await R.resolveLocation(addr, LANG);
       if (resolved && resolved.error === 'shortlink') {
-        status.textContent = t('trip.geoFail'); return;
+        showError('trip.shortLink'); return;
       }
-      if (!resolved || resolved.error) { status.textContent = t('trip.geoFail'); return; }
+      if (resolved && resolved.error === 'network') { showError('trip.geoNetwork'); return; }
+      if (!resolved || resolved.error) { showError('trip.geoFail'); return; }
 
       var near = R.nearestCity(resolved.lat, resolved.lon, resolved.countryCode);
-      if (!near) { status.textContent = t('trip.geoFail'); return; }
+      if (!near) { showError('trip.geoFail'); return; }
       var country = near.country, city = near.city;
 
       // 优先：按坐标实时向 Open-Meteo 取 7 天逐小时预报；失败降级到每日快照
@@ -222,7 +241,7 @@
         sourceLabel = 'Open-Meteo · ' + t('common.source') + ' (live)';
       } catch (e) {
         var wc = weatherCity(country.id, city.id);
-        if (!wc || !wc.hourly) { status.textContent = t('app.error'); return; }
+        if (!wc || !wc.hourly) { showError('app.error'); return; }
         rows = R.hourlyRows(wc.hourly);
         daily = R.dailyRows(wc.daily);
         usedSnapshot = true;
@@ -230,16 +249,20 @@
       }
 
       var idx = R.findHour(rows, when);
-      if (idx < 0) { status.textContent = t('trip.noWeather'); return; }
+      if (idx < 0) { showError('trip.noWeather'); return; }
       var a = R.assess(rows[idx], rows, idx, city, when, country.utc);
 
       status.textContent = '';
       box.innerHTML = renderTripResult(resolved, near, a, when, country, sourceLabel, usedSnapshot);
       box.classList.add('show');
     } catch (e) {
-      status.textContent = t('app.error') + ' (' + esc(e && e.message ? e.message : 'unknown') + ')';
+      showError('app.error');
     } finally {
       btn.disabled = false;
+      btn.textContent = originalLabel;
+      btn.setAttribute('aria-busy', 'false');
+      status.classList.remove('busy');
+      revealOutcome();
     }
   }
 
