@@ -108,9 +108,17 @@ async function callTool(tool: string, args: Record<string, unknown>, apiKey: str
     if (notification.status >= 400) throw new Failure(502, 'Flight provider initialization failed');
     response = await call(init.session);
   }
-  if (response.status >= 400 || !response.message || response.message.error || response.message.result === undefined) throw new Failure(502, 'Flight provider request failed');
+  if (response.status >= 400 || !response.message || response.message.error || response.message.result === undefined) {
+    console.error('upstream_failed', JSON.stringify({ tool, status: response.status, error: response.message?.error?.message?.slice(0, 300), hint: response.hint.slice(0, 300) }));
+    if (response.status === 401) throw new Failure(502, 'Flight provider key invalid');
+    if (response.status === 403) throw new Failure(502, 'Flight provider balance or key disabled');
+    throw new Failure(502, 'Flight provider request failed');
+  }
   const result = response.message.result;
-  if (result && typeof result === 'object' && 'isError' in result && result.isError) throw new Failure(502, 'Flight provider tool failed');
+  if (result && typeof result === 'object' && 'isError' in result && result.isError) {
+    console.error('tool_error', JSON.stringify({ tool, args, result: JSON.stringify(result).slice(0, 500) }));
+    throw new Failure(404, 'No flight data found');
+  }
   return result;
 }
 
@@ -154,6 +162,7 @@ Deno.serve(async (request: Request) => {
     return reply(200, { ok: true, cached: false, data: result });
   } catch (error) {
     // Never return upstream bodies, URLs, headers or exception messages with secrets.
+    if (!(error instanceof Failure)) console.error('unexpected', String(error).slice(0, 300));
     return error instanceof Failure ? reply(error.status, { ok: false, error: error.message }) : reply(502, { ok: false, error: 'Flight service temporarily unavailable' });
   }
 });
