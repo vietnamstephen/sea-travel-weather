@@ -98,8 +98,8 @@
             return '<span><span aria-hidden="true" style="color:' + RISK_COLORS[i] + '">' + ['✓', '!', '▲', '✕'][i] + '</span>' + esc(t('level.short.' + k)) + '</span>';
           }).join('') + '</div><span>' + esc(t('map.legendRiskHint')) + '</span></div>' +
         '<div class="map-legend-col"><b>' + esc(t('map.legendEvent')) + '</b><div class="map-legend-dots">' +
-          '<span><i style="background:#dc2626">●</i>GDACS Red</span><span><i style="background:#ea580c">●</i>GDACS Orange</span>' +
-          '<span><i style="background:#2563eb">●</i>GDACS Green</span></div>' +
+          '<span><i style="background:#dc2626">●</i>' + esc(t('gdacs.red')) + '</span><span><i style="background:#ea580c">●</i>' + esc(t('gdacs.orange')) + '</span>' +
+          '<span><i style="background:#2563eb">●</i>' + esc(t('gdacs.green')) + '</span></div>' +
           '<span>🌀 ' + esc(t('map.eventTC')) + ' · 🌊 ' + esc(t('map.eventFL')) + '</span></div>' +
       '</div>' +
       '<div class="map-status" id="mapStatus"></div>' +
@@ -209,7 +209,7 @@
       var L = root.L;
       var map = L.map(canvas, { zoomControl: true, attributionControl: true, worldCopyJump: true })
         .setView([center.lat, center.lon], center.zoom);
-      var osmAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+      var osmAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> ' + esc(t('map.contributors'));
       var carto = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         subdomains: 'abcd', maxZoom: 20,
         attribution: osmAttribution + ' &copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -402,7 +402,7 @@
     function eventPopup(e) {
       var col = EVENT_COLORS[e.level] || '#2563eb';
       return '<div class="map-pop"><b>' + (e.type === 'TC' ? '🌀 ' : '🌊 ') + esc(e.name) + '</b>' +
-        '<div style="color:' + col + ';font-weight:700">GDACS ' + esc(e.level) + '</div>' +
+        '<div style="color:' + col + ';font-weight:700">' + esc(t('gdacs.' + String(e.level).toLowerCase())) + '</div>' +
         '<div>' + esc(e.country || '—') + (e.severity ? ' · ' + esc(e.severity) : '') + '</div>' +
         '<div>' + esc(String(e.from).slice(0, 10)) + ' → ' + esc(String(e.to).slice(0, 10)) + '</div>' +
         '<div>' + esc(e.active ? t('map.eventActive') : t('map.eventEnded')) +

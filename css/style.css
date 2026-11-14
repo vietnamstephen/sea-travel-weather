@@ -465,3 +465,12 @@ button,.btn-primary,.pill,.map-mini{white-space:normal;overflow-wrap:anywhere}
 @media(max-width:639px){body{--body-size:15px}}
 
 small,textarea{font-size:var(--body-size,14px)}
+
+/* Shared keyboard focus and skip navigation. */
+button:focus-visible,a:focus-visible,.lang-opt:focus-visible,.nav-link:focus-visible,
+.btn-primary:focus-visible,.map-tab:focus-visible,summary:focus-visible,
+input:focus-visible,select:focus-visible,textarea:focus-visible {
+  outline:3px solid #2563eb;outline-offset:2px;
+}
+.skip-link{position:fixed;top:8px;left:8px;z-index:10000;padding:10px 16px;background:#fff;color:#1746a2;border-radius:6px;max-width:calc(100vw - 16px);transform:translateY(calc(-100% - 16px))}
+.skip-link:focus{transform:translateY(0)}

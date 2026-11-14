@@ -122,6 +122,7 @@
   }
   function applyI18n() {
     document.documentElement.lang = LANG === "zh" ? "zh-CN" : LANG;
+    document.querySelector('meta[name="description"]').content = t('app.description');
     document.getElementById("langBtn").setAttribute("aria-label", t("lang.label"));
     document.querySelectorAll('[data-i18n]').forEach(function (el) {
       var k = el.getAttribute('data-i18n');
@@ -143,7 +144,7 @@
         '<span class="flag">' + c.flag + '</span><span>' + esc(loc(c.name)) + '</span>' +
         '<span class="mini ' + k + '">' + '<span aria-hidden="true">' + ({green:'✓',yellow:'!',orange:'▲',red:'✕'})[k] + '</span> ' + esc(t('level.short.' + k)) + '</span></a>';
     });
-    html += '<div class="nav-note">' + esc(t('nav.section')) + ' · ' + esc(t('footer.credit')) + '</div>';
+    html += '<div class="nav-note">' + esc(t('footer.credit')) + '</div>';
     nav.innerHTML = html;
     var current = nav.querySelector(".nav-link.on");
     if (current && window.matchMedia("(max-width:960px)").matches) nav.scrollLeft = current.offsetLeft - nav.offsetLeft - 12;
@@ -242,14 +243,14 @@
         var live = await R.fetchPointWeather(resolved.lat, resolved.lon, country.tz);
         rows = R.hourlyRows(live.hourly);
         daily = R.dailyRows(live.daily);
-        sourceLabel = 'Open-Meteo · ' + t('common.source') + ' (live)';
+        sourceLabel = 'Open-Meteo · ' + t('common.source') + ' (' + t('common.live') + ')';
       } catch (e) {
         var wc = weatherCity(country.id, city.id);
         if (!wc || !wc.hourly) { showError('app.error'); return; }
         rows = R.hourlyRows(wc.hourly);
         daily = R.dailyRows(wc.daily);
         usedSnapshot = true;
-        sourceLabel = 'Open-Meteo · ' + t('common.source') + ' (snapshot)';
+        sourceLabel = 'Open-Meteo · ' + t('common.source') + ' (' + t('common.snapshot') + ')';
       }
 
       var idx = R.findHour(rows, when);
@@ -443,7 +444,7 @@
     return '<div class="ev-item' + (e.active ? '' : ' ended') + '">' +
       '<div class="ev-icon">' + (e.type === 'TC' ? '🌀' : '🌊') + '</div>' +
       '<div class="ev-body"><div class="ev-title">' +
-      '<span class="ev-badge ' + esc(e.level) + '">GDACS ' + esc(e.level) + '</span>' + esc(e.name) + '</div>' +
+      '<span class="ev-badge ' + esc(e.level) + '">' + esc(t('gdacs.' + String(e.level).toLowerCase())) + '</span>' + esc(e.name) + '</div>' +
       '<div class="ev-meta">' + esc(e.type === 'TC' ? t('map.eventTC') : t('map.eventFL')) +
       ' · ' + esc(e.country || '—') + ' · ' + esc(String(e.from || '').slice(0, 10)) +
       ' → ' + esc(String(e.to || '').slice(0, 10)) +
@@ -720,8 +721,8 @@
       '</div>' +
       '<div style="font-size:var(--body-size,14px);color:var(--sub);margin-top:12px">' + esc(t('city.hourly')) + ' · mm</div>' +
       '<div class="spark">' + (spark || '<i style="height:2px"></i>') + '</div>' +
-      '<div class="spark-labels"><span>' + esc(t('city.current')) + '</span><span>+24h</span></div>' +
-      '<div style="font-size:var(--body-size,14px);color:var(--sub);margin-top:10px">' + esc(t('city.forecast7')) + ' · mm/日</div>' +
+      '<div class="spark-labels"><span>' + esc(t('city.current')) + '</span><span>' + esc(t('city.plus24h')) + '</span></div>' +
+      '<div style="font-size:var(--body-size,14px);color:var(--sub);margin-top:10px">' + esc(t('city.forecast7')) + ' · ' + esc(t('city.rainUnit')) + '</div>' +
       '<div class="spark">' + (spark7 || '<i style="height:2px"></i>') + '</div>' +
       '<div class="spark-labels"><span>' + (daily[0] ? esc(daily[0].time.slice(5)) : '') + '</span><span>' + (daily[6] ? esc(daily[6].time.slice(5)) : '') + '</span></div>' +
       '</div>';
@@ -731,7 +732,7 @@
   function flightProviderLine(iata) {
     if (!FLIGHTS || !FLIGHTS.airports || !FLIGHTS.airports[iata]) return '';
     var rec = FLIGHTS.airports[iata];
-    if (rec.status === 'error') return '<div class="impact-line">' + esc(t('flight.providerLabel')) + colon() + esc(rec.error || 'error') + '</div>';
+    if (rec.status === 'error') return '<div class="impact-line">' + esc(t('flight.providerLabel')) + colon() + esc(rec.error || t('common.error')) + '</div>';
     var arr = rec.flights || [];
     if (!arr.length) return '<div class="impact-line">' + esc(t('flight.noFlights')) + '</div>';
     return '<div class="impact-line">' + arr.slice(0, 3).map(function (f) {
@@ -803,7 +804,7 @@
     // 官方源
     html += '<div class="section">' + sectionHead('country.sourceTitle', 'country.sourceHint') + '<div class="panel"><div class="list">';
     c.sources.forEach(function (s) {
-      html += '<div class="list-item"><span class="iata" style="background:var(--panel2);color:var(--sub);border:1px solid var(--line)">' + esc(s.kind.toUpperCase()) + '</span>' +
+      html += '<div class="list-item"><span class="iata" style="background:var(--panel2);color:var(--sub);border:1px solid var(--line)">' + esc(t('source.' + s.kind)) + '</span>' +
         '<div class="body"><div class="t">' + esc(loc(s.label)) + '</div>' +
         '<div class="links"><a class="pill" href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(t('common.view')) + ' ↗</a></div></div></div>';
     });
@@ -862,6 +863,15 @@
     });
   }
 
+  // Six-hour GMT+7 buckets anchored at 02:00 (02/08/14/20): the daily data job
+  // runs ~01:00-01:20 GMT+7, so a fresh key starts after it has deployed; manual
+  // updates show up within six hours. Avoids re-downloading ~350KB on every visit.
+  function dataVersion() {
+    var shifted = new Date(Date.now() + 5 * 3600000);
+    return shifted.toISOString().slice(0, 10).replace(/-/g, '') +
+      '-' + Math.floor(shifted.getUTCHours() / 6);
+  }
+
   async function boot() {
     applyI18n(); buildLangMenu();
     document.getElementById('langBtn').addEventListener('click', function (e) {
@@ -874,8 +884,9 @@
       document.getElementById('langMenu').classList.remove('open');
       document.getElementById('langBtn').setAttribute('aria-expanded', 'false');
     });
+    var version = dataVersion();
     try {
-      var r = await fetch('data/weather.json?_=' + Date.now(), { cache: 'no-store' });
+      var r = await fetch('data/weather.json?v=' + version);
       if (!r.ok) throw new Error('HTTP ' + r.status);
       WEATHER = await r.json();
     } catch (e) {
@@ -883,13 +894,13 @@
       console.warn('weather.json unavailable', e);
     }
     try {
-      var f = await fetch('data/flights.json?_=' + Date.now(), { cache: 'no-store' });
+      var f = await fetch('data/flights.json?v=' + version);
       if (f.ok) FLIGHTS = await f.json();
     } catch (e) {
       FLIGHTS = null;   // 缺文件时按「未接入」呈现，不影响天气功能
     }
     try {
-      var a = await fetch('data/advisories.json?_=' + Date.now(), { cache: 'no-store' });
+      var a = await fetch('data/advisories.json?v=' + version);
       if (a.ok) ADV = await a.json();
     } catch (e) {
       ADV = null;       // 缺文件时管制/灾害板块按「无数据」呈现
