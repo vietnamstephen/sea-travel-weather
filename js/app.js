@@ -75,7 +75,7 @@
     try {
       var dt = new Date(Date.now() + (addHours || 0) * 3600000);
       var p = new Intl.DateTimeFormat('en-GB', {
-        timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit',
+        calendar: 'gregory', timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit',
         hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
       }).formatToParts(dt);
       var o = {}; p.forEach(function (x) { o[x.type] = x.value; });
@@ -164,7 +164,7 @@
     var g = new Date(WEATHER.meta.generatedAt);
     var ageH = (Date.now() - g.getTime()) / 3600000;
     var stale = !isNaN(ageH) && ageH > 36;
-    var label = isNaN(g.getTime()) ? WEATHER.meta.generatedAt : g.toLocaleString(LANG === 'zh' ? 'zh-CN' : LANG, { dateStyle: 'short', timeStyle: 'short' });
+    var label = isNaN(g.getTime()) ? WEATHER.meta.generatedAt : g.toLocaleString(LANG === 'zh' ? 'zh-CN' : LANG, { calendar: 'gregory', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
     el.className = 'stamp' + (stale ? ' stale' : '');
     el.innerHTML = '<span>' + esc(t('app.updated')) + '</span> <b>' + esc(label) + '</b>';
     if (stale) el.title = t('app.stale');
@@ -633,12 +633,12 @@
         }
       });
       html += '<a class="country-card risk-' + R.LEVEL_KEYS[cr.level] + '" href="' + c.id + '.html">' +
-        '<div class="cc-head"><span class="cc-flag">' + c.flag + '</span><div>' +
+        '<div class="cc-head"><span class="cc-flag">' + c.flag + '</span><div class="cc-identity">' +
         '<div class="cc-name">' + esc(loc(c.name)) + '</div>' +
         '<div class="cc-sub">' + esc(loc(c.capital)) + ' · ' + esc(c.utc) + '</div></div>' +
-        '<div style="margin-left:auto">' + badge(cr.level) + '</div></div>' +
+        '<div class="cc-risk">' + badge(cr.level) + '</div></div>' +
         '<div class="cc-metrics">' +
-        '<div class="cc-metric"><div class="v">' + esc(n(cr.rainToday, 1)) + ' <span style="font-size:var(--body-size,14px);font-weight:600">mm</span></div><div class="l">' + esc(t('city.rain')) + ' · ' + esc(t('city.today')) + '</div></div>' +
+        '<div class="cc-metric"><div class="v">' + esc(n(cr.rainToday, 1)) + ' <span style="font-size:var(--body-size,14px);font-weight:600">mm</span></div><div class="l">' + esc(t('city.rain')) + '</div></div>' +
         '<div class="cc-metric"><div class="v">' + esc(n(maxTemp, 1)) + ' <span style="font-size:var(--body-size,14px);font-weight:600">°C</span></div><div class="l">' + esc(t('city.temp')) + '</div></div>' +
         '</div>' +
         '<div class="cc-foot"><span>' + c.cities.length + ' ' + esc(t('home.card.cities')) + ' · ' + c.airports.length + ' ' + esc(t('home.card.airports')) + '</span><span>' + esc(t('home.card.cta')) + ' →</span></div>' +
@@ -679,7 +679,6 @@
 
     // 地图 / 灾害 / 管制 / 等级定义 / 行程查询
     html += advSection(null);
-    html += defSection(true);
     html += tripFormHtml(null);
     return html;
   }
@@ -716,7 +715,7 @@
 
     return '<div class="city-card risk-' + R.LEVEL_KEYS[cr.level] + '">' +
       '<div class="city-head"><div class="city-name">' + esc(loc(city.name)) + '</div>' +
-      '<div style="margin-left:auto">' + badge(cr.level) + '</div></div>' +
+      '<div class="cc-risk">' + badge(cr.level) + '</div></div>' +
       '<div class="city-temp">' + esc(n(cur.temperature_2m, 1)) + ' °C</div>' +
       '<div class="city-desc">' + w.icon + ' ' + esc(w.text) + ' · ' + esc(t('city.feels')) + ' ' + esc(n(cur.apparent_temperature, 1)) + ' °C</div>' +
       '<div class="kv">' +
@@ -841,9 +840,71 @@
     var warn = !WEATHER ? '<div class="notice warn" style="margin-bottom:12px">' + esc(t('app.error')) + '</div>' :
       (stale ? '<div class="notice warn" style="margin-bottom:12px">' + esc(t('app.stale')) + '</div>' : '');
     main.innerHTML = warn + (PAGE === 'country' ? renderCountry() : renderOverview());
+    if (PAGE === 'overview') initOverviewDetails();
     applyI18nDynamic();
     initTrip(PAGE === 'country' ? R.countryById(CID) : null);
     initMap();
+  }
+
+  // Reuse the advisory content so overview and country data stay in sync.
+  var detailedMedia = window.matchMedia('(min-width:640px)');
+  var detailedCleanup = null;
+  function initOverviewDetails() {
+    if (detailedCleanup) detailedCleanup();
+    var main = document.getElementById('main');
+    var advisory = main.querySelector('.adv-grid').parentElement;
+    var cards = Array.from(advisory.querySelectorAll('.adv-card'));
+    var section = document.createElement('section');
+    section.className = 'section home-details';
+    section.innerHTML = sectionHead('home.details') + '<div class="detail-tabs" role="tablist" aria-label="' + esc(t('home.details')) + '"></div>';
+    advisory.before(section);
+    var tabs = section.querySelector('.detail-tabs');
+    var panels = [], buttons = [];
+    function add(key, nodes, count) {
+      var i = panels.length, label = t(key) + (count === undefined ? '' : ' (' + count + ')');
+      var button = document.createElement('button');
+      button.type = 'button'; button.id = 'detail-tab-' + i;
+      button.setAttribute('role', 'tab'); button.setAttribute('aria-controls', 'detail-panel-' + i);
+      button.textContent = label; tabs.appendChild(button); buttons.push(button);
+      var panel = document.createElement('details'); panel.className = 'detail-panel';
+      var summary = document.createElement('summary'); summary.textContent = label; panel.appendChild(summary);
+      var content = document.createElement('div'); content.className = 'detail-content'; content.id = 'detail-panel-' + i;
+      nodes.forEach(function (node) { content.appendChild(node); });
+      panel.appendChild(content); section.appendChild(panel); panels.push(panel);
+      button.addEventListener('click', function () { select(i); });
+      button.addEventListener('keydown', function (event) {
+        var next = event.key === 'ArrowRight' ? (i + 1) % buttons.length : event.key === 'ArrowLeft' ? (i + buttons.length - 1) % buttons.length : event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : null;
+        if (next !== null) { event.preventDefault(); select(next); buttons[next].focus(); }
+      });
+    }
+    add('adv.eventTitle', [cards[0]], eventsFor(null).length);
+    add('adv.ctrlTitle', [cards[1], cards[3]], D.countries.reduce(function (n, c) { return n + c.controls.length; }, 0) + ((ADV && ADV.confirmedClosures) || []).length);
+    add('adv.floodTitle', [cards[2]], ((ADV && ADV.flood) || []).filter(function (f) { return f.status === 'ok'; }).length);
+    add('trip.title', [document.getElementById('trip')]);
+    advisory.querySelector('.adv-grid').remove();
+    add('adv.title', Array.from(advisory.children));
+    advisory.remove();
+    var warning = main.querySelector(':scope > .notice');
+    if (warning) panels[4].querySelector('.detail-content').appendChild(warning);
+    var selected = 3;
+    function select(i) { selected = i; sync(); }
+    function sync() {
+      var desktop = detailedMedia.matches;
+      tabs.hidden = !desktop;
+      panels.forEach(function (panel, i) {
+        panel.hidden = desktop && i !== selected;
+        panel.open = desktop && i === selected;
+        var content = panel.querySelector('.detail-content');
+        if (desktop) { content.setAttribute('role', 'tabpanel'); content.setAttribute('aria-labelledby', buttons[i].id); content.tabIndex = 0; }
+        else { content.removeAttribute('role'); content.removeAttribute('aria-labelledby'); content.removeAttribute('tabindex'); }
+        buttons[i].setAttribute('aria-selected', String(i === selected)); buttons[i].tabIndex = i === selected ? 0 : -1;
+      });
+    }
+    sync(); detailedMedia.addEventListener('change', sync);
+    detailedCleanup = function () { detailedMedia.removeEventListener('change', sync); };
+    var method = document.querySelector('.footer-method');
+    var old = method.querySelector('.section'); if (old) old.remove();
+    method.insertAdjacentHTML('beforeend', defSection(true));
   }
 
   function initMap() {

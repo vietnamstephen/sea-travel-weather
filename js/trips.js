@@ -144,7 +144,7 @@
     rows.forEach(function (row, i) { if (row.time.slice(0, 10) === date) selected.push(i); });
     var exact = selected.length > 0;
     if (!exact && rows.length) {
-      var parts = new Intl.DateTimeFormat('en-GB', { timeZone: place.country.tz, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
+      var parts = new Intl.DateTimeFormat('en-GB', { calendar: 'gregory', timeZone: place.country.tz, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
       var local = {}; parts.forEach(function (part) { local[part.type] = part.value; });
       var today = local.year + '-' + local.month + '-' + local.day;
       var day = rows.filter(function (r) { return r.time.slice(0, 10) >= today; })[0] || rows[rows.length - 1];
@@ -182,7 +182,7 @@
       });
       var exampleDate = new Date();
       exampleDate.setDate(exampleDate.getDate() + 14);
-      var exampleDateLabel = exampleDate.toLocaleDateString(({ zh: 'zh-CN', en: 'en', vi: 'vi', th: 'th', id: 'id' })[window.SEA_APP.lang], { year: 'numeric', month: 'short', day: 'numeric' });
+      var exampleDateLabel = exampleDate.toLocaleDateString(({ zh: 'zh-CN', en: 'en', vi: 'vi', th: 'th', id: 'id' })[window.SEA_APP.lang], { calendar: 'gregory', year: 'numeric', month: 'short', day: 'numeric' });
       var origin = R.countryById('vn').cities[0], destination = R.countryById('th').cities[0];
       html += '</ul><article class="trips-example"><strong>' + e(t('trips.example')) + '</strong><h3>' +
         e(loc(origin.name)) + ' (SGN) → ' + e(loc(destination.name)) + ' (BKK)</h3><p>' + e(exampleDateLabel) + ' · 28 °C</p>' +

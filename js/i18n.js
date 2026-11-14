@@ -15,6 +15,7 @@
     "account.in": ["已登录", "Signed in", "Đã đăng nhập", "เข้าสู่ระบบแล้ว", "Sudah masuk"],
     "account.out": ["未登录", "Signed out", "Chưa đăng nhập", "ยังไม่ได้เข้าสู่ระบบ", "Belum masuk"],
 
+    "home.details": ["详细数据", "Detailed data", "Dữ liệu chi tiết", "ข้อมูลโดยละเอียด", "Data terperinci"],
     "source.wx": ["气象", "Weather", "Thời tiết", "อากาศ", "Cuaca"],
     "source.gov": ["政府", "Government", "Chính phủ", "รัฐบาล", "Pemerintah"],
     "source.road": ["道路", "Roads", "Đường bộ", "ถนน", "Jalan"],
@@ -159,7 +160,7 @@
 
     'home.heroTitle': ['今天，东南亚哪里需要留意？', 'Where in Southeast Asia needs attention today?', 'Hôm nay, nơi nào ở Đông Nam Á cần lưu ý?', 'วันนี้ พื้นที่ใดในอาเซียนที่ต้องระวัง?', 'Hari ini, mana di Asia Tenggara yang perlu diperhatikan?'],
     'home.heroSub': ['按国家看天气、机场与出行风险。所有风险等级均由公开预报数据按固定阈值推算，不是官方预警。', 'Weather, airports and travel risk by country. All risk levels are computed from public forecast data using fixed thresholds — not official warnings.', 'Xem thời tiết, sân bay và rủi ro đi lại theo quốc gia. Mức rủi ro được tính từ dữ liệu dự báo công khai theo ngưỡng cố định, không phải cảnh báo chính thức.', 'ดูอากาศ สนามบิน และความเสี่ยงการเดินทางรายประเทศ ระดับความเสี่ยงคำนวณจากข้อมูลพยากรณ์สาธารณะด้วยเกณฑ์คงที่ ไม่ใช่ประกาศเตือนทางการ', 'Lihat cuaca, bandara, dan risiko perjalanan per negara. Tingkat risiko dihitung dari data prakiraan publik dengan ambang tetap — bukan peringatan resmi.'],
-    'home.riskTitle': ['六国今日风险速览', 'Six-country risk snapshot', 'Tóm tắt rủi ro 6 quốc gia', 'ภาพรวมความเสี่ยง 6 ประเทศ', 'Ringkasan risiko 6 negara'],
+    'home.riskTitle': ['六国今日风险速览', 'Today’s six-country risk snapshot', 'Rủi ro hôm nay tại 6 quốc gia', 'ภาพรวมความเสี่ยงวันนี้ใน 6 ประเทศ', 'Ringkasan risiko hari ini di 6 negara'],
     'home.riskHint': ['取各国监测城市「当前起未来 24 小时」的最高等级；点卡片进入该国家页面。', 'Highest level across each country\'s monitored cities for the next 24 hours; click a card for details.', 'Mức cao nhất trong 24 giờ tới tại các thành phố theo dõi của từng nước; nhấn thẻ để xem chi tiết.', 'ระดับสูงสุดใน 24 ชั่วโมงข้างหน้าของเมืองที่ติดตามในแต่ละประเทศ คลิกการ์ดเพื่อดูรายละเอียด', 'Level tertinggi dalam 24 jam ke depan pada kota yang dipantau tiap negara; klik kartu untuk rincian.'],
     'home.trendTitle': ['未来 7 天 · 各国日降雨量', 'Next 7 days · daily precipitation by country', '7 ngày tới · Lượng mưa theo ngày', '7 วันข้างหน้า · ปริมาณฝนรายวัน', '7 hari ke depan · Curah hujan harian'],
     'home.trendHint': ['单位 mm/日，取各国监测城市平均值；颜色越深代表雨量越大。', 'mm/day, average of monitored cities in each country. Darker cell = more rain.', 'mm/ngày, trung bình các thành phố theo dõi; ô đậm = mưa nhiều.', 'มม./วัน เฉลี่ยเมืองที่ติดตาม ช่องสีเข้ม = ฝนมาก', 'mm/hari, rata-rata kota yang dipantau; sel lebih gelap = hujan lebih banyak.'],
