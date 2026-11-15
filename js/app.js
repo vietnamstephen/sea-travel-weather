@@ -809,6 +809,26 @@
     });
   }
 
+  function revealCity(cityId, jump) {
+    var row = Array.from(document.querySelectorAll('.city-row')).find(function (el) { return el.dataset.city === cityId; });
+    if (!row) return false;
+    var cities = row.closest('.country-cities'), more = cities && cities.querySelector('.city-more');
+    if (row.classList.contains('city-extra') && cities && !cities.classList.contains('show-all')) {
+      cities.classList.add('show-all');
+      if (more) { more.setAttribute('aria-expanded', 'true'); more.textContent = t('country.showLess'); }
+    }
+    row.open = true;
+    if (jump) {
+      // 等 show-all 与 details 展开完成布局后再滚到城市行（不要滚到 .hospitals，否则标题会被滚出视口）
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          row.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        });
+      });
+    }
+    return true;
+  }
+
   function renderHospitals(section) {
     var data = section.hospitalData, city = section.hospitalCity, meta = data.meta || {};
     var items = (((data.countries || {})[CID] || {})[city] || []).slice();
@@ -898,6 +918,8 @@
       } catch (e) {
       }
       refresh();
+      var nearest = R.nearestCity(hospitalPosition.lat, hospitalPosition.lng);
+      if (nearest && nearest.country.id === CID) revealCity(nearest.city.id, true);
     }, function (e) {
       hospitalPending = false;
       hospitalPosition = null;
@@ -998,11 +1020,14 @@
       html += '<a class="pill" href="tel:' + esc(number) + '">' + esc(t('country.' + kind)) + ' ' + esc(number) + '</a>';
     });
     html += '</div></div><section class="section country-cities">' + sectionHead('country.citiesTitle', 'country.citiesHint').replace('</h2>', '</h2>' + SEA_OUTFIT.switcher());
-    c.cities.slice().sort(function (a, b) { return R.cityRisk(weatherCity(c.id, b.id), b, hourKey(c.tz)).level - R.cityRisk(weatherCity(c.id, a.id), a, hourKey(c.tz)).level; }).forEach(function (city, i) {
+    var preferred = c.id === 'vn' ? ['hcm','hanoi','danang','nhatrang','phuquoc'] : c.id === 'th' ? ['bangkok','chiangmai','phuket','pattaya','hua hin','chonburi'] : [];
+    var orderedCities = preferred.map(function (id) { return c.cities.find(function (city) { return city.id === id; }); }).filter(Boolean);
+    c.cities.forEach(function (city) { if (!orderedCities.includes(city)) orderedCities.push(city); });
+    orderedCities.forEach(function (city, i) {
       var risk = R.cityRisk(weatherCity(c.id, city.id), city, hourKey(c.tz));
       html += '<details data-city="' + esc(city.id) + '" class="city-row' + (i >= 5 ? ' city-extra' : '') + '"><summary>' + '<span class="city-name">' + esc(loc(city.name)) + '</span> ' + badge(risk.level) + (['vn','th'].includes(CID) ? '<button type="button" class="hosp-jump" aria-label="'+esc(t('hosp.jumpAria'))+'">🏥 '+esc(t('hosp.short'))+'</button>' : '') + '<span class="city-metrics">' + esc(cityMetrics(c, city)) + '</span></summary>' + cityCard(c, city) + '</details>';
     });
-    html += '<button type="button" class="pill city-more" aria-expanded="false">' + esc(t('country.showAll')) + '</button></section>';
+    html += '<button type="button" class="pill city-more" aria-expanded="false">' + esc(t('country.showAll').replace('{total}', c.cities.length).replace('{remaining}', Math.max(0, c.cities.length - 5))) + '</button></section>';
 
     // 逐城市 7 天雨量 + 台风/洪水角标
     html += countryTrendHtml(c);
@@ -1191,7 +1216,7 @@
       var key = hashTab();
       if (keys.includes(key)) select(key,false);
       else if (location.hash === '#trip') select('trip',false);
-      else { var target = document.getElementById(location.hash.slice(1)); if (target) { var parentPanel = target.closest('[role=tabpanel]'); if (parentPanel) select(parentPanel.id.replace('country-panel-',''),false); if (target.tagName === 'DETAILS') target.open = true; target.scrollIntoView(); } }
+      else { var rawHash = location.hash.slice(1), hashCity = new URLSearchParams(rawHash).get('city'); if ((hashCity || rawHash) && revealCity(hashCity || rawHash, true)) return; var target = document.getElementById(rawHash); if (target) { var parentPanel = target.closest('[role=tabpanel]'); if (parentPanel) select(parentPanel.id.replace('country-panel-',''),false); if (target.tagName === 'DETAILS') revealCity(target.dataset.city, false); target.scrollIntoView(); } }
     };
     // Combine controls and confirmed closures, deduping official source + location.
     var hazard = sections[6], cards = Array.from(hazard.querySelectorAll('.adv-card'));
@@ -1219,9 +1244,13 @@
     footer.prepend(sections[7]);
     document.querySelectorAll('.city-row').forEach(function (row) { row.addEventListener('toggle',function () { hospitalToggle(row); attractionToggle(row, R.countryById(CID).cities.find(function(city) { return city.id === row.dataset.city; })); if (row.open) document.querySelectorAll('.city-row').forEach(function (other) { if (other !== row) other.open = false; }); }); });
     main.querySelectorAll('.hosp-jump').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();var row=b.closest('details');row.open=true;hospitalToggle(row,true);});});
-    var more = main.querySelector('.city-more'); more.addEventListener('click',function () { var open = more.getAttribute('aria-expanded') !== 'true'; more.setAttribute('aria-expanded',String(open)); main.querySelector('.country-cities').classList.toggle('show-all',open); more.textContent = t(open ? 'country.showLess' : 'country.showAll'); });
+    var more = main.querySelector('.city-more'); more.addEventListener('click',function () { var open = more.getAttribute('aria-expanded') !== 'true'; more.setAttribute('aria-expanded',String(open)); main.querySelector('.country-cities').classList.toggle('show-all',open); more.textContent = open ? t('country.showLess') : t('country.showAll').replace('{total}', R.countryById(CID).cities.length).replace('{remaining}', Math.max(0, R.countryById(CID).cities.length - 5)); });
     select(selected,false);
+    function updateTopbarMargin() { var topbar = document.querySelector('.topbar'); if (topbar) document.documentElement.style.setProperty('--topbar-height', Math.ceil(topbar.getBoundingClientRect().height) + 'px'); }
+    updateTopbarMargin(); window.addEventListener('resize', updateTopbarMargin);
     if (location.hash && !hashTab()) window.onhashchange();
+    var queryCity = new URLSearchParams(location.search).get('city');
+    if (queryCity) revealCity(queryCity, true);
   }
 
   function initMap() {

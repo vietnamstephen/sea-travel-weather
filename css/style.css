@@ -666,7 +666,8 @@ body[data-page="country"] .footer summary{cursor:pointer;font-weight:700}
 .city-row[open] .hosp-jump{display:none}
 .hospitals :focus-visible,.hosp-jump:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 
-.hospitals{margin-top:12px;scroll-margin-top:12px;font-size:12px}
+.hospitals{margin-top:12px;scroll-margin-top:calc(var(--topbar-height,92px) + 8px);font-size:12px}
+.city-row{scroll-margin-top:calc(var(--topbar-height,92px) + 8px)}
 /* 标题行 44px */
 .hosp-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px}
 .hosp-heading h3{margin:0;font-size:15px}

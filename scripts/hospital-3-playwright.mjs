@@ -1,5 +1,5 @@
 /**
- * Hospital-3 layout + geolocation acceptance.
+ * Hospital-4 layout, city jump, sticky-header and geolocation acceptance.
  * Run from the repo root:
  *   NODE_PATH=~/WorkBuddy/pw/node_modules node scripts/hospital-3-playwright.mjs
  *
@@ -28,7 +28,7 @@ const root = (process.env.HOSPITAL3_ROOT
 const hospitals = JSON.parse(await readFile(join(root, 'data/hospitals.json'), 'utf8'));
 const assertMode = process.env.HOSPITAL3_ASSERT !== '0';
 const takeShots = process.env.HOSPITAL3_SHOTS !== '0';
-const shotPrefix = process.env.HOSPITAL3_SHOT_PREFIX || 'hospital-3';
+const shotPrefix = process.env.HOSPITAL4_SHOT_PREFIX || 'hospital-4';
 const shotDir = process.env.HOSPITAL3_SHOTS_DIR || join(homedir(), 'WorkBuddy/cards/shots');
 
 const mime = {
@@ -100,7 +100,44 @@ async function waitForImages(page) {
   })));
 }
 
+async function assertVisibleBelowTopbar(page, selector, label) {
+  const info = await page.locator(selector).evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    const topbar = document.querySelector('.topbar').getBoundingClientRect();
+    return { top: r.top, bottom: r.bottom, topbarBottom: topbar.bottom, text: el.innerText };
+  });
+  record(info.top >= info.topbarBottom - 1 && info.bottom > info.topbarBottom, `${label} obscured by sticky topbar: ${JSON.stringify(info)}`);
+  return info;
+}
+
 try {
+  for (const [country, expected] of [['vn', ['hcm','hanoi','danang','nhatrang','phuquoc']], ['th', ['bangkok','chiangmai','phuket','pattaya','chonburi']]]) {
+    const context = await browser.newContext({ viewport: { width: 390, height: 900 } });
+    const page = await context.newPage();
+    await page.goto(`${origin}/${country}.html`, { waitUntil: 'domcontentloaded' });
+    const firstFive = await page.locator('.city-row').evaluateAll((rows) => rows.slice(0,5).map((row) => row.dataset.city));
+    record(JSON.stringify(firstFive) === JSON.stringify(expected), `${country} default city order ${JSON.stringify(firstFive)} != ${JSON.stringify(expected)}`);
+    const total = await page.locator('.city-row').count();
+    const buttonText = await page.locator('.city-more').textContent();
+    record(buttonText.includes(String(total)) && buttonText.includes(String(Math.max(0,total-5))), `${country} show-all label lacks total/remaining count: ${buttonText}`);
+    await context.close();
+  }
+
+  for (const targetUrl of [`${origin}/vn.html?city=quynhon`, `${origin}/vn.html#quynhon`, `${origin}/vn.html#city=quynhon`]) {
+    const context = await browser.newContext({ viewport: { width: 390, height: 900 } });
+    const page = await context.newPage();
+    await page.goto(targetUrl, { waitUntil: 'domcontentloaded' });
+    const row = page.locator('.city-row[data-city="quynhon"]');
+    await row.waitFor({ state: 'visible' });
+    await page.waitForTimeout(250);
+    const state = await row.evaluate((el) => ({ open: el.open, top: el.getBoundingClientRect().top, topbarBottom: document.querySelector('.topbar').getBoundingClientRect().bottom, all: el.closest('.country-cities').classList.contains('show-all') }));
+    record(state.open && state.all && state.top >= state.topbarBottom - 1, `city link failed to reveal/open/scroll: ${targetUrl} ${JSON.stringify(state)}`);
+    if (takeShots && targetUrl.includes('?city=')) {
+      await mkdir(shotDir, { recursive: true });
+      await page.screenshot({ path: join(shotDir, `${shotPrefix}-city-query.png`) });
+    }
+    await context.close();
+  }
   const cityCases = [['vn', 'danang'], ['vn', 'hcm'], ['th', 'samutsakhon'], ['th', 'bangkok']];
   for (const width of [390, 1280]) {
     for (const [country, city] of cityCases) {
@@ -211,6 +248,40 @@ try {
       locationStatus,
       pos,
     });
+    await context.close();
+  }
+
+  {
+    const originPoint = hospitals.meta.origins.samutsakhon;
+    const context = await browser.newContext({ viewport: { width: 390, height: 900 }, geolocation: { latitude: originPoint.lat, longitude: originPoint.lon }, permissions: ['geolocation'] });
+    const page = await context.newPage();
+    await page.goto(`${origin}/th.html`, { waitUntil: 'domcontentloaded' });
+    await openCity(page, 'bangkok');
+    await page.locator('.hosp-locate').click();
+    await page.waitForFunction(() => sessionStorage.getItem('hospitalPosition') !== null, null, { timeout: 15000 });
+    const samut = page.locator('.city-row[data-city="samutsakhon"]');
+    await samut.waitFor({ state: 'visible' });
+    await page.waitForTimeout(250);
+    const state = await samut.evaluate((el) => ({ open: el.open, top: el.getBoundingClientRect().top, stickyBottom: document.querySelector('.topbar').getBoundingClientRect().bottom, expanded: el.closest('.country-cities').classList.contains('show-all') }));
+    record(state.open && state.expanded && state.top >= state.stickyBottom - 1, `location failed to reveal/scroll Samut Sakhon: ${JSON.stringify(state)}`);
+    await context.close();
+  }
+
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 900 } });
+    const page = await context.newPage();
+    await page.goto(`${origin}/vn.html`, { waitUntil: 'domcontentloaded' });
+    await page.locator('.city-row[data-city="danang"] .hosp-jump').click();
+    await page.locator('.hospitals').waitFor();
+    await page.waitForTimeout(250);
+    const heading = await assertVisibleBelowTopbar(page, '.hosp-heading', 'Hospital heading');
+    const emergency = await assertVisibleBelowTopbar(page, '.hosp-emergency', 'Emergency number');
+    record(heading.text.includes('应急医院') || heading.text.toLowerCase().includes('emergency'), `unexpected hospital heading: ${heading.text}`);
+    record(emergency.text.includes('115'), `emergency row does not show 115: ${emergency.text}`);
+    if (takeShots) {
+      await mkdir(shotDir, { recursive: true });
+      await page.locator('.hospitals').screenshot({ path: join(shotDir, `${shotPrefix}-jump-danang-390.png`) });
+    }
     await context.close();
   }
 

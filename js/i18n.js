@@ -5,7 +5,7 @@
 (function (root) {
   'use strict';
   var DICT = {
-    "country.showAll": ["展开全部", "Show all", "Xem tất cả", "แสดงทั้งหมด", "Tampilkan semua"],
+    "country.showAll": ["显示全部 {total} 个城市（还有 {remaining} 个）", "Show all {total} cities ({remaining} more)", "Hiển thị tất cả {total} thành phố (còn {remaining})", "แสดงเมืองทั้งหมด {total} เมือง (อีก {remaining} เมือง)", "Tampilkan semua {total} kota ({remaining} lagi)"],
     "country.showLess": ["收起", "Show less", "Thu gọn", "แสดงน้อยลง", "Tampilkan lebih sedikit"],
     "country.mapHazards": ["地图与灾害", "Map and hazards", "Bản đồ và thiên tai", "แผนที่และภัยพิบัติ", "Peta dan bencana"],
     "country.tipsSources": ["提醒与官方来源", "Tips and official sources", "Lưu ý và nguồn chính thức", "คำแนะนำและแหล่งข้อมูลทางการ", "Tips dan sumber resmi"],
