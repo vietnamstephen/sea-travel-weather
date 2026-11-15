@@ -1,0 +1,372 @@
+{
+  "hcm": {
+    "qid": "Q1854",
+    "label": "Ho Chi Minh City",
+    "lat": 10.775555555555556,
+    "lon": 106.70194444444445,
+    "source": "Wikidata P625",
+    "note": "P36 Saigon ward Q135026770 and City Hall Q2227195 checked; city P625 agrees with downtown, unlike weather representative point.",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q1854"
+  },
+  "hanoi": {
+    "qid": "Q1858",
+    "label": "Hanoi",
+    "lat": 21.0245,
+    "lon": 105.84117,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q1858"
+  },
+  "danang": {
+    "qid": "Q25282",
+    "label": "Da Nang",
+    "lat": 16.069444444444443,
+    "lon": 108.20972222222223,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q25282"
+  },
+  "phuquoc": {
+    "qid": "Q146695",
+    "label": "Phú Quốc",
+    "lat": 10.228888888889,
+    "lon": 103.95722222222,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q146695"
+  },
+  "nhatrang": {
+    "qid": "Q19491",
+    "label": "Nha Trang",
+    "lat": 12.245,
+    "lon": 109.19166666666666,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q19491"
+  },
+  "quynhon": {
+    "qid": "Q36081",
+    "label": "Quy Nhon",
+    "lat": 13.769580555555555,
+    "lon": 109.23137222222222,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q36081"
+  },
+  "dalat": {
+    "qid": "Q25281",
+    "label": "Đà Lạt",
+    "lat": 11.94,
+    "lon": 108.4375,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q25281"
+  },
+  "bacninh": {
+    "qid": "Q33381",
+    "label": "Bắc Ninh",
+    "lat": 21.18608,
+    "lon": 106.07631,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q33381"
+  },
+  "bacgiang": {
+    "qid": "Q36736",
+    "label": "Bắc Giang",
+    "lat": 21.27356,
+    "lon": 106.192209,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q36736"
+  },
+  "haiphong": {
+    "qid": "Q72818",
+    "label": "Haiphong",
+    "lat": 20.85741,
+    "lon": 106.6818,
+    "source": "Explicit central-city override: Q5639462 P625 (municipal Opera House)",
+    "note": "Q72818 P625 is a coarse southern point (20.8,106.666667); central Opera House used instead. Hồng Bàng admin district Q5965452 P625 also checked (20.869167,106.656944).",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q72818"
+  },
+  "binhduong": {
+    "qid": "Q524553",
+    "label": "Thủ Dầu Một",
+    "lat": 11.004166666667,
+    "lon": 106.65833333333,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q524553"
+  },
+  "dongnai": {
+    "qid": "Q19316",
+    "label": "Biên Hòa",
+    "lat": 10.950764,
+    "lon": 106.822136,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q19316"
+  },
+  "bangkok": {
+    "qid": "Q1861",
+    "label": "Bangkok",
+    "lat": 13.75,
+    "lon": 100.51666666667,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q1861"
+  },
+  "chiangmai": {
+    "qid": "Q52028",
+    "label": "Chiang Mai",
+    "lat": 18.788888888889,
+    "lon": 98.983333333333,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q52028"
+  },
+  "phuket": {
+    "qid": "Q844430",
+    "label": "Phuket",
+    "lat": 7.8880555555556,
+    "lon": 98.3975,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q844430"
+  },
+  "pattaya": {
+    "qid": "Q170919",
+    "label": "Pattaya",
+    "lat": 12.949565,
+    "lon": 100.893004,
+    "source": "Wikidata P625",
+    "note": "City P625 retained; P131 is Bang Lamung district, not a more precise city centre.",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q170919"
+  },
+  "chonburi": {
+    "qid": "Q138589",
+    "label": "Chonburi",
+    "lat": 13.361111111111,
+    "lon": 100.985,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q138589"
+  },
+  "rayong": {
+    "qid": "Q1015123",
+    "label": "Rayong",
+    "lat": 12.674166666667,
+    "lon": 101.27888888889,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q1015123"
+  },
+  "chachoengsao": {
+    "qid": "Q1026368",
+    "label": "Chachoengsao",
+    "lat": 13.690277777777778,
+    "lon": 101.07027777777778,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q1026368"
+  },
+  "ayutthaya": {
+    "qid": "Q476222",
+    "label": "Phra Nakhon Si Ayutthaya",
+    "lat": 14.349444444444,
+    "lon": 100.55944444444,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q476222"
+  },
+  "samutprakan": {
+    "qid": "Q13139252",
+    "label": "Samut Prakan",
+    "lat": 13.6004,
+    "lon": 100.5964,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q13139252"
+  },
+  "samutsakhon": {
+    "qid": "Q1359220",
+    "label": "Samut Sakhon",
+    "lat": 13.548611111111,
+    "lon": 100.2775,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q1359220"
+  },
+  "singapore": {
+    "qid": "Q334",
+    "label": "Singapore",
+    "lat": 1.3,
+    "lon": 103.8,
+    "source": "Wikidata P625",
+    "note": "Island-wide P625 retained, P36 is self; Downtown Core Q3810086 (1.2867,103.854) checked but narrower than island-wide site scope.",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q334"
+  },
+  "jurong": {
+    "qid": "Q14439130",
+    "label": "Jurong",
+    "lat": 1.3166722222222,
+    "lon": 103.71689444444,
+    "source": "Wikidata P625",
+    "note": "District P625 retained; Jurong East Q1714023 (1.328883,103.739947) checked, but is narrower than Jurong / West.",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q14439130"
+  },
+  "changi": {
+    "qid": "Q1812824",
+    "label": "Changi",
+    "lat": 1.353888888888889,
+    "lon": 103.97472222222223,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q1812824"
+  },
+  "kl": {
+    "qid": "Q1865",
+    "label": "Kuala Lumpur",
+    "lat": 3.1477777777778,
+    "lon": 101.69527777778,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q1865"
+  },
+  "penang": {
+    "qid": "Q61092",
+    "label": "George Town",
+    "lat": 5.4145,
+    "lon": 100.3292,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q61092"
+  },
+  "kotakinabalu": {
+    "qid": "Q137271",
+    "label": "Kota Kinabalu",
+    "lat": 5.975,
+    "lon": 116.0725,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q137271"
+  },
+  "johor": {
+    "qid": "Q231318",
+    "label": "Johor Bahru",
+    "lat": 1.4555555555556,
+    "lon": 103.76111111111,
+    "source": "Wikidata P625",
+    "note": "City Council Tower Q96142923 P625 (1.472917,103.764361) checked; both references are central-city representative choices.",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q231318"
+  },
+  "jakarta": {
+    "qid": "Q3630",
+    "label": "Jakarta",
+    "lat": -6.175277777777778,
+    "lon": 106.82694444444445,
+    "source": "Wikidata P625",
+    "note": "City Hall Q25464906 P625 (-6.181111,106.812222) checked; city P625 retained.",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q3630"
+  },
+  "bali": {
+    "qid": "Q11506",
+    "label": "Denpasar",
+    "lat": -8.671666666666667,
+    "lon": 115.23388888888888,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q11506"
+  },
+  "surabaya": {
+    "qid": "Q11462",
+    "label": "Surabaya",
+    "lat": -7.246283611111111,
+    "lon": 112.73776722222222,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q11462"
+  },
+  "yogyakarta": {
+    "qid": "Q3741",
+    "label": "Yogyakarta",
+    "lat": -7.801388888888889,
+    "lon": 110.36444444444444,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q3741"
+  },
+  "manila": {
+    "qid": "Q1461",
+    "label": "Manila",
+    "lat": 14.595833333333333,
+    "lon": 120.97722222222222,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q1461"
+  },
+  "cebu": {
+    "qid": "Q1467",
+    "label": "Cebu City",
+    "lat": 10.293,
+    "lon": 123.902,
+    "source": "Wikidata P625",
+    "note": "City Hall Q104847174 P625 (10.292863,123.901359) confirms city P625.",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q1467"
+  },
+  "davao": {
+    "qid": "Q1473",
+    "label": "Davao City",
+    "lat": 7.066233333333333,
+    "lon": 125.60944166666667,
+    "source": "Wikidata P625",
+    "note": "City Hall Q28937451 P625 (7.06439,125.6077) confirms downtown reference. Weather point remains a representative point within the large city.",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q1473"
+  },
+  "boracay": {
+    "qid": "Q855235",
+    "label": "boracay",
+    "lat": 11.975,
+    "lon": 121.9225,
+    "source": "Wikidata P625",
+    "note": "",
+    "checkedAt": "2026-11-15",
+    "referenceUrl": "https://www.wikidata.org/wiki/Q855235"
+  }
+}

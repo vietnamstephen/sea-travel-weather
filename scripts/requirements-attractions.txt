@@ -1,0 +1,3 @@
+# Manual attractions builder only (not the daily weather pipeline).
+requests>=2.31
+opencc-python-reimplemented==0.1.7
