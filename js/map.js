@@ -31,6 +31,7 @@
    * ------------------------------------------------------------------------ */
   function init(host, opts) {
     if (!host) return;
+    if (root.SEA_MAP_CLEANUP) root.SEA_MAP_CLEANUP();
     if (ACTIVE_TIMER) { clearInterval(ACTIVE_TIMER); ACTIVE_TIMER = null; }
     var t = opts.t, lang = opts.lang || 'zh';
     var D = opts.data, W = opts.weather || {}, A = opts.advisories || {};
@@ -299,7 +300,8 @@
         toggleRiver: function (on) { if (on) groups.river.addTo(map); else groups.river.remove(); },
         setView: function (la, lo, z) { map.setView([la, lo], z); },
         getView: function () { var c = map.getCenter(); return { lat: c.lat, lon: c.lng, zoom: map.getZoom() }; },
-        invalidate: function () { map.invalidateSize(); },
+        invalidate: function () { map.invalidateSize({ pan: false }); },
+        fit: function () { map.fitBounds(cities.map(function (x) { return [x.ct.lat, x.ct.lon]; }), { padding: [24, 24], maxZoom: country && country.id === 'sg' ? 10 : 7, animate: false }); },
         destroy: function () { try { map.remove(); } catch (e) { /* already gone */ } }
       };
     }
@@ -395,6 +397,7 @@
         setView: function (la, lo, z) { map.setCenter({ lat: la, lng: lo }); map.setZoom(z); },
         getView: function () { var c = map.getCenter(); return { lat: c.lat(), lon: c.lng(), zoom: map.getZoom() }; },
         invalidate: function () { g.event.trigger(map, 'resize'); },
+        fit: function () { var bounds = new g.LatLngBounds(); cities.forEach(function (x) { bounds.extend({ lat: x.ct.lat, lng: x.ct.lon }); }); map.fitBounds(bounds, 24); },
         destroy: function () { /* Google Map 随容器清空自动释放引用 */ }
       };
     }
@@ -462,7 +465,7 @@
       } else {
         frame.hidden = true;
         if (state.degraded) { fb.hidden = false; canvas.hidden = true; }
-        else { canvas.hidden = false; fb.hidden = true; if (state.adapter) setTimeout(function () { state.adapter.invalidate(); }, 60); }
+        else { canvas.hidden = false; fb.hidden = true; if (state.adapter) setTimeout(function () { state.adapter.invalidate(); refreshVisible(false); }, 60); }
       }
     }
     function updateTrafficLink() {
@@ -568,8 +571,39 @@
         catch (e) { renderFallback(); }
       }, renderFallback);
     }
+    // A hidden panel has no usable map dimensions. Refit after it gains layout.
+    var canvas = $('mapCanvas'), lastSize = '', refreshFrame = null;
+    function refreshVisible(force) {
+      if (refreshFrame) cancelAnimationFrame(refreshFrame);
+      refreshFrame = requestAnimationFrame(function () {
+        var box = canvas.getBoundingClientRect();
+        if (!host.isConnected || !box.width || !box.height || canvas.hidden) { lastSize = ''; return; }
+        if (!state.ready || !state.adapter) return;
+        var size = box.width + ':' + box.height;
+        if (force || size !== lastSize) {
+          state.adapter.invalidate();
+          state.adapter.fit();
+          lastSize = size;
+          updateTrafficLink();
+        }
+      });
+    }
+    var resizeObserver = new ResizeObserver(function () { refreshVisible(false); });
+    resizeObserver.observe(canvas);
+    var intersectionObserver = new IntersectionObserver(function (entries) {
+      if (entries.some(function (entry) { return entry.isIntersecting; })) refreshVisible(false);
+    });
+    intersectionObserver.observe(canvas);
+    root.SEA_MAP.refresh = function () { refreshVisible(true); };
+    root.SEA_MAP_CLEANUP = function () {
+      resizeObserver.disconnect(); intersectionObserver.disconnect();
+      if (refreshFrame) cancelAnimationFrame(refreshFrame);
+      if (state.adapter) state.adapter.destroy();
+    };
+
     function afterReady() {
       state.ready = true;
+      refreshVisible(true);
       state.adapter.setRadar(state.radar, state.frames[state.frameIdx]);
       state.adapter.toggleEvents(state.showEvents);
       state.adapter.toggleCities(state.showCities);
@@ -606,5 +640,5 @@
     });
   }
 
-  root.SEA_MAP = { init: init };
+  root.SEA_MAP = { init: init, refresh: function () {} };
 })(window);

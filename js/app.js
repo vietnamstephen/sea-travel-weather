@@ -430,7 +430,7 @@
     var dayLabels = days.slice(0, 7).map(function (d) { return String(d.time).slice(0, 10); });
     if (!dayLabels.length) return '';
     var html = '<div class="section">' + sectionHead('country.trendTitle', 'country.trendHint') +
-      '<div class="panel">' + eventBannerHtml(c.id) +
+      '<div class="panel">' +
       '<div class="rain-table-scroll"><table style="width:100%;border-collapse:separate;border-spacing:4px;min-width:620px;font-size:var(--body-size,14px)">' +
       '<thead><tr><th style="text-align:left;min-width:130px">' + esc(t('country.trendCity')) + '</th>';
     days.slice(0, 7).forEach(function (d) {
@@ -579,11 +579,6 @@
       return '<tr><td><span class="def-pill ' + x[0] + '">' + '<span aria-hidden="true">' + ({green:'✓',yellow:'!',orange:'▲',red:'✕'})[x[0]] + '</span> ' + esc(t('level.' + x[0])) + '</span></td>' +
         '<td>' + esc(t(x[1])) + '</td><td>' + esc(t(x[2])) + '</td></tr>';
     }).join('');
-    var legacyRows = D.legacyLevels.map(function (x) {
-      return '<tr><td><span class="def-pill ' + x.key + '">' + esc(t(x.nameKey)) + '</span></td>' +
-        '<td>' + esc(t(x.ruleKey)) + '</td><td>' + (x.delayDays ? x.delayDays + ' d' : '0') + '</td>' +
-        '<td>' + (x.deterioration ? x.deterioration + '%' : '—') + '</td></tr>';
-    }).join('');
     return '<div class="section"><details class="def-details"' + (open ? ' open' : '') + ' id="defs">' +
       '<summary>' + esc(t('def.title')) + ' <span class="hint">' + esc(t('def.hint')) + '</span></summary>' +
       '<div class="panel" style="margin-top:12px"><div class="def-two">' +
@@ -592,15 +587,7 @@
       '<table class="def-table"><thead><tr><th>' + esc(t('def.level')) + '</th><th>' +
       esc(t('def.trigger')) + '</th><th>' + esc(t('def.meaning')) + '</th></tr></thead><tbody>' +
       curRows + '</tbody></table></div></div>' +
-      '<div class="def-box"><h4>' + esc(t('def.legacyTitle')) + '</h4>' +
-      '<div class="desc">' + esc(t('def.legacyDesc')) + '</div><div style="overflow-x:auto">' +
-      '<table class="def-table"><thead><tr><th>' + esc(t('def.level')) + '</th><th>' +
-      esc(t('def.trigger')) + '</th><th>' + esc(t('def.colDelay')) + '</th><th>' +
-      esc(t('def.colDeterioration')) + '</th></tr></thead><tbody>' + legacyRows +
-      '</tbody></table></div><div class="def-note">' +
-      ['def.extra1', 'def.extra2', 'def.extra3'].map(function (k) { return esc(t(k)); }).join('<br>') +
-      '</div></div></div>' +
-      '<div class="def-note"><b>⚠ </b>' + esc(t('def.notMix')) + '</div></div></details></div>';
+      '</div></div></details></div>';
   }
 
   /* =========================================================================
@@ -753,19 +740,38 @@
     }).join('<br>') + '</div>';
   }
 
+  function cityMetrics(c, city) {
+    var wc = weatherCity(c.id, city.id) || {}, daily = wc.daily ? R.dailyRows(wc.daily) : [];
+    var today = daily.find(function (d) { return d.time.slice(0, 10) === hourKey(c.tz).slice(0, 10); });
+    var rain = today && today.precipitation_sum, temp = wc.current && wc.current.temperature_2m;
+    if (temp == null) temp = today && today.temperature_2m_max;
+    return t('country.cityMetrics').replace('{rain}', rain == null ? '—' : Number(rain).toFixed(1)).replace('{temp}', temp == null ? '—' : Number(temp).toFixed(1));
+  }
+
+  function countryConclusion(c, risk) {
+    if (!WEATHER || !WEATHER.countries) return t('home.summaryMissing');
+    var cities = c.cities.filter(function (city) {
+      var r = R.cityRisk(weatherCity(c.id, city.id), city, hourKey(c.tz));
+      return r.level === risk.level || (risk.level === 2 && risk.softCities >= 2 && r.softHours > 0);
+    });
+    return t(risk.level >= 2 ? 'country.summaryWarning' : risk.level > 0 ? 'country.summaryWatch' : 'country.summaryNormal')
+      .replace('{n}', cities.length).replace('{cities}', cities.map(function (city) { return loc(city.name); }).join(LANG === 'zh' ? '、' : ', '));
+  }
+
   function renderCountry() {
     var c = R.countryById(CID);
     if (!c) return '<div class="notice warn">' + esc(t('app.error')) + '</div>';
     var cr = R.countryRisk(WEATHER, c.id, hourKey(c.tz));
 
-    var html = '<div class="hero country-hero"><h1>' + c.flag + ' ' + esc(loc(c.name)) + ' ' + badge(cr.level) + '</h1><p>' + esc(loc(c.intro)) + '</p><div class="emergency-chips">';
-    [c.emergency.police, c.emergency.ambulance, c.emergency.fire].filter(function (v, i, all) { return all.indexOf(v) === i; }).forEach(function (number) {
-      html += '<a class="pill" href="tel:' + esc(number) + '">☎ ' + esc(t('country.emergencyLabel')) + ' ' + esc(number) + '</a>';
+    var html = '<div class="hero country-hero"><h1>' + c.flag + ' ' + esc(loc(c.name)) + ' ' + badge(cr.level) + '</h1><p>' + esc(countryConclusion(c, cr)) + '</p><div class="emergency-chips">';
+    ['police', 'ambulance', 'fire'].forEach(function (kind) {
+      var number = c.emergency[kind];
+      html += '<a class="pill" href="tel:' + esc(number) + '">' + esc(t('country.' + kind)) + ' ' + esc(number) + '</a>';
     });
     html += '</div></div><section class="section country-cities">' + sectionHead('country.citiesTitle', 'country.citiesHint');
     c.cities.slice().sort(function (a, b) { return R.cityRisk(weatherCity(c.id, b.id), b, hourKey(c.tz)).level - R.cityRisk(weatherCity(c.id, a.id), a, hourKey(c.tz)).level; }).forEach(function (city, i) {
       var risk = R.cityRisk(weatherCity(c.id, city.id), city, hourKey(c.tz));
-      html += '<details class="city-row' + (i >= 5 ? ' city-extra' : '') + '"><summary>' + esc(loc(city.name)) + ' ' + badge(risk.level) + '</summary>' + cityCard(c, city) + '</details>';
+      html += '<details class="city-row' + (i >= 5 ? ' city-extra' : '') + '"><summary>' + '<span class="city-name">' + esc(loc(city.name)) + '</span> ' + badge(risk.level) + '<span class="city-metrics">' + esc(cityMetrics(c, city)) + '</span></summary>' + cityCard(c, city) + '</details>';
     });
     html += '<button type="button" class="pill city-more" aria-expanded="false">' + esc(t('country.showAll')) + '</button></section>';
 
@@ -824,7 +830,7 @@
     html += '</div></div></div>';
 
     // 常识提醒
-    html += '<div class="section">' + sectionHead('country.tipsTitle', 'country.tipsHint') + '<div class="panel"><ul style="padding-left:18px;font-size:var(--body-size,14px);line-height:1.8">';
+    html += '<div class="section">' + sectionHead('country.tipsTitle', 'country.tipsHint') + '<div class="panel"><p>' + esc(loc(c.intro)) + '</p><ul style="padding-left:18px;font-size:var(--body-size,14px);line-height:1.8">';
     c.tips.forEach(function (tip) { html += '<li>' + esc(loc(tip)) + '</li>'; });
     html += '</ul></div></div>';
 
@@ -926,8 +932,11 @@
     var strip = document.createElement('div'); strip.className = 'detail-tabs'; strip.setAttribute('role', 'tablist'); strip.setAttribute('aria-label', t('home.details')); group.appendChild(strip);
     main.appendChild(group);
     var keys = ['trend','airports','map','trip','tips'];
-    var labels = ['country.trendTitle','country.airportTitle','country.mapHazards','trip.title','country.tipsSources'];
+    var labels = ['country.tabTrend','country.tabAirports','country.tabMap','country.tabTrip','country.tabTips'];
     var nodes = [[sections[0]], [sections[1],sections[2]], [sections[5],sections[6]], [sections[8]], [sections[4],sections[3]]];
+    sections[5].insertAdjacentHTML('afterbegin', eventBannerHtml(CID));
+    nodes.flat().forEach(function (node) { node.querySelectorAll('.section-head').forEach(function (head) { head.remove(); }); });
+    sections[0].insertAdjacentHTML('afterbegin', '<p class="hint">' + esc(t('country.trendNote')) + '</p>');
     var buttons = [], panels = [], mapped = false, selected = 'trend';
     try { selected = sessionStorage.getItem('sea-country-tab') || selected; } catch (e) {}
     function hashTab() { return new URLSearchParams(location.hash.slice(1)).get('tab'); }
@@ -947,7 +956,7 @@
       buttons.forEach(function (button,i) { var active = keys[i] === key; button.setAttribute('aria-selected',String(active)); button.tabIndex = active ? 0 : -1; panels[i].hidden = !active; });
       try { sessionStorage.setItem('sea-country-tab',key); } catch (e) {}
       if (update) history.replaceState(null,'','#tab=' + key);
-      if (key === 'map' && !mapped) { mapped = true; initMap(); }
+      if (key === 'map') { if (!mapped) { mapped = true; initMap(); } else if (window.SEA_MAP) window.SEA_MAP.refresh(); }
     }
     window.onhashchange = function () {
       var key = hashTab();

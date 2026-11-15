@@ -2,7 +2,6 @@
  * SEA Travel Weather · 静态基础字典
  * -----------------------------------------------------------------------------
  * 只包含面向游客 / 商务出行者的公共信息：国家、城市、机场、航司、官方气象源。
- * 本文件不包含、也不曾包含任何供应商、采购订单、工厂或 Home Depot 相关数据。
  * 天气实况与预报由 scripts/update_data.py 每日生成到 data/weather.json。
  * =========================================================================== */
 (function (root) {
@@ -338,13 +337,6 @@
   ];
 
 
-  // 旧「东南亚供应链天灾预警看板」的四级口径（仅作定义参照，本站不沿用其 PO/在险件数算法）
-  var LEGACY_LEVELS = [
-    { level: 3, key: 'red', delayDays: 10, deterioration: 85, nameKey: 'def.legacy.redName', ruleKey: 'def.legacy.redRule' },
-    { level: 2, key: 'orange', delayDays: 5, deterioration: 60, nameKey: 'def.legacy.orangeName', ruleKey: 'def.legacy.orangeRule' },
-    { level: 1, key: 'yellow', delayDays: 2, deterioration: 35, nameKey: 'def.legacy.yellowName', ruleKey: 'def.legacy.yellowRule' },
-    { level: 0, key: 'green', delayDays: 0, deterioration: 0, nameKey: 'def.legacy.greenName', ruleKey: 'def.legacy.greenRule' }
-  ];
 
   // 风险阈值（单位固定，口径公开写在页面上，便于复核）
   var THRESHOLDS = {
@@ -363,7 +355,6 @@
     languages: ['zh', 'en', 'vi', 'th', 'id'],
     countries: COUNTRIES,
     thresholds: THRESHOLDS,
-    legacyLevels: LEGACY_LEVELS,
     // 航班数据提供方：默认关闭（免 Key 模式）；配置 Key 后由本机每日任务启用，前端永不接触密钥
     flightProvider: {
       mode: 'off',

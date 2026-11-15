@@ -579,3 +579,13 @@ body[data-page="country"] .footer summary{cursor:pointer;font-weight:700}
  .country-details .detail-tabs button{padding:8px;font-size:13px;flex:1 1 auto}
  .country-hero h1{font-size:21px}
 }
+/* Keep country summaries compact and tabs reachable without wrapping. */
+.def-two{grid-template-columns:minmax(0,1fr)}
+.emergency-chips{flex-wrap:nowrap;white-space:nowrap}
+.emergency-chips .pill{font-size:12px;padding:5px 7px}
+.city-metrics{display:inline-block;margin-left:12px;font-size:12px;font-weight:400;color:var(--sub)}
+@media(max-width:639px){
+ .city-metrics{display:block;margin-left:15px;margin-top:3px}
+ .country-details .detail-tabs{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;padding-right:24px;mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent);-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent)}
+ .country-details .detail-tabs button{flex:0 0 auto}
+}
