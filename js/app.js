@@ -16,6 +16,13 @@
 
   var PAGE = document.body.getAttribute('data-page') || 'overview';
   var CID = document.body.getAttribute('data-country') || '';
+  if (PAGE === 'country') {
+    var sharedCountry = new URLSearchParams(location.search).get('c');
+    if (['vn','th','my','sg','id','ph'].includes(sharedCountry) && sharedCountry !== CID) {
+      location.replace(sharedCountry + '.html' + location.search + location.hash);
+      return;
+    }
+  }
   var WEATHER = null;
   var FLIGHTS = null;
   var ADV = null;
@@ -751,16 +758,16 @@
     if (!c) return '<div class="notice warn">' + esc(t('app.error')) + '</div>';
     var cr = R.countryRisk(WEATHER, c.id, hourKey(c.tz));
 
-    var html = '<div class="hero"><h1>' + c.flag + ' ' + esc(loc(c.name)) + ' ' + badge(cr.level) + '</h1>' +
-      '<p>' + esc(loc(c.intro)) + '</p>' +
-      '<p style="margin-top:8px;font-size:var(--body-size,14px);color:var(--sub)">' + esc(loc(c.capital)) + ' · ' + esc(c.utc) +
-      ' · ' + esc(t('app.updated')) + ' ' + esc(WEATHER && WEATHER.meta ? WEATHER.meta.generatedAt.slice(0, 16).replace('T', ' ') : '—') +
-      ' · ☎ ' + esc(t('country.emergencyLabel')) + ': ' + c.dial + ' / ' + c.emergency.police + ' / ' + c.emergency.ambulance + '</p></div>';
-
-    // 城市天气
-    html += '<div class="section">' + sectionHead('country.citiesTitle', 'country.citiesHint') + '<div class="grid c2">';
-    c.cities.forEach(function (city) { html += cityCard(c, city); });
-    html += '</div></div>';
+    var html = '<div class="hero country-hero"><h1>' + c.flag + ' ' + esc(loc(c.name)) + ' ' + badge(cr.level) + '</h1><p>' + esc(loc(c.intro)) + '</p><div class="emergency-chips">';
+    [c.emergency.police, c.emergency.ambulance, c.emergency.fire].filter(function (v, i, all) { return all.indexOf(v) === i; }).forEach(function (number) {
+      html += '<a class="pill" href="tel:' + esc(number) + '">☎ ' + esc(t('country.emergencyLabel')) + ' ' + esc(number) + '</a>';
+    });
+    html += '</div></div><section class="section country-cities">' + sectionHead('country.citiesTitle', 'country.citiesHint');
+    c.cities.slice().sort(function (a, b) { return R.cityRisk(weatherCity(c.id, b.id), b, hourKey(c.tz)).level - R.cityRisk(weatherCity(c.id, a.id), a, hourKey(c.tz)).level; }).forEach(function (city, i) {
+      var risk = R.cityRisk(weatherCity(c.id, city.id), city, hourKey(c.tz));
+      html += '<details class="city-row' + (i >= 5 ? ' city-extra' : '') + '"><summary>' + esc(loc(city.name)) + ' ' + badge(risk.level) + '</summary>' + cityCard(c, city) + '</details>';
+    });
+    html += '<button type="button" class="pill city-more" aria-expanded="false">' + esc(t('country.showAll')) + '</button></section>';
 
     // 逐城市 7 天雨量 + 台风/洪水角标
     html += countryTrendHtml(c);
@@ -842,9 +849,10 @@
       (stale ? '<div class="notice warn" style="margin-bottom:12px">' + esc(t('app.stale')) + '</div>' : '');
     main.innerHTML = warn + (PAGE === 'country' ? renderCountry() : renderOverview());
     if (PAGE === 'overview') initOverviewDetails();
+    if (PAGE === 'country') initCountryDetails();
     applyI18nDynamic();
     initTrip(PAGE === 'country' ? R.countryById(CID) : null);
-    initMap();
+    if (PAGE !== 'country') initMap();
     notifyTrips();
   }
 
@@ -908,6 +916,73 @@
     var method = document.querySelector('.footer-method');
     var old = method.querySelector('.section'); if (old) old.remove();
     method.insertAdjacentHTML('beforeend', defSection(true));
+  }
+
+  function initCountryDetails() {
+    var main = document.getElementById('main');
+    var sections = Array.from(main.children).filter(function (node) { return node.classList.contains('section') && !node.classList.contains('country-cities'); });
+    // Renderer order: trend, airports, airlines, sources, tips, map, hazards, definitions, trip.
+    var group = document.createElement('section'); group.className = 'country-details section';
+    var strip = document.createElement('div'); strip.className = 'detail-tabs'; strip.setAttribute('role', 'tablist'); strip.setAttribute('aria-label', t('home.details')); group.appendChild(strip);
+    main.appendChild(group);
+    var keys = ['trend','airports','map','trip','tips'];
+    var labels = ['country.trendTitle','country.airportTitle','country.mapHazards','trip.title','country.tipsSources'];
+    var nodes = [[sections[0]], [sections[1],sections[2]], [sections[5],sections[6]], [sections[8]], [sections[4],sections[3]]];
+    var buttons = [], panels = [], mapped = false, selected = 'trend';
+    try { selected = sessionStorage.getItem('sea-country-tab') || selected; } catch (e) {}
+    function hashTab() { return new URLSearchParams(location.hash.slice(1)).get('tab'); }
+    selected = hashTab() || (location.hash === '#trip' ? 'trip' : selected);
+    if (!keys.includes(selected)) selected = 'trend';
+    keys.forEach(function (key, i) {
+      var button = document.createElement('button'); button.type = 'button'; button.id = 'country-tab-' + key; button.textContent = t(labels[i]); button.setAttribute('role','tab'); button.setAttribute('aria-controls','country-panel-' + key); strip.appendChild(button); buttons.push(button);
+      var panel = document.createElement('div'); panel.id = 'country-panel-' + key; panel.setAttribute('role','tabpanel'); panel.setAttribute('aria-labelledby',button.id); panel.tabIndex = 0; nodes[i].forEach(function (node) { panel.appendChild(node); }); group.appendChild(panel); panels.push(panel);
+      button.addEventListener('click',function () { select(key, true); });
+      button.addEventListener('keydown',function (event) {
+        var next = event.key === 'ArrowRight' ? (i+1)%5 : event.key === 'ArrowLeft' ? (i+4)%5 : event.key === 'Home' ? 0 : event.key === 'End' ? 4 : null;
+        if (next !== null) { event.preventDefault(); select(keys[next],true); buttons[next].focus(); }
+      });
+    });
+    function select(key, update) {
+      selected = key;
+      buttons.forEach(function (button,i) { var active = keys[i] === key; button.setAttribute('aria-selected',String(active)); button.tabIndex = active ? 0 : -1; panels[i].hidden = !active; });
+      try { sessionStorage.setItem('sea-country-tab',key); } catch (e) {}
+      if (update) history.replaceState(null,'','#tab=' + key);
+      if (key === 'map' && !mapped) { mapped = true; initMap(); }
+    }
+    window.onhashchange = function () {
+      var key = hashTab();
+      if (keys.includes(key)) select(key,false);
+      else if (location.hash === '#trip') select('trip',false);
+      else { var target = document.getElementById(location.hash.slice(1)); if (target) { var parentPanel = target.closest('[role=tabpanel]'); if (parentPanel) select(parentPanel.id.replace('country-panel-',''),false); if (target.tagName === 'DETAILS') target.open = true; target.scrollIntoView(); } }
+    };
+    // Combine controls and confirmed closures, deduping official source + location.
+    var hazard = sections[6], cards = Array.from(hazard.querySelectorAll('.adv-card'));
+    var controls = cards[1], closures = cards[3], list = controls.querySelector('.ctrl-list'), seen = new Set();
+    Array.from(list.children).concat(Array.from(closures.querySelectorAll('.ev-item'))).forEach(function (item) {
+      var link = item.querySelector('a'); var area = item.querySelector('.ev-title, .ctrl-body');
+      var identity = (link ? link.href.replace(/\/$/,'') : '') + '|' + (area ? area.firstChild.textContent : item.textContent).trim().toLowerCase();
+      if (seen.has(identity)) item.remove(); else { seen.add(identity); list.appendChild(item); }
+    });
+    if (!closures.querySelector('.ev-item')) { var empty = closures.querySelector('.closure-empty'); if (empty) list.appendChild(empty); }
+    controls.querySelector('h3').textContent = t('country.controlsClosures') + ' (' + seen.size + ')'; closures.remove();
+    sections[1].querySelectorAll('.list-item').forEach(function (row) {
+      var body = row.querySelector('.body'), title = body.querySelector('.t');
+      var detail = document.createElement('details'), summary = document.createElement('summary');
+      summary.appendChild(title); detail.appendChild(summary);
+      Array.from(body.children).forEach(function (child) { detail.appendChild(child); }); body.appendChild(detail);
+    });
+    sections[4].querySelector('.panel').insertAdjacentHTML('afterbegin', '<p class="hint">' + esc(loc(R.countryById(CID).capital)) + ' · ' + esc(R.countryById(CID).utc) + ' · ' + esc(R.countryById(CID).dial) + '</p>');
+    var airlines = sections[2].querySelector('.list'); airlines.className = 'airline-chips';
+    Array.from(airlines.children).forEach(function (row) {
+      var link = row.querySelector('a'); link.textContent = row.querySelector('.iata').textContent + ' · ' + row.querySelector('.t').textContent + ' ↗'; airlines.appendChild(link); row.remove();
+    });
+    var footer = document.querySelector('.footer > .panel');
+    var old = footer.querySelector('#defs'); if (old) old.closest('.section').remove();
+    footer.prepend(sections[7]);
+    document.querySelectorAll('.city-row').forEach(function (row) { row.addEventListener('toggle',function () { if (row.open) document.querySelectorAll('.city-row').forEach(function (other) { if (other !== row) other.open = false; }); }); });
+    var more = main.querySelector('.city-more'); more.addEventListener('click',function () { var open = more.getAttribute('aria-expanded') !== 'true'; more.setAttribute('aria-expanded',String(open)); main.querySelector('.country-cities').classList.toggle('show-all',open); more.textContent = t(open ? 'country.showLess' : 'country.showAll'); });
+    select(selected,false);
+    if (location.hash && !hashTab()) window.onhashchange();
   }
 
   function initMap() {

@@ -552,3 +552,30 @@ html[lang="th"] body, html[lang="th"] button, html[lang="th"] input, html[lang="
 .footer-notes summary{cursor:pointer;font-weight:700;padding:6px 0}
 .footer-notes h4{margin-top:14px}
 .footer-notes p{margin-top:8px}
+/* Country pages: compact summaries with all detailed content retained in panels. */
+body[data-page="country"] .main{min-width:0}
+.country-hero{padding:16px!important;margin-bottom:14px!important}
+.country-hero h1{font-size:24px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 6px}
+.country-hero p{margin:4px 0;font-size:14px;line-height:1.5}
+.emergency-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.city-row{border-bottom:1px solid var(--line)}
+.city-row summary{cursor:pointer;padding:9px 6px;font-weight:700}
+.city-row summary .badge{float:right}
+.city-row .city-card{margin:6px 0 10px}
+.city-more{display:none}
+.country-details [hidden]{display:none!important}
+.country-details .section{margin-top:12px;margin-bottom:12px}
+.country-details .detail-tabs{position:relative}
+.country-details .list-item{padding:10px 0}
+.country-details .airline-chips{display:flex;flex-wrap:wrap;gap:6px}
+body[data-page="country"] .footer .section{margin:0 0 12px}
+body[data-page="country"] .footer summary{cursor:pointer;font-weight:700}
+.country-details .rain-table-scroll{max-width:100%;overflow-x:auto}
+@media(max-width:639px){
+ .country-cities .city-extra{display:none}
+ .country-cities.show-all .city-extra{display:block}
+ .city-more{display:inline-block;margin-top:8px}
+ .country-details .detail-tabs{display:flex;flex-wrap:wrap;gap:5px}
+ .country-details .detail-tabs button{padding:8px;font-size:13px;flex:1 1 auto}
+ .country-hero h1{font-size:21px}
+}

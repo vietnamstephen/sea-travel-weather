@@ -5,6 +5,12 @@
 (function (root) {
   'use strict';
   var DICT = {
+    "country.showAll": ["展开全部", "Show all", "Xem tất cả", "แสดงทั้งหมด", "Tampilkan semua"],
+    "country.showLess": ["收起", "Show less", "Thu gọn", "แสดงน้อยลง", "Tampilkan lebih sedikit"],
+    "country.mapHazards": ["地图与灾害", "Map and hazards", "Bản đồ và thiên tai", "แผนที่และภัยพิบัติ", "Peta dan bencana"],
+    "country.tipsSources": ["提醒与官方来源", "Tips and official sources", "Lưu ý và nguồn chính thức", "คำแนะนำและแหล่งข้อมูลทางการ", "Tips dan sumber resmi"],
+    "country.controlsClosures": ["管制与封闭", "Controls and closures", "Kiểm soát và đóng đường", "ข้อจำกัดและการปิดเส้นทาง", "Pembatasan dan penutupan"],
+
     "account.admin": ["当前身份：VIP（管理员 · 永久有效）", "Current membership: VIP (Admin · Lifetime)", "Thành viên hiện tại: VIP (Quản trị viên · Vĩnh viễn)", "สมาชิกปัจจุบัน: VIP (ผู้ดูแลระบบ · ตลอดชีพ)", "Keanggotaan saat ini: VIP (Admin · Seumur hidup)"],
     "account.free": ["免费用户", "Free user", "Người dùng miễn phí", "ผู้ใช้ฟรี", "Pengguna gratis"],
     "account.freeTag": ["免费", "Free", "Miễn phí", "ฟรี", "Gratis"],
