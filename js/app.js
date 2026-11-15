@@ -736,68 +736,153 @@
 
 
   var hospitalsRequest, hospitalPosition, hospitalPending = false, hospitalError = "";
+  // 医院展开上限：默认 3 家，展开最多 HOSP_EXPANDED_MAX 家（P4 页面超限时先降到 5）。
+  var HOSP_EXPANDED_MAX = 6;
   try {
     hospitalPosition = JSON.parse(sessionStorage.getItem("hospitalPosition") || "null");
   } catch (e) {
   }
+
+  /* hospitals-ui:pure:start — 自包含纯函数；tests/hospitals-ui.test.ts 按此注释边界提取后在 vm 中运行 */
   function hospitalDistance(a, b) {
     var rad = Math.PI / 180, x = (b.lat - a.lat) * rad, y = (b.lng - a.lng) * rad;
     return 6371 * 2 * Math.asin(Math.sqrt(Math.sin(x / 2) ** 2 + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(y / 2) ** 2));
   }
+  function formatHospitalDistance(km) {
+    return km < 1 ? Math.round(km * 1e3) + " m" : km.toFixed(1) + " km";
+  }
+  function hospitalBadges(h) {
+    var out = ["hosp.badge." + h.ownership];
+    if (h.intl) out.push("hosp.badge.intl");
+    if (h.pti === true) out.push("hosp.badge.pti");
+    return out;
+  }
+  function hospitalVisible(items, more, max) {
+    var cap = Math.min(items.length, max || 6);
+    return items.slice(0, more ? cap : Math.min(cap, 3));
+  }
+  function hospitalShowMore(items, more, max) {
+    return !more && Math.min(items.length, max || 6) > 3;
+  }
+  function hospitalMoreDelta(items, max) {
+    return hospitalVisible(items, true, max).length - hospitalVisible(items, false, max).length;
+  }
+  function hospitalEmergency(meta, cid) {
+    var e = meta && meta.emergency;
+    return (e && e[cid]) || "";
+  }
+  function hospitalLocalPhone(phone, cid) {
+    var cc = cid === "vn" ? "+84" : cid === "th" ? "+66" : null;
+    return cc && phone.indexOf(cc) === 0 ? "0" + phone.slice(cc.length) : phone;
+  }
+  /* hospitals-ui:pure:end */
+
   function hospitalToggle(row, jump) {
     if (!["vn", "th"].includes(CID)) return;
     var old = row.querySelector(".hospitals");
-    if (!row.open) {
+    if (!row.open) {                 // 收起态：不保留医院列表 DOM
       if (old) old.remove();
       return;
     }
-    if (old) {
+    if (old) {                      // 已渲染：仅按需滚动
       if (jump) old.scrollIntoView({ block: "start" });
       return;
     }
-    if (!hospitalsRequest) hospitalsRequest = fetch("data/hospitals.json").then(function(r) {
+    if (!hospitalsRequest) hospitalsRequest = fetch("data/hospitals.json").then(function (r) {
       if (!r.ok) throw Error();
       return r.json();
-    }).catch(function() {
-      return { meta: { updatedAt: "—" }, countries: {} };
-    });
-    hospitalsRequest.then(function(data) {
+    }).catch(function () { return { meta: { updatedAt: "—" }, countries: {} }; });
+    hospitalsRequest.then(function (data) {
       if (!row.open || !row.isConnected) return;
       var section = row.querySelector(".hospitals");
       if (!section) {
         section = document.createElement("section");
         section.className = "hospitals";
-        row.querySelector(".city-card").insertBefore(section, row.querySelector(".attractions"));
+        var card = row.querySelector(".city-card");
+        // 穿搭行下、主要景点上：有景点时插到它前面，否则追加到 city-card 末尾
+        card.insertBefore(section, card.querySelector(".attractions") || null);
+        section.hospitalData = data;
+        section.hospitalCity = row.dataset.city;
+        renderHospitals(section);
       }
-      section.hospitalData = data;
-      section.hospitalCity = row.dataset.city;
-      renderHospitals(section);
       if (jump) section.scrollIntoView({ block: "start" });
     });
   }
+
   function renderHospitals(section) {
-    var data = section.hospitalData, city = section.hospitalCity, meta = data.meta;
+    var data = section.hospitalData, city = section.hospitalCity, meta = data.meta || {};
     var items = (((data.countries || {})[CID] || {})[city] || []).slice();
-    items.sort(function(a, b2) {
+    items.sort(function (a, b2) {
       return hospitalPosition ? hospitalDistance(hospitalPosition, a) - hospitalDistance(hospitalPosition, b2) : a.rank - b2.rank;
     });
-    items = items.slice(0, 6);
-    var more = section.dataset.more === "true", c = R.countryById(CID), num = c.emergency.ambulance;
+    var more = section.dataset.more === "true";
+    var num = hospitalEmergency(meta, CID);   // 急救号码按国家从 data/hospitals.json 的 meta 读取
     var supported = window.isSecureContext && navigator.geolocation;
-    var far = hospitalPosition && meta.origins && meta.origins[city] && hospitalDistance(hospitalPosition, { lat: meta.origins[city].lat, lng: meta.origins[city].lon }) > 50;
-    section.innerHTML = '<div class="hosp-heading"><h3>' + esc(t("hosp.title")) + "</h3>" + (supported ? '<div><button class="hosp-locate" ' + (hospitalPending ? "disabled" : "") + ">" + esc(t(hospitalPending ? "hosp.loading" : hospitalPosition ? "hosp.sorted" : "hosp.locate")) + "</button>" + (hospitalPosition ? '<button class="hosp-relocate">' + esc(t("hosp.relocate")) + "</button>" : "") + "</div>" : "") + '</div><div class="hosp-status" aria-live="polite">' + esc(hospitalError ? t(hospitalError) : far ? t("hosp.far") : hospitalPosition ? t("hosp.sorted") : "") + '</div><a class="hosp-emergency" href="tel:' + num + '">' + esc(t("hosp.emergency")) + " " + num + '</a><ul role="list">' + items.slice(0, more ? 6 : 3).map(function(h) {
-      var name = h.name[LANG] || h.name[CID === "vn" ? "vi" : "th"] || h.name.en, d = hospitalPosition ? hospitalDistance(hospitalPosition, h) : null;
-      return '<li><div class="hosp-name"><strong>' + esc(name) + '</strong><span class="hosp-badges"><span>' + esc(t("hosp.badge." + h.ownership)) + "</span>" + (h.intl ? '<span class="intl">' + esc(t("hosp.badge.intl")) + "</span>" : "") + (h.pti ? '<span class="pti" title="' + esc(t("hosp.ptiTip")) + '">' + esc(t("hosp.badge.pti")) + "</span>" : "") + '</span></div><div class="hosp-address" title="' + esc(h.address) + '">' + esc(h.address) + '</div><div class="hosp-actions"><a class="hosp-call" href="tel:' + esc(h.phone) + '" aria-label="' + esc(t("hosp.callAria").replace("{name}", name).replace("{phone}", h.phone)) + '">📞 ' + esc(t("hosp.call")) + '</a><span class="hosp-phone">' + esc(h.phone.replace(CID === "vn" ? /^\+84/ : /^\+66/, "0")) + '</span><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=' + h.lat + "," + h.lng + '">📍 ' + esc(t("hosp.map")) + "</a>" + (d !== null ? '<span class="hosp-distance">' + (d < 1 ? Math.round(d * 1e3) + " m" : d.toFixed(1) + " km") + "</span>" : "") + "</div></li>";
-    }).join("") + "</ul>" + (!items.length ? "<p>" + esc(t("hosp.empty")) + "</p>" : "") + (items.length > 3 && !more ? '<button class="hosp-more" aria-expanded="false">' + esc(t("hosp.more").replace("{n}", items.length - 3)) + "</button>" : "") + '<div class="hosp-note">' + esc(t("hosp.note")) + ' <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OSM · ODbL</a> · ' + esc(meta.updatedAt) + "</div>";
+    var far = hospitalPosition && meta.origins && meta.origins[city] &&
+      hospitalDistance(hospitalPosition, { lat: meta.origins[city].lat, lng: meta.origins[city].lon }) > 50;
+    var heading = '<div class="hosp-heading"><h3>' + esc(t("hosp.title")) + "</h3>" +
+      (supported
+        ? '<div class="hosp-controls">' +
+          '<button class="hosp-locate" type="button" ' + (hospitalPending ? "disabled" : "") +
+          ' aria-label="' + esc(t("hosp.locateAria")) + '">' +
+          esc(t(hospitalPending ? "hosp.loading" : hospitalPosition ? "hosp.sorted" : "hosp.locate")) + "</button>" +
+          (hospitalPosition
+            ? '<button class="hosp-relocate" type="button" aria-label="' + esc(t("hosp.relocateAria")) + '">' + esc(t("hosp.relocate")) + "</button>"
+            : "") +
+          "</div>"
+        : "") + "</div>";
+    var status = '<div class="hosp-status" aria-live="polite">' +
+      esc(hospitalError ? t(hospitalError) : far ? t("hosp.far") : hospitalPosition ? t("hosp.sorted") : "") + "</div>";
+    var emergency = num
+      ? '<a class="hosp-emergency" href="tel:' + esc(num) + '" aria-label="' +
+        esc(t("hosp.emergencyAria").replace("{num}", num)) + '">' +
+        esc(t("hosp.emergency")) + " " + esc(num) + "</a>"
+      : "";
+    var body;
+    if (!items.length) {
+      // 0 家城市：只显示一行提示，不渲染空列表块
+      body = '<p class="hosp-empty">' + esc(t("hosp.empty")) + "</p>";
+    } else {
+      var visible = hospitalVisible(items, more, HOSP_EXPANDED_MAX);
+      var list = '<ul role="list">' + visible.map(function (h) {
+        var name = h.name[LANG] || h.name[CID === "vn" ? "vi" : "th"] || h.name.en;
+        var d = hospitalPosition ? hospitalDistance(hospitalPosition, h) : null;
+        var badges = hospitalBadges(h).map(function (k) {
+          var cls = k === "hosp.badge.intl" ? ' class="intl"' : k === "hosp.badge.pti" ? ' class="pti"' : "";
+          var tip = k === "hosp.badge.pti" ? ' title="' + esc(t("hosp.ptiTip")) + '"' : "";
+          return "<span" + cls + tip + ">" + esc(t(k)) + "</span>";
+        }).join("");
+        return '<li>' +
+          '<div class="hosp-name"><strong>' + esc(name) + "</strong>" +
+          '<span class="hosp-badges">' + badges + "</span></div>" +
+          '<div class="hosp-address" title="' + esc(h.address) + '">' + esc(h.address) + "</div>" +
+          '<div class="hosp-actions">' +
+            '<a class="hosp-call" href="tel:' + esc(h.phone) + '" aria-label="' +
+              esc(t("hosp.callAria").replace("{name}", name).replace("{phone}", h.phone)) + '">📞 ' + esc(t("hosp.call")) + "</a>" +
+            '<span class="hosp-phone">' + esc(hospitalLocalPhone(h.phone, CID)) + "</span>" +
+            '<a class="hosp-map" target="_blank" rel="noopener" aria-label="' +
+              esc(t("hosp.mapAria").replace("{name}", name)) + '" href="https://www.google.com/maps/search/?api=1&amp;query=' +
+              esc(h.lat) + "," + esc(h.lng) + '">📍 ' + esc(t("hosp.map")) + "</a>" +
+            (d !== null ? '<span class="hosp-distance">' + esc(formatHospitalDistance(d)) + "</span>" : "") +
+          "</div></li>";
+      }).join("") + "</ul>";
+      var delta = hospitalMoreDelta(items, HOSP_EXPANDED_MAX);
+      var moreBtn = hospitalShowMore(items, more, HOSP_EXPANDED_MAX)
+        ? '<button class="hosp-more" type="button" aria-expanded="false" aria-label="' +
+          esc(t("hosp.moreAria").replace("{n}", delta)) + '">' +
+          esc(t("hosp.more").replace("{n}", delta)) + "</button>"
+        : "";
+      body = list + moreBtn;
+    }
+    var note = '<div class="hosp-note">' + esc(t("hosp.note")) +
+      ' <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OSM · ODbL</a> · ' +
+      esc(meta.updatedAt || "") + "</div>";
+    section.innerHTML = heading + status + emergency + body + note;
     var b = section.querySelector(".hosp-more");
-    if (b) b.onclick = function() {
-      section.dataset.more = "true";
-      renderHospitals(section);
-    };
-    section.querySelectorAll(".hosp-locate,.hosp-relocate").forEach(function(b2) {
-      b2.onclick = locateHospitals;
-    });
+    if (b) b.onclick = function () { section.dataset.more = "true"; renderHospitals(section); };
+    section.querySelectorAll(".hosp-locate,.hosp-relocate").forEach(function (b2) { b2.onclick = locateHospitals; });
   }
+
   function locateHospitals() {
     if (hospitalPending) return;
     hospitalPending = true;
@@ -806,7 +891,7 @@
       document.querySelectorAll(".hospitals").forEach(renderHospitals);
     }
     refresh();
-    navigator.geolocation.getCurrentPosition(function(p) {
+    navigator.geolocation.getCurrentPosition(function (p) {
       hospitalPending = false;
       hospitalPosition = { lat: p.coords.latitude, lng: p.coords.longitude };
       try {
@@ -814,7 +899,7 @@
       } catch (e) {
       }
       refresh();
-    }, function(e) {
+    }, function (e) {
       hospitalPending = false;
       hospitalPosition = null;
       try {
@@ -916,7 +1001,7 @@
     html += '</div></div><section class="section country-cities">' + sectionHead('country.citiesTitle', 'country.citiesHint').replace('</h2>', '</h2>' + SEA_OUTFIT.switcher());
     c.cities.slice().sort(function (a, b) { return R.cityRisk(weatherCity(c.id, b.id), b, hourKey(c.tz)).level - R.cityRisk(weatherCity(c.id, a.id), a, hourKey(c.tz)).level; }).forEach(function (city, i) {
       var risk = R.cityRisk(weatherCity(c.id, city.id), city, hourKey(c.tz));
-      html += '<details data-city="' + esc(city.id) + '" class="city-row' + (i >= 5 ? ' city-extra' : '') + '"><summary>' + '<span class="city-name">' + esc(loc(city.name)) + '</span> ' + badge(risk.level) + (['vn','th'].includes(CID) ? '<button type="button" class="hosp-jump">🏥 '+esc(t('hosp.short'))+'</button>' : '') + '<span class="city-metrics">' + esc(cityMetrics(c, city)) + '</span></summary>' + cityCard(c, city) + '</details>';
+      html += '<details data-city="' + esc(city.id) + '" class="city-row' + (i >= 5 ? ' city-extra' : '') + '"><summary>' + '<span class="city-name">' + esc(loc(city.name)) + '</span> ' + badge(risk.level) + (['vn','th'].includes(CID) ? '<button type="button" class="hosp-jump" aria-label="'+esc(t('hosp.jumpAria'))+'">🏥 '+esc(t('hosp.short'))+'</button>' : '') + '<span class="city-metrics">' + esc(cityMetrics(c, city)) + '</span></summary>' + cityCard(c, city) + '</details>';
     });
     html += '<button type="button" class="pill city-more" aria-expanded="false">' + esc(t('country.showAll')) + '</button></section>';
 

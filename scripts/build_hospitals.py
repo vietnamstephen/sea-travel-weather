@@ -32,10 +32,16 @@ def build():
     reviews = read('hospitals_reviewed.json')
     wikidata = read('hospitals_wikidata.json')
     origins = read('attractions_origins.json')
-    countries = json.loads(subprocess.check_output([
-        'node', '-e', "global.window=global;require('./js/data.js');console.log(JSON.stringify(SEA_DATA.countries.filter(c=>['vn','th'].includes(c.id))))"
+    all_countries = json.loads(subprocess.check_output([
+        'node', '-e', "global.window=global;require('./js/data.js');console.log(JSON.stringify(SEA_DATA.countries))"
     ], cwd=ROOT))
+    countries = [c for c in all_countries if c['id'] in ('vn', 'th')]
+    # 各国救护/急救号码，单一数据源为 js/data.js 的 emergency.ambulance。
+    # 前端急救电话条按 CID 从 data/hospitals.json 的 meta.emergency 读取，不在 UI 写死。
+    emergency = {c['id']: c['emergency']['ambulance']
+                 for c in all_countries if c.get('emergency', {}).get('ambulance')}
     output = {'meta': {
+        'emergency': emergency,
         'updatedAt': '2026-11-16', 'osmCheckedAt': snapshot['checkedAt'],
         'sources': ['https://www.openstreetmap.org/copyright', 'https://www.wikidata.org/',
                     'https://spd.moph.go.th/wp-content/uploads/2025/07/Report-Health-Resource-2024.pdf'],

@@ -1,5 +1,13 @@
 {
   "meta": {
+    "emergency": {
+      "vn": "115",
+      "th": "1669",
+      "sg": "995",
+      "my": "999",
+      "id": "119",
+      "ph": "911"
+    },
     "updatedAt": "2026-11-16",
     "osmCheckedAt": "2026-11-15",
     "sources": [
