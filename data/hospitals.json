@@ -1,0 +1,1228 @@
+{
+  "meta": {
+    "emergency": {
+      "vn": "115",
+      "th": "1669",
+      "sg": "995",
+      "my": "999",
+      "id": "119",
+      "ph": "911"
+    },
+    "updatedAt": "2026-11-16",
+    "osmCheckedAt": "2026-11-15",
+    "sources": [
+      "https://www.openstreetmap.org/copyright",
+      "https://www.wikidata.org/",
+      "https://spd.moph.go.th/wp-content/uploads/2025/07/Report-Health-Resource-2024.pdf"
+    ],
+    "pti": {
+      "sourceUrl": "https://www.pti.com.vn/tra-cuu-co-so-y-te",
+      "listUrls": [
+        "https://new.pti.com.vn/wp-content/uploads/2026/10/Danh-sach-CSYT-bao-lanh-qua-INSMART.pdf",
+        "https://new.pti.com.vn/wp-content/uploads/2026/10/Danh-sach-CSYT-bao-lanh-qua-FHVI.pdf"
+      ],
+      "checkedAt": "2026-11-15",
+      "rosterSource": "Committed pilot manual-review records in scripts/hospitals_reviewed.json (facility + address matched to INSMART/FHVI rows).",
+      "method": "Manual facility AND address matching against the official PTI lists; never inferred from hospital names. Unchecked = false. Only the committed roster keeps pti=true; no coverage was added without verification.",
+      "recheckAttemptedAt": "2026-11-16",
+      "recheckNote": "Live re-verification of the official PTI PDFs was not possible in this build environment (outbound page fetch unavailable). The committed roster and its 2026-11-15 check date were preserved; every newly added record has pti=false per the unverified=false rule. Re-confirm against the insurer latest list before relying on coverage.",
+      "caveat": "Product, policy, service and department restrictions apply; listing is not a guarantee of emergency direct billing."
+    },
+    "scope": "Reviewed pilot; OSM API bounding boxes recorded per city. Not an exhaustive hospital directory. No-phone, duplicate and unverified records excluded.",
+    "thresholds": {
+      "minHospitalsPerCity": 2
+    },
+    "insufficientCities": {
+      "ayutthaya": {
+        "country": "th",
+        "published": 1,
+        "reason": "Only 0 of 1 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "bacgiang": {
+        "country": "vn",
+        "published": 0,
+        "reason": "Only 0 of 7 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "bacninh": {
+        "country": "vn",
+        "published": 0,
+        "reason": "Only 0 of 7 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "bangkok": {
+        "country": "th",
+        "published": 1,
+        "reason": "Only 1 of 4 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "binhduong": {
+        "country": "vn",
+        "published": 0,
+        "reason": "Only 0 of 1 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "chachoengsao": {
+        "country": "th",
+        "published": 1,
+        "reason": "Only 0 of 4 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "dalat": {
+        "country": "vn",
+        "published": 1,
+        "reason": "Only 0 of 2 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "dongnai": {
+        "country": "vn",
+        "published": 0,
+        "reason": "Only 0 of 1 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "haiphong": {
+        "country": "vn",
+        "published": 1,
+        "reason": "Only 0 of 9 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "hanoi": {
+        "country": "vn",
+        "published": 1,
+        "reason": "Only 0 of 8 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "nhatrang": {
+        "country": "vn",
+        "published": 1,
+        "reason": "Only 0 of 10 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "phuket": {
+        "country": "th",
+        "published": 1,
+        "reason": "Only 0 of 2 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "phuquoc": {
+        "country": "vn",
+        "published": 0,
+        "reason": "The recorded OSM bounding box contains no hospital candidates for this city."
+      },
+      "quynhon": {
+        "country": "vn",
+        "published": 0,
+        "reason": "Only 0 of 5 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "samutprakan": {
+        "country": "th",
+        "published": 1,
+        "reason": "Only 0 of 2 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      }
+    },
+    "origins": {
+      "hcm": {
+        "lat": 10.775555555555556,
+        "lon": 106.70194444444445
+      },
+      "hanoi": {
+        "lat": 21.0245,
+        "lon": 105.84117
+      },
+      "danang": {
+        "lat": 16.069444444444443,
+        "lon": 108.20972222222223
+      },
+      "phuquoc": {
+        "lat": 10.228888888889,
+        "lon": 103.95722222222
+      },
+      "nhatrang": {
+        "lat": 12.245,
+        "lon": 109.19166666666666
+      },
+      "quynhon": {
+        "lat": 13.769580555555555,
+        "lon": 109.23137222222222
+      },
+      "dalat": {
+        "lat": 11.94,
+        "lon": 108.4375
+      },
+      "bacninh": {
+        "lat": 21.18608,
+        "lon": 106.07631
+      },
+      "bacgiang": {
+        "lat": 21.27356,
+        "lon": 106.192209
+      },
+      "haiphong": {
+        "lat": 20.85741,
+        "lon": 106.6818
+      },
+      "binhduong": {
+        "lat": 11.004166666667,
+        "lon": 106.65833333333
+      },
+      "dongnai": {
+        "lat": 10.950764,
+        "lon": 106.822136
+      },
+      "bangkok": {
+        "lat": 13.75,
+        "lon": 100.51666666667
+      },
+      "chiangmai": {
+        "lat": 18.788888888889,
+        "lon": 98.983333333333
+      },
+      "phuket": {
+        "lat": 7.8880555555556,
+        "lon": 98.3975
+      },
+      "pattaya": {
+        "lat": 12.949565,
+        "lon": 100.893004
+      },
+      "chonburi": {
+        "lat": 13.361111111111,
+        "lon": 100.985
+      },
+      "rayong": {
+        "lat": 12.674166666667,
+        "lon": 101.27888888889
+      },
+      "chachoengsao": {
+        "lat": 13.690277777777778,
+        "lon": 101.07027777777778
+      },
+      "ayutthaya": {
+        "lat": 14.349444444444,
+        "lon": 100.55944444444
+      },
+      "samutprakan": {
+        "lat": 13.6004,
+        "lon": 100.5964
+      },
+      "samutsakhon": {
+        "lat": 13.548611111111,
+        "lon": 100.2775
+      }
+    },
+    "coverage": {
+      "hcm": {
+        "osmCandidates": 8,
+        "osmWithPhone": 2,
+        "published": 2,
+        "publishedWithPhone": 2,
+        "publishedPhonePercent": 100,
+        "verifiedPhoneCandidatePercent": 25.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=106.689944,10.763556,106.713944,10.787556",
+        "bboxDelta": 0.012
+      },
+      "hanoi": {
+        "osmCandidates": 8,
+        "osmWithPhone": 0,
+        "published": 1,
+        "publishedWithPhone": 1,
+        "publishedPhonePercent": 100,
+        "verifiedPhoneCandidatePercent": 12.5,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=105.835170,21.018500,105.847170,21.030500",
+        "bboxDelta": 0.006
+      },
+      "danang": {
+        "osmCandidates": 10,
+        "osmWithPhone": 1,
+        "published": 5,
+        "publishedWithPhone": 5,
+        "publishedPhonePercent": 100,
+        "verifiedPhoneCandidatePercent": 50.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=108.197722,16.057444,108.221722,16.081444",
+        "bboxDelta": 0.012
+      },
+      "phuquoc": {
+        "osmCandidates": 0,
+        "osmWithPhone": 0,
+        "published": 0,
+        "publishedWithPhone": 0,
+        "publishedPhonePercent": null,
+        "verifiedPhoneCandidatePercent": null,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=103.945222,10.216889,103.969222,10.240889",
+        "bboxDelta": 0.012
+      },
+      "nhatrang": {
+        "osmCandidates": 10,
+        "osmWithPhone": 0,
+        "published": 1,
+        "publishedWithPhone": 1,
+        "publishedPhonePercent": 100,
+        "verifiedPhoneCandidatePercent": 10.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=109.15666666666667,12.209999999999999,109.22666666666666,12.28",
+        "bboxDelta": 0.035
+      },
+      "quynhon": {
+        "osmCandidates": 5,
+        "osmWithPhone": 0,
+        "published": 0,
+        "publishedWithPhone": 0,
+        "publishedPhonePercent": null,
+        "verifiedPhoneCandidatePercent": 0.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=109.19637222222222,13.734580555555555,109.26637222222222,13.804580555555555",
+        "bboxDelta": 0.035
+      },
+      "dalat": {
+        "osmCandidates": 2,
+        "osmWithPhone": 0,
+        "published": 1,
+        "publishedWithPhone": 1,
+        "publishedPhonePercent": 100,
+        "verifiedPhoneCandidatePercent": 50.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=108.425500,11.928000,108.449500,11.952000",
+        "bboxDelta": 0.012
+      },
+      "bacninh": {
+        "osmCandidates": 7,
+        "osmWithPhone": 0,
+        "published": 0,
+        "publishedWithPhone": 0,
+        "publishedPhonePercent": null,
+        "verifiedPhoneCandidatePercent": 0.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=106.064310,21.174080,106.088310,21.198080",
+        "bboxDelta": 0.012
+      },
+      "bacgiang": {
+        "osmCandidates": 7,
+        "osmWithPhone": 0,
+        "published": 0,
+        "publishedWithPhone": 0,
+        "publishedPhonePercent": null,
+        "verifiedPhoneCandidatePercent": 0.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=106.15720900000001,21.23856,106.227209,21.30856",
+        "bboxDelta": 0.035
+      },
+      "haiphong": {
+        "osmCandidates": 9,
+        "osmWithPhone": 0,
+        "published": 1,
+        "publishedWithPhone": 1,
+        "publishedPhonePercent": 100,
+        "verifiedPhoneCandidatePercent": 11.1,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=106.669800,20.845410,106.693800,20.869410",
+        "bboxDelta": 0.012
+      },
+      "binhduong": {
+        "osmCandidates": 1,
+        "osmWithPhone": 0,
+        "published": 0,
+        "publishedWithPhone": 0,
+        "publishedPhonePercent": null,
+        "verifiedPhoneCandidatePercent": 0.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=106.646333,10.992167,106.670333,11.016167",
+        "bboxDelta": 0.012
+      },
+      "dongnai": {
+        "osmCandidates": 1,
+        "osmWithPhone": 0,
+        "published": 0,
+        "publishedWithPhone": 0,
+        "publishedPhonePercent": null,
+        "verifiedPhoneCandidatePercent": 0.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=106.810136,10.938764,106.834136,10.962764",
+        "bboxDelta": 0.012
+      },
+      "bangkok": {
+        "osmCandidates": 4,
+        "osmWithPhone": 1,
+        "published": 1,
+        "publishedWithPhone": 1,
+        "publishedPhonePercent": 100,
+        "verifiedPhoneCandidatePercent": 25.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=100.510667,13.744000,100.522667,13.756000",
+        "bboxDelta": 0.006
+      },
+      "chiangmai": {
+        "osmCandidates": 3,
+        "osmWithPhone": 2,
+        "published": 2,
+        "publishedWithPhone": 2,
+        "publishedPhonePercent": 100,
+        "verifiedPhoneCandidatePercent": 66.7,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=98.977333,18.782889,98.989333,18.794889",
+        "bboxDelta": 0.006
+      },
+      "phuket": {
+        "osmCandidates": 2,
+        "osmWithPhone": 0,
+        "published": 1,
+        "publishedWithPhone": 1,
+        "publishedPhonePercent": 100,
+        "verifiedPhoneCandidatePercent": 50.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=98.385500,7.876056,98.409500,7.900056",
+        "bboxDelta": 0.012
+      },
+      "pattaya": {
+        "osmCandidates": 3,
+        "osmWithPhone": 1,
+        "published": 2,
+        "publishedWithPhone": 2,
+        "publishedPhonePercent": 100,
+        "verifiedPhoneCandidatePercent": 66.7,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=100.881004,12.937565,100.905004,12.961565",
+        "bboxDelta": 0.012
+      },
+      "chonburi": {
+        "osmCandidates": 8,
+        "osmWithPhone": 0,
+        "published": 2,
+        "publishedWithPhone": 2,
+        "publishedPhonePercent": 100,
+        "verifiedPhoneCandidatePercent": 25.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=100.95,13.326111111111,101.02,13.396111111111",
+        "bboxDelta": 0.035
+      },
+      "rayong": {
+        "osmCandidates": 5,
+        "osmWithPhone": 0,
+        "published": 2,
+        "publishedWithPhone": 2,
+        "publishedPhonePercent": 100,
+        "verifiedPhoneCandidatePercent": 40.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=101.24388888889,12.639166666667,101.31388888888999,12.709166666667",
+        "bboxDelta": 0.035
+      },
+      "chachoengsao": {
+        "osmCandidates": 4,
+        "osmWithPhone": 0,
+        "published": 1,
+        "publishedWithPhone": 1,
+        "publishedPhonePercent": 100,
+        "verifiedPhoneCandidatePercent": 25.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=101.03527777777778,13.655277777777778,101.10527777777777,13.725277777777778",
+        "bboxDelta": 0.035
+      },
+      "ayutthaya": {
+        "osmCandidates": 1,
+        "osmWithPhone": 0,
+        "published": 1,
+        "publishedWithPhone": 1,
+        "publishedPhonePercent": 100,
+        "verifiedPhoneCandidatePercent": 100.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=100.547444,14.337444,100.571444,14.361444",
+        "bboxDelta": 0.012
+      },
+      "samutprakan": {
+        "osmCandidates": 2,
+        "osmWithPhone": 0,
+        "published": 1,
+        "publishedWithPhone": 1,
+        "publishedPhonePercent": 100,
+        "verifiedPhoneCandidatePercent": 50.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=100.584400,13.588400,100.608400,13.612400",
+        "bboxDelta": 0.012
+      },
+      "samutsakhon": {
+        "osmCandidates": 6,
+        "osmWithPhone": 0,
+        "published": 3,
+        "publishedWithPhone": 3,
+        "publishedPhonePercent": 100,
+        "verifiedPhoneCandidatePercent": 50.0,
+        "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=100.2425,13.513611111111,100.3125,13.583611111111",
+        "bboxDelta": 0.035
+      }
+    }
+  },
+  "countries": {
+    "vn": {
+      "hcm": [
+        {
+          "id": "osm:way/187949834",
+          "city": "hcm",
+          "name": {
+            "zh": "Bệnh viện Nhân dân Gia Định - Cơ sở 2",
+            "en": "Bệnh viện Nhân dân Gia Định - Cơ sở 2",
+            "vi": "Bệnh viện Nhân dân Gia Định - Cơ sở 2",
+            "th": "Bệnh viện Nhân dân Gia Định - Cơ sở 2",
+            "id": "Bệnh viện Nhân dân Gia Định - Cơ sở 2"
+          },
+          "ownership": "public",
+          "intl": false,
+          "pti": true,
+          "er24": false,
+          "address": "125 Lê Lợi, Bến Thành, Hồ Chí Minh",
+          "phone": "+84919965125",
+          "lat": 10.771943142857143,
+          "lng": 106.69955902857143,
+          "rank": 1,
+          "sources": [
+            "https://www.openstreetmap.org/way/187949834",
+            "https://bvndgiadinh.org.vn/?p=15383"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": "2026-11-15",
+          "ptiSource": "https://new.pti.com.vn/wp-content/uploads/2026/10/Danh-sach-CSYT-bao-lanh-qua-FHVI.pdf",
+          "reviewNote": "FHVI row 442 matches branch at 125 Lê Lợi; phone is branch emergency hotline, not head hospital."
+        },
+        {
+          "id": "osm:way/187895176",
+          "city": "hcm",
+          "name": {
+            "zh": "二号儿童医院",
+            "en": "Children's Hospital No 2",
+            "vi": "Bệnh viện Nhi đồng 2",
+            "th": "Bệnh viện Nhi đồng 2",
+            "id": "Bệnh viện Nhi đồng 2"
+          },
+          "ownership": "public",
+          "intl": false,
+          "pti": false,
+          "er24": false,
+          "address": "14 Lý Tự Trọng, Sài Gòn, Hồ Chí Minh",
+          "phone": "+842838295723",
+          "lat": 10.782152368421052,
+          "lng": 106.70283962105263,
+          "rank": 2,
+          "sources": [
+            "https://www.openstreetmap.org/way/187895176",
+            "http://www.benhviennhi.org.vn",
+            "https://www.wikidata.org/wiki/Q30293454"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Paediatric hospital; OSM phone matches hospital contact. Retain specialist name."
+        }
+      ],
+      "hanoi": [
+        {
+          "id": "osm:way/703386657",
+          "city": "hanoi",
+          "name": {
+            "zh": "越德医院",
+            "en": "Vietnam - Germany Hospital",
+            "vi": "Bệnh viện Hữu nghị Việt Đức",
+            "th": "Bệnh viện Hữu nghị Việt Đức",
+            "id": "Rumah Sakit Vietnam - Jerman"
+          },
+          "ownership": "public",
+          "intl": false,
+          "pti": false,
+          "er24": false,
+          "address": "40 Phủ Doãn, Hà Nội",
+          "phone": "+842438253531",
+          "lat": 21.028819810416667,
+          "lng": 105.84701369583333,
+          "rank": 1,
+          "sources": [
+            "https://www.openstreetmap.org/way/703386657",
+            "https://benhvienvietduc.org/khoa/tt-kham-benh-cap-cuu-va-dieu-tri-ban-ngay/gioi-thieu-chung",
+            "https://www.wikidata.org/wiki/Q4456887"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": ""
+        }
+      ],
+      "danang": [
+        {
+          "id": "osm:node/729405662",
+          "city": "danang",
+          "name": {
+            "zh": "Bệnh viện Hoàn Mỹ Đà Nẵng",
+            "en": "Hoan My Da Nang Hospital",
+            "vi": "Bệnh viện Hoàn Mỹ Đà Nẵng",
+            "th": "Bệnh viện Hoàn Mỹ Đà Nẵng",
+            "id": "Bệnh viện Hoàn Mỹ Đà Nẵng"
+          },
+          "ownership": "private",
+          "intl": true,
+          "pti": true,
+          "er24": true,
+          "address": "291 Nguyễn Văn Linh, Đà Nẵng",
+          "phone": "+842363650676",
+          "lat": 16.059401,
+          "lng": 108.2098753,
+          "rank": 1,
+          "sources": [
+            "https://www.openstreetmap.org/node/729405662",
+            "https://new.boa.gov.vn/sites/default/files/med092l0822.pdf"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": "2026-11-15",
+          "ptiSource": "https://new.pti.com.vn/wp-content/uploads/2026/10/Danh-sach-CSYT-bao-lanh-qua-INSMART.pdf",
+          "reviewNote": "INSMART FORTISHMDNHOS; official Hoan My page confirms international patient service and 24h emergency service: https://hoanmy.com/danang/"
+        },
+        {
+          "id": "osm:node/729405667",
+          "city": "danang",
+          "name": {
+            "zh": "Bệnh viện Đa khoa Bình Dân",
+            "en": "Bệnh viện Đa khoa Bình Dân",
+            "vi": "Bệnh viện Đa khoa Bình Dân",
+            "th": "Bệnh viện Đa khoa Bình Dân",
+            "id": "Bệnh viện Đa khoa Bình Dân"
+          },
+          "ownership": "private",
+          "intl": false,
+          "pti": true,
+          "er24": false,
+          "address": "376 Trần Cao Vân, Đà Nẵng",
+          "phone": "+842363714030",
+          "lat": 16.0713797,
+          "lng": 108.2001187,
+          "rank": 2,
+          "sources": [
+            "https://www.openstreetmap.org/node/729405667",
+            "https://new.pti.com.vn/wp-content/uploads/2026/10/Danh-sach-CSYT-bao-lanh-qua-FHVI.pdf"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": "2026-11-15",
+          "ptiSource": "https://new.pti.com.vn/wp-content/uploads/2026/10/Danh-sach-CSYT-bao-lanh-qua-INSMART.pdf",
+          "reviewNote": "INSMART DNPOPULARHOS and FHVI row 57. Distinct from unverified duplicate/other Binh Dan record. Official facility name verified at https://binhdanhospital.vn/ and Ministry of Health provider registry; accent-restored."
+        },
+        {
+          "id": "osm:node/7541325568",
+          "city": "danang",
+          "name": {
+            "zh": "Thien Nhan Hospital",
+            "en": "Thien Nhan Hospital",
+            "vi": "Thien Nhan Hospital",
+            "th": "Thien Nhan Hospital",
+            "id": "Thien Nhan Hospital"
+          },
+          "ownership": "private",
+          "intl": false,
+          "pti": true,
+          "er24": false,
+          "address": "276–278 Đống Đa, Đà Nẵng",
+          "phone": "+84982135606",
+          "lat": 16.076597,
+          "lng": 108.2158614,
+          "rank": 3,
+          "sources": [
+            "https://www.openstreetmap.org/node/7541325568",
+            "https://thiennhanhospital.com/"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": "2026-11-15",
+          "ptiSource": "https://new.pti.com.vn/wp-content/uploads/2026/10/Danh-sach-CSYT-bao-lanh-qua-FHVI.pdf",
+          "reviewNote": "FHVI row 55. Override malformed OSM +84363568988 with official hotline; 24h ER not confirmed."
+        },
+        {
+          "id": "osm:way/372433638",
+          "city": "danang",
+          "name": {
+            "zh": "Bệnh viện Đà Nẵng",
+            "en": "Da Nang Hosptial",
+            "vi": "Bệnh viện Đà Nẵng",
+            "th": "Bệnh viện Đà Nẵng",
+            "id": "Bệnh viện Đà Nẵng"
+          },
+          "ownership": "public",
+          "intl": false,
+          "pti": true,
+          "er24": false,
+          "address": "124 Hải Phòng, Đà Nẵng",
+          "phone": "+842363821118",
+          "lat": 16.072687716666668,
+          "lng": 108.21551498333334,
+          "rank": 4,
+          "sources": [
+            "https://www.openstreetmap.org/way/372433638",
+            "https://new.pti.com.vn/wp-content/uploads/2026/10/Danh-sach-CSYT-bao-lanh-qua-FHVI.pdf"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": "2026-11-15",
+          "ptiSource": "https://new.pti.com.vn/wp-content/uploads/2026/10/Danh-sach-CSYT-bao-lanh-qua-INSMART.pdf",
+          "reviewNote": "INSMART DANANGHOS. Listing explicitly excludes emergency department direct billing; tooltip must state service/policy conditions apply."
+        },
+        {
+          "id": "osm:way/372433951",
+          "city": "danang",
+          "name": {
+            "zh": "Bệnh viện C Đà Nẵng",
+            "en": "Bệnh viện C Đà Nẵng",
+            "vi": "Bệnh viện C Đà Nẵng",
+            "th": "Bệnh viện C Đà Nẵng",
+            "id": "Bệnh viện C Đà Nẵng"
+          },
+          "ownership": "public",
+          "intl": false,
+          "pti": false,
+          "er24": false,
+          "address": "122 Hải Phòng, Đà Nẵng",
+          "phone": "+842363821480",
+          "lat": 16.072986375,
+          "lng": 108.21688540000001,
+          "rank": 5,
+          "sources": [
+            "https://www.openstreetmap.org/way/372433951",
+            "https://bvcdn.org.vn/lien-he/"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": ""
+        }
+      ],
+      "phuquoc": [],
+      "nhatrang": [
+        {
+          "id": "osm:way/1167738442",
+          "city": "nhatrang",
+          "name": {
+            "zh": "Bệnh viện Đa khoa Khánh Hòa",
+            "en": "Khanh Hoa General Hospital",
+            "vi": "Bệnh viện Đa khoa Khánh Hòa",
+            "th": "Bệnh viện Đa khoa Khánh Hòa",
+            "id": "Bệnh viện Đa khoa Khánh Hòa"
+          },
+          "ownership": "public",
+          "intl": false,
+          "pti": false,
+          "er24": false,
+          "address": "19 Yersin, Nha Trang",
+          "phone": "+842583822175",
+          "lat": 12.248623966666665,
+          "lng": 109.19198637777778,
+          "rank": 1,
+          "sources": [
+            "https://www.openstreetmap.org/way/1167738442",
+            "https://benhvienkhanhhoa.org.vn/"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": ""
+        }
+      ],
+      "quynhon": [],
+      "dalat": [
+        {
+          "id": "osm:way/473556887",
+          "city": "dalat",
+          "name": {
+            "zh": "Bệnh viện Đa khoa tỉnh Lâm Đồng",
+            "en": "Lam Dong Provincial General Hospital",
+            "vi": "Bệnh viện Đa khoa tỉnh Lâm Đồng",
+            "th": "Bệnh viện Đa khoa tỉnh Lâm Đồng",
+            "id": "Bệnh viện Đa khoa tỉnh Lâm Đồng"
+          },
+          "ownership": "public",
+          "intl": false,
+          "pti": false,
+          "er24": false,
+          "address": "4 Phạm Ngọc Thạch, Đà Lạt",
+          "phone": "+842633827528",
+          "lat": 11.946416542372882,
+          "lng": 108.43083368644068,
+          "rank": 1,
+          "sources": [
+            "https://www.openstreetmap.org/way/473556887",
+            "https://lamdong.gov.vn/sites/bvdk/tintucsukien/SitePages/Tong-dai-1900585865.aspx"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": ""
+        }
+      ],
+      "bacninh": [],
+      "bacgiang": [],
+      "haiphong": [
+        {
+          "id": "osm:way/240457738",
+          "city": "haiphong",
+          "name": {
+            "zh": "Bệnh viện Đa khoa Quốc tế Hải Phòng",
+            "en": "Bệnh viện Đa khoa Quốc tế Hải Phòng",
+            "vi": "Bệnh viện Đa khoa Quốc tế Hải Phòng",
+            "th": "Bệnh viện Đa khoa Quốc tế Hải Phòng",
+            "id": "Bệnh viện Đa khoa Quốc tế Hải Phòng"
+          },
+          "ownership": "private",
+          "intl": true,
+          "pti": true,
+          "er24": false,
+          "address": "124 Nguyễn Đức Cảnh, Hải Phòng",
+          "phone": "+842253736300",
+          "lat": 20.853209047058822,
+          "lng": 106.67275094705883,
+          "rank": 1,
+          "sources": [
+            "https://www.openstreetmap.org/way/240457738",
+            "https://new.pti.com.vn/wp-content/uploads/2026/10/Danh-sach-CSYT-bao-lanh-qua-FHVI.pdf"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": "2026-11-15",
+          "ptiSource": "https://new.pti.com.vn/wp-content/uploads/2026/10/Danh-sach-CSYT-bao-lanh-qua-FHVI.pdf",
+          "reviewNote": "FHVI row 225; international designation is in official facility name."
+        }
+      ],
+      "binhduong": [],
+      "dongnai": []
+    },
+    "th": {
+      "bangkok": [
+        {
+          "id": "osm:way/164007674",
+          "city": "bangkok",
+          "name": {
+            "zh": "โรงพยาบาลธนบุรีบำรุงเมือง",
+            "en": "Thonburi Bumrungmuang Hospital",
+            "vi": "โรงพยาบาลธนบุรีบำรุงเมือง",
+            "th": "โรงพยาบาลธนบุรีบำรุงเมือง",
+            "id": "โรงพยาบาลธนบุรีบำรุงเมือง"
+          },
+          "ownership": "private",
+          "intl": true,
+          "pti": false,
+          "er24": false,
+          "address": "611 Bamrung Mueang Road, Bangkok",
+          "phone": "+6622203899",
+          "lat": 13.750425612499999,
+          "lng": 100.514475425,
+          "rank": 1,
+          "sources": [
+            "https://www.openstreetmap.org/way/164007674",
+            "https://www.thonburibamrungmuang.com/en/suggestions-feedback/"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Official English service and international services; published ambulance phone."
+        }
+      ],
+      "chiangmai": [
+        {
+          "id": "osm:way/257214959",
+          "city": "chiangmai",
+          "name": {
+            "zh": "โรงพยาบาลเชียงใหม่ราม",
+            "en": "Chiang Mai Ram Hospital",
+            "vi": "โรงพยาบาลเชียงใหม่ราม",
+            "th": "โรงพยาบาลเชียงใหม่ราม",
+            "id": "โรงพยาบาลเชียงใหม่ราม"
+          },
+          "ownership": "private",
+          "intl": true,
+          "pti": false,
+          "er24": false,
+          "address": "8 Boonruangrit Road, Chiang Mai",
+          "phone": "+6652004601",
+          "lat": 18.794827911111113,
+          "lng": 98.97748202222222,
+          "rank": 1,
+          "sources": [
+            "https://www.openstreetmap.org/way/257214959",
+            "https://chiangmairam.com/news_detail/604"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Official announcement replaces old OSM 053920300; use new emergency line. International hospital: https://www.chiangmairam.com/aboutus"
+        },
+        {
+          "id": "osm:way/189618479",
+          "city": "chiangmai",
+          "name": {
+            "zh": "โรงพยาบาลมหาราชนครเชียงใหม่",
+            "en": "Maharaj Nakorn Chiang Mai Hospital",
+            "vi": "โรงพยาบาลมหาราชนครเชียงใหม่",
+            "th": "โรงพยาบาลมหาราชนครเชียงใหม่",
+            "id": "โรงพยาบาลมหาราชนครเชียงใหม่"
+          },
+          "ownership": "public",
+          "intl": false,
+          "pti": false,
+          "er24": false,
+          "address": "110 Suthep Road, Si Phum, Mueang Chiang Mai, Chiang Mai 50200",
+          "phone": "+6653936150",
+          "lat": 18.790839974137928,
+          "lng": 98.97490250172415,
+          "rank": 2,
+          "sources": [
+            "https://www.openstreetmap.org/way/189618479",
+            "https://www.med.cmu.ac.th"
+          ],
+          "checkedAt": "2026-11-16",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Public MOPH teaching hospital (Maharaj Nakorn / Suandok, OSM emergency=yes), added to pair a public general hospital with the existing private international hospital. Phone +6653936150 is the recorded OSM phone tag 053936150 normalized to E.164; address from OSM addr:* tags; official website from OSM website tag. Values were reviewed from the frozen OSM snapshot only, not independently confirmed against the live site (outbound page fetch unavailable). 24h and international-department status unconfirmed (er24=false, intl=false). pti=false: not verified against the PTI official list."
+        }
+      ],
+      "phuket": [
+        {
+          "id": "osm:way/1547798607",
+          "city": "phuket",
+          "name": {
+            "zh": "โรงพยาบาลองค์การบริหารส่วนจังหวัดภูเก็ต",
+            "en": "Phuket PAO Hospital",
+            "vi": "โรงพยาบาลองค์การบริหารส่วนจังหวัดภูเก็ต",
+            "th": "โรงพยาบาลองค์การบริหารส่วนจังหวัดภูเก็ต",
+            "id": "โรงพยาบาลองค์การบริหารส่วนจังหวัดภูเก็ต"
+          },
+          "ownership": "public",
+          "intl": false,
+          "pti": false,
+          "er24": false,
+          "address": "18–20 Anuphatphuketkan Road, Phuket",
+          "phone": "+6676358888",
+          "lat": 7.881501304545455,
+          "lng": 98.40474994545455,
+          "rank": 1,
+          "sources": [
+            "https://www.openstreetmap.org/way/1547798607",
+            "https://spd.moph.go.th/wp-content/uploads/2025/07/Report-Health-Resource-2024.pdf"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Ministry report PDF p339, PAO hospital. Deduplicated old provincial hospital polygon."
+        }
+      ],
+      "pattaya": [
+        {
+          "id": "osm:way/1212165124",
+          "city": "pattaya",
+          "name": {
+            "zh": "โรงพยาบาล พัทยาอินเตอร์",
+            "en": "โรงพยาบาล พัทยาอินเตอร์",
+            "vi": "โรงพยาบาล พัทยาอินเตอร์",
+            "th": "โรงพยาบาล พัทยาอินเตอร์",
+            "id": "โรงพยาบาล พัทยาอินเตอร์"
+          },
+          "ownership": "private",
+          "intl": true,
+          "pti": false,
+          "er24": false,
+          "address": "255/4 Soi Pattaya 4, Pattaya",
+          "phone": "+6638428374",
+          "lat": 12.944208722222221,
+          "lng": 100.88747613333334,
+          "rank": 1,
+          "sources": [
+            "https://www.openstreetmap.org/way/1212165124",
+            "https://spd.moph.go.th/wp-content/uploads/2025/07/Report-Health-Resource-2024.pdf"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Ministry PDF p353, private institution section."
+        },
+        {
+          "id": "osm:way/226823896",
+          "city": "pattaya",
+          "name": {
+            "zh": "โรงพยาบาลกรุงเทพ",
+            "en": "Bangkok Hospital Pattaya",
+            "vi": "โรงพยาบาลกรุงเทพ",
+            "th": "โรงพยาบาลกรุงเทพ",
+            "id": "โรงพยาบาลกรุงเทพ"
+          },
+          "ownership": "private",
+          "intl": true,
+          "pti": false,
+          "er24": false,
+          "address": "301 Sukhumvit Road, Pattaya",
+          "phone": "+6638259911",
+          "lat": 12.954112183333333,
+          "lng": 100.9053987111111,
+          "rank": 2,
+          "sources": [
+            "https://www.openstreetmap.org/way/226823896",
+            "https://www.bangkokhospital.com/th/pattaya/visit/map-bph"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": ""
+        }
+      ],
+      "chonburi": [
+        {
+          "id": "osm:way/525523960",
+          "city": "chonburi",
+          "name": {
+            "zh": "โรงพยาบาลชลบุรี",
+            "en": "Chonburi Hospital",
+            "vi": "โรงพยาบาลชลบุรี",
+            "th": "โรงพยาบาลชลบุรี",
+            "id": "โรงพยาบาลชลบุรี"
+          },
+          "ownership": "public",
+          "intl": false,
+          "pti": false,
+          "er24": true,
+          "address": "69 Moo 2, Ban Suan, Chonburi",
+          "phone": "+6638931000",
+          "lat": 13.351467628571429,
+          "lng": 100.98198877142856,
+          "rank": 1,
+          "sources": [
+            "https://www.openstreetmap.org/way/525523960",
+            "https://spd.moph.go.th/wp-content/uploads/2025/07/Report-Health-Resource-2024.pdf"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Ministry PDF p232; OSM emergency=yes and opening_hours=24/7."
+        },
+        {
+          "id": "osm:way/115844597",
+          "city": "chonburi",
+          "name": {
+            "zh": "โรงพยาบาลเอกชล",
+            "en": "Aikchol Hospital",
+            "vi": "โรงพยาบาลเอกชล",
+            "th": "โรงพยาบาลเอกชล",
+            "id": "โรงพยาบาลเอกชล"
+          },
+          "ownership": "private",
+          "intl": false,
+          "pti": false,
+          "er24": false,
+          "address": "68/3 Moo 2, Phraya Satcha Road, Chonburi",
+          "phone": "+6638939999",
+          "lat": 13.354876856,
+          "lng": 100.97611807199999,
+          "rank": 2,
+          "sources": [
+            "https://www.openstreetmap.org/way/115844597",
+            "https://spd.moph.go.th/wp-content/uploads/2025/07/Report-Health-Resource-2024.pdf"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Ministry PDF p364 private institution section."
+        }
+      ],
+      "rayong": [
+        {
+          "id": "osm:node/14178733874",
+          "city": "rayong",
+          "name": {
+            "zh": "โรงพยาบาลจุฬารัตน์ระยอง",
+            "en": "Chularat Rayong Hospital",
+            "vi": "โรงพยาบาลจุฬารัตน์ระยอง",
+            "th": "โรงพยาบาลจุฬารัตน์ระยอง",
+            "id": "โรงพยาบาลจุฬารัตน์ระยอง"
+          },
+          "ownership": "private",
+          "intl": false,
+          "pti": false,
+          "er24": false,
+          "address": "65/28 Chantha Udom Road, Rayong",
+          "phone": "+6638860890",
+          "lat": 12.6852475,
+          "lng": 101.2745418,
+          "rank": 1,
+          "sources": [
+            "https://www.openstreetmap.org/node/14178733874",
+            "https://spd.moph.go.th/wp-content/uploads/2025/07/Report-Health-Resource-2024.pdf"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Ministry PDF p357 private institution section; first phone in published range."
+        },
+        {
+          "id": "osm:way/1215983984",
+          "city": "rayong",
+          "name": {
+            "zh": "โรงพยาบาลระยอง",
+            "en": "Rayong Hospital",
+            "vi": "โรงพยาบาลระยอง",
+            "th": "โรงพยาบาลระยอง",
+            "id": "โรงพยาบาลระยอง"
+          },
+          "ownership": "public",
+          "intl": false,
+          "pti": false,
+          "er24": false,
+          "address": "138 Sukhumvit Road, Rayong",
+          "phone": "+6638611104",
+          "lat": 12.683043434615383,
+          "lng": 101.27687981153846,
+          "rank": 2,
+          "sources": [
+            "https://www.openstreetmap.org/way/1215983984",
+            "https://spd.moph.go.th/wp-content/uploads/2025/07/Report-Health-Resource-2024.pdf"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Ministry PDF p233 regional hospitals."
+        }
+      ],
+      "chachoengsao": [
+        {
+          "id": "osm:way/951490452",
+          "city": "chachoengsao",
+          "name": {
+            "zh": "โรงพยาบาลพุทธโสธร",
+            "en": "โรงพยาบาลพุทธโสธร",
+            "vi": "โรงพยาบาลพุทธโสธร",
+            "th": "โรงพยาบาลพุทธโสธร",
+            "id": "โรงพยาบาลพุทธโสธร"
+          },
+          "ownership": "public",
+          "intl": false,
+          "pti": false,
+          "er24": false,
+          "address": "174 Marupong Road, Chachoengsao",
+          "phone": "+6638814375",
+          "lat": 13.686464554545454,
+          "lng": 101.07299571818182,
+          "rank": 1,
+          "sources": [
+            "https://www.openstreetmap.org/way/951490452",
+            "https://spd.moph.go.th/wp-content/uploads/2025/07/Report-Health-Resource-2024.pdf"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Ministry PDF p234, first phone in published range."
+        }
+      ],
+      "ayutthaya": [
+        {
+          "id": "osm:way/712600876",
+          "city": "ayutthaya",
+          "name": {
+            "zh": "大城医院",
+            "en": "Phra Nakhon Si Ayutthaya Hospital",
+            "vi": "โรงพยาบาลพระนครศรีอยุธยา",
+            "th": "โรงพยาบาลพระนครศรีอยุธยา",
+            "id": "โรงพยาบาลพระนครศรีอยุธยา"
+          },
+          "ownership": "public",
+          "intl": false,
+          "pti": false,
+          "er24": false,
+          "address": "46/1 Moo 4, Pratu Chai, Ayutthaya",
+          "phone": "+6635211888",
+          "lat": 14.343473566666667,
+          "lng": 100.55946247222222,
+          "rank": 1,
+          "sources": [
+            "https://www.openstreetmap.org/way/712600876",
+            "https://spd.moph.go.th/wp-content/uploads/2025/07/Report-Health-Resource-2024.pdf"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Ministry PDF p232 regional hospitals."
+        }
+      ],
+      "samutprakan": [
+        {
+          "id": "osm:way/1229701250",
+          "city": "samutprakan",
+          "name": {
+            "zh": "รพ.เมืองสมุทรปากน้ำ",
+            "en": "รพ.เมืองสมุทรปากน้ำ",
+            "vi": "รพ.เมืองสมุทรปากน้ำ",
+            "th": "รพ.เมืองสมุทรปากน้ำ",
+            "id": "รพ.เมืองสมุทรปากน้ำ"
+          },
+          "ownership": "private",
+          "intl": false,
+          "pti": false,
+          "er24": false,
+          "address": "156 Soi Thetsaban 12, Pak Nam, Samut Prakan",
+          "phone": "+6621737766",
+          "lat": 13.594966806666665,
+          "lng": 100.60135308666666,
+          "rank": 1,
+          "sources": [
+            "https://www.openstreetmap.org/way/1229701250",
+            "https://spd.moph.go.th/wp-content/uploads/2025/07/Report-Health-Resource-2024.pdf"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Ministry PDF p356, first phone in published range; do not duplicate generic Mueang Samut node."
+        }
+      ],
+      "samutsakhon": [
+        {
+          "id": "osm:node/4890988622",
+          "city": "samutsakhon",
+          "name": {
+            "zh": "โรงพยาบาลสมุทรสาคร",
+            "en": "Samutsakhon Hospital",
+            "vi": "โรงพยาบาลสมุทรสาคร",
+            "th": "โรงพยาบาลสมุทรสาคร",
+            "id": "โรงพยาบาลสมุทรสาคร"
+          },
+          "ownership": "public",
+          "intl": false,
+          "pti": false,
+          "er24": true,
+          "address": "1500 Ekkachai Road, Samut Sakhon",
+          "phone": "+6634427099",
+          "lat": 13.5510326,
+          "lng": 100.2792635,
+          "rank": 1,
+          "sources": [
+            "https://www.openstreetmap.org/node/4890988622",
+            "https://spd.moph.go.th/wp-content/uploads/2025/07/Report-Health-Resource-2024.pdf",
+            "https://www.wikidata.org/wiki/Q108704116"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Ministry PDF p235 second published number; OSM emergency=yes and 24/7."
+        },
+        {
+          "id": "osm:node/7856667679",
+          "city": "samutsakhon",
+          "name": {
+            "zh": "โรงพยาบาลวิชัยเวช อินเตอร์เนชั่นแนล สมุทรสาคร",
+            "en": "Vichaivej International Hospital",
+            "vi": "โรงพยาบาลวิชัยเวช อินเตอร์เนชั่นแนล สมุทรสาคร",
+            "th": "โรงพยาบาลวิชัยเวช อินเตอร์เนชั่นแนล สมุทรสาคร",
+            "id": "โรงพยาบาลวิชัยเวช อินเตอร์เนชั่นแนล สมุทรสาคร"
+          },
+          "ownership": "private",
+          "intl": true,
+          "pti": false,
+          "er24": false,
+          "address": "93/256 Moo 7, Setthakit 1 Road, Samut Sakhon",
+          "phone": "+6634410700",
+          "lat": 13.5760859,
+          "lng": 100.2715355,
+          "rank": 2,
+          "sources": [
+            "https://www.openstreetmap.org/node/7856667679",
+            "https://spd.moph.go.th/wp-content/uploads/2025/07/Report-Health-Resource-2024.pdf"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Ministry PDF p359 private institutions; international designation in listed name."
+        },
+        {
+          "id": "osm:node/7856667677",
+          "city": "samutsakhon",
+          "name": {
+            "zh": "โรงพยาบาลมหาชัย",
+            "en": "Maha Chai Hospital",
+            "vi": "โรงพยาบาลมหาชัย",
+            "th": "โรงพยาบาลมหาชัย",
+            "id": "โรงพยาบาลมหาชัย"
+          },
+          "ownership": "private",
+          "intl": false,
+          "pti": false,
+          "er24": false,
+          "address": "927/43 Setthakij 1 Road, Samut Sakhon",
+          "phone": "+6634424990",
+          "lat": 13.5568018,
+          "lng": 100.2719754,
+          "rank": 3,
+          "sources": [
+            "https://www.openstreetmap.org/node/7856667677",
+            "https://spd.moph.go.th/wp-content/uploads/2025/07/Report-Health-Resource-2024.pdf"
+          ],
+          "checkedAt": "2026-11-15",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Ministry PDF p354 private institutions."
+        }
+      ]
+    }
+  }
+}

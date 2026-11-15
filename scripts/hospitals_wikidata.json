@@ -1,0 +1,26 @@
+{
+  "Q30293454": {
+    "source": "https://www.wikidata.org/wiki/Q30293454",
+    "labels": {
+      "en": "Children's Hospital 2"
+    },
+    "checkedAt": "2026-11-16",
+    "method": "Manual label and OSM entity identity check against public Wikidata item; CC0."
+  },
+  "Q4456887": {
+    "source": "https://www.wikidata.org/wiki/Q4456887",
+    "labels": {
+      "en": "Vietnam - Germany Hospital"
+    },
+    "checkedAt": "2026-11-16",
+    "method": "Manual label and OSM entity identity check against public Wikidata item; CC0."
+  },
+  "Q108704116": {
+    "source": "https://www.wikidata.org/wiki/Q108704116",
+    "labels": {
+      "en": "Samut Sakhon Hospital"
+    },
+    "checkedAt": "2026-11-16",
+    "method": "Manual label and OSM entity identity check against public Wikidata item; CC0."
+  }
+}

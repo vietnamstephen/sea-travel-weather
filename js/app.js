@@ -684,6 +684,7 @@
 
   // One shared request, started only by an expanded city.
   var attractionsRequest;
+  var attractionOverridesRequest;
   function sanitiseAuthor(value) {
     return String(value || '').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim()
       .replace(/^.*?\.(?:jpg|jpeg|png|svg):\s*/i, '')
@@ -702,38 +703,244 @@
     if (!attractionsRequest) attractionsRequest = fetch('data/attractions.json').then(function(r) {
       if (!r.ok) throw new Error('Attractions unavailable'); return r.json();
     }).catch(function() { return {countries:{}}; });
-    attractionsRequest.then(function(data) {
+    if (!attractionOverridesRequest) attractionOverridesRequest = fetch('data/attractions_overrides.json').then(function(r) { return r.ok ? r.json() : {}; }).catch(function() { return {}; });
+    Promise.all([attractionsRequest, attractionOverridesRequest]).then(function(results) {
+      var data=results[0], overrides=results[1] || {};
       if (!row.open || !row.isConnected || row.querySelector('.attractions')) return;
       var items = ((data.countries[CID] || {})[city.id] || []).slice().sort(function(a,b) { return b.sitelinks-a.sitelinks; }).slice(0,8);
       if (!items.length) return;
       var local = ({vn:'vi',th:'th',id:'id'}[CID] || 'en');
-      function label(v) { return v && (v[LANG] || v.en || v[local]) || ''; }
+      function label(a) { var v=a.name || {}, manual=overrides[a.qid] || {}; if(LANG==='zh') return manual.zh || (v.zh && v.zh!==v.en ? v.zh : '') || (v[local] && (v[local]!==v.en || /[^\x00-\x7f]/.test(v[local])) ? v[local] : ''); return v[LANG] || v[local] || ''; }
       function pin() { return '<svg aria-hidden="true"><use href="#i-map-pin"></use></svg>'; }
       function placeholder() { return '<div class="attr-placeholder" aria-hidden="true">'+pin()+'</div>'; }
       var section = document.createElement('section'); section.className = 'attractions';
-      section.innerHTML = '<div class="attr-heading"><h3>'+esc(t('attr.title'))+'</h3><span>'+items.length+'</span></div><div class="attr-scroll"><ul role="list" tabindex="0" aria-label="'+esc(t('attr.listAria').replace('{city}',loc(city.name)))+'">'+items.map(function(a,i) {
-        var name=label(a.name), intro=a.intro && a.intro[LANG] || '', p=a.photo, credit='';
+      section.innerHTML = '<svg class="attr-sprite" width="0" height="0" aria-hidden="true"><symbol id="i-caret" viewBox="0 0 16 16"><path d="M5 2l6 6-6 6"/></symbol></svg><div class="attr-heading"><h3>'+esc(t('attr.title'))+'</h3><span>'+items.length+'</span></div><div class="attr-scroll"><ul role="list" tabindex="0" aria-label="'+esc(t('attr.listAria').replace('{city}',loc(city.name)))+'">'+items.map(function(a,i) {
+        var name=label(a), intro=a.intro && a.intro[LANG] || '', p=a.photo, credit='';
         if (p) {
           var author=sanitiseAuthor(p.author), publicDomain=/CC0|public domain/i.test(p.license);
           var full=publicDomain?t('attr.commons'):t('attr.credit').replace('{author}',author).replace('{license}',p.license);
           credit='<div class="attr-credit" title="'+esc(full)+'">'+(publicDomain?esc(full):'<span class="attr-author">📷 <a target="_blank" rel="noopener" href="'+esc(p.filePage)+'">'+esc(author)+'</a></span><span class="attr-sep" aria-hidden="true"> · </span><a class="attr-license" target="_blank" rel="noopener" href="'+esc(p.licenseUrl)+'">'+esc(p.license)+'</a>')+'</div>';
         }
         return '<li class="attr-card'+(i>=4?' attr-extra':'')+'"><div class="attr-media">'+(p?'<img loading="lazy" decoding="async" width="640" height="400" src="'+esc(p.thumb330)+'" srcset="'+esc(p.thumb330)+' '+p.width330+'w, '+esc(p.thumb500)+' '+p.width500+'w" sizes="(min-width: 640px) 220px, 156px" alt="'+esc(name)+'">':placeholder())+'</div><div class="attr-name">'+esc(name)+'</div>'+(intro?'<div class="attr-intro">'+esc(intro)+'</div>':'')+credit+'<a class="attr-map" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query='+encodeURIComponent(a.lat+','+a.lng)+'" aria-label="'+esc(t('attr.mapAria').replace('{name}',name))+'">'+pin()+esc(t('attr.map'))+'</a></li>';
-      }).join('')+'</ul></div>'+(items.length>4?'<button class="attr-more" type="button" aria-expanded="false">'+esc(t('attr.more').replace('{n}',items.length-4))+'</button>':'');
+      }).join('')+'</ul>'+(items.length>4?'<div class="attr-nav"><button class="attr-arrow attr-prev" type="button" aria-label="'+esc(t('attr.prev'))+'"><svg aria-hidden="true" width="18" height="18"><use href="#i-caret"></use></svg></button><button class="attr-arrow attr-next" type="button" aria-label="'+esc(t('attr.next'))+'"><svg aria-hidden="true" width="18" height="18"><use href="#i-caret"></use></svg></button></div>':'')+'</div>'+(items.length>4?'<button class="attr-more" type="button" aria-expanded="false">'+esc(t('attr.more').replace('{n}',items.length-4))+'</button>':'');
       row.querySelector('.city-card').appendChild(section);
       section.querySelectorAll('img').forEach(function(img) { img.addEventListener('error',function() {
         var credit=img.closest('.attr-card'); img.parentNode.innerHTML=placeholder();
         if (credit) { var line=credit.querySelector('.attr-credit'); if(line)line.remove(); }
       },{once:true}); });
       var list=section.querySelector('ul'), wrap=section.querySelector('.attr-scroll');
-      function fade() { wrap.classList.toggle('at-end',list.scrollLeft+list.clientWidth>=list.scrollWidth-2); }
-      list.addEventListener('scroll',fade,{passive:true}); requestAnimationFrame(fade);
+      function fade() { var start=list.scrollLeft<=2,end=list.scrollLeft+list.clientWidth>=list.scrollWidth-2; wrap.classList.toggle('is-start',start);wrap.classList.toggle('is-end',end);wrap.classList.toggle('has-overflow',list.scrollWidth>list.clientWidth+2); }
+      list.addEventListener('scroll',fade,{passive:true});
+      // The first measurement can happen before the browser has resolved the
+      // desktop flex widths. Recheck after that class change has laid out, and
+      // when late image sizing changes the rail's scroll width.
+      requestAnimationFrame(function() { fade(); requestAnimationFrame(fade); });
+      section.querySelectorAll('img').forEach(function(img) { img.addEventListener('load',fade,{once:true}); });
       section.attrResizeObserver = new ResizeObserver(fade); section.attrResizeObserver.observe(list);
-      list.addEventListener('keydown',function(e) { if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();list.scrollBy({left:e.key==='ArrowRight'?166:-166,behavior:'smooth'});} });
+      list.addEventListener('keydown',function(e) { if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();list.scrollBy({left:e.key==='ArrowRight'?list.clientWidth*3/4:-list.clientWidth*3/4,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});} });
+      section.querySelectorAll('.attr-arrow').forEach(function(b){b.addEventListener('click',function(){list.scrollBy({left:(b.classList.contains('attr-next')?1:-1)*(list.querySelector('.attr-card').getBoundingClientRect().width+(parseFloat(getComputedStyle(list).columnGap)||0))*3,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});});
       var more=section.querySelector('.attr-more'); if(more)more.addEventListener('click',function(){section.classList.add('attr-expanded');more.setAttribute('aria-expanded','true');more.hidden=true;});
     });
   }
 
+
+  var hospitalsRequest, hospitalPosition, hospitalPending = false, hospitalError = "";
+  // 医院展开上限：默认 3 家，展开最多 HOSP_EXPANDED_MAX 家（P4 页面超限时先降到 5）。
+  var HOSP_EXPANDED_MAX = 6;
+  try {
+    hospitalPosition = JSON.parse(sessionStorage.getItem("hospitalPosition") || "null");
+  } catch (e) {
+  }
+
+  /* hospitals-ui:pure:start — 自包含纯函数；tests/hospitals-ui.test.ts 按此注释边界提取后在 vm 中运行 */
+  function hospitalDistance(a, b) {
+    var rad = Math.PI / 180, x = (b.lat - a.lat) * rad, y = (b.lng - a.lng) * rad;
+    return 6371 * 2 * Math.asin(Math.sqrt(Math.sin(x / 2) ** 2 + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(y / 2) ** 2));
+  }
+  function formatHospitalDistance(km) {
+    return km < 1 ? Math.round(km * 1e3) + " m" : km.toFixed(1) + " km";
+  }
+  function hospitalBadges(h) {
+    var out = ["hosp.badge." + h.ownership];
+    if (h.intl) out.push("hosp.badge.intl");
+    if (h.pti === true) out.push("hosp.badge.pti");
+    return out;
+  }
+  function hospitalVisible(items, more, max) {
+    var cap = Math.min(items.length, max || 6);
+    return items.slice(0, more ? cap : Math.min(cap, 3));
+  }
+  function hospitalShowMore(items, more, max) {
+    return !more && Math.min(items.length, max || 6) > 3;
+  }
+  function hospitalMoreDelta(items, max) {
+    return hospitalVisible(items, true, max).length - hospitalVisible(items, false, max).length;
+  }
+  function hospitalEmergency(meta, cid) {
+    var e = meta && meta.emergency;
+    return (e && e[cid]) || "";
+  }
+  function hospitalLocalPhone(phone, cid) {
+    var cc = cid === "vn" ? "+84" : cid === "th" ? "+66" : null;
+    return cc && phone.indexOf(cc) === 0 ? "0" + phone.slice(cc.length) : phone;
+  }
+  /* hospitals-ui:pure:end */
+
+  function hospitalToggle(row, jump) {
+    if (!["vn", "th"].includes(CID)) return;
+    var old = row.querySelector(".hospitals");
+    if (!row.open) {                 // 收起态：不保留医院列表 DOM
+      if (old) old.remove();
+      return;
+    }
+    if (old) {                      // 已渲染：仅按需滚动
+      if (jump) old.scrollIntoView({ block: "start" });
+      return;
+    }
+    if (!hospitalsRequest) hospitalsRequest = fetch("data/hospitals.json").then(function (r) {
+      if (!r.ok) throw Error();
+      return r.json();
+    }).catch(function () { return { meta: { updatedAt: "—" }, countries: {} }; });
+    hospitalsRequest.then(function (data) {
+      if (!row.open || !row.isConnected) return;
+      var section = row.querySelector(".hospitals");
+      if (!section) {
+        section = document.createElement("section");
+        section.className = "hospitals";
+        var card = row.querySelector(".city-card");
+        // 穿搭行下、主要景点上：有景点时插到它前面，否则追加到 city-card 末尾
+        card.insertBefore(section, card.querySelector(".attractions") || null);
+        section.hospitalData = data;
+        section.hospitalCity = row.dataset.city;
+        renderHospitals(section);
+      }
+      if (jump) section.scrollIntoView({ block: "start" });
+    });
+  }
+
+  function revealCity(cityId, jump) {
+    var row = Array.from(document.querySelectorAll('.city-row')).find(function (el) { return el.dataset.city === cityId; });
+    if (!row) return false;
+    var cities = row.closest('.country-cities'), more = cities && cities.querySelector('.city-more');
+    if (row.classList.contains('city-extra') && cities && !cities.classList.contains('show-all')) {
+      cities.classList.add('show-all');
+      if (more) { more.setAttribute('aria-expanded', 'true'); more.textContent = t('country.showLess'); }
+    }
+    row.open = true;
+    if (jump) {
+      // 等 show-all 与 details 展开完成布局后再滚到城市行（不要滚到 .hospitals，否则标题会被滚出视口）
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          row.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        });
+      });
+    }
+    return true;
+  }
+
+  function renderHospitals(section) {
+    var data = section.hospitalData, city = section.hospitalCity, meta = data.meta || {};
+    var items = (((data.countries || {})[CID] || {})[city] || []).slice();
+    items.sort(function (a, b2) {
+      return hospitalPosition ? hospitalDistance(hospitalPosition, a) - hospitalDistance(hospitalPosition, b2) : a.rank - b2.rank;
+    });
+    var more = section.dataset.more === "true";
+    var num = hospitalEmergency(meta, CID);   // 急救号码按国家从 data/hospitals.json 的 meta 读取
+    var supported = window.isSecureContext && navigator.geolocation;
+    var far = hospitalPosition && meta.origins && meta.origins[city] &&
+      hospitalDistance(hospitalPosition, { lat: meta.origins[city].lat, lng: meta.origins[city].lon }) > 50;
+    var heading = '<div class="hosp-heading"><h3>' + esc(t("hosp.title")) + "</h3>" +
+      (supported
+        ? '<div class="hosp-controls">' +
+          '<button class="hosp-locate" type="button" ' + (hospitalPending ? "disabled" : "") +
+          ' aria-label="' + esc(t("hosp.locateAria")) + '">' +
+          esc(t(hospitalPending ? "hosp.loading" : hospitalPosition ? "hosp.sorted" : "hosp.locate")) + "</button>" +
+          (hospitalPosition
+            ? '<button class="hosp-relocate" type="button" aria-label="' + esc(t("hosp.relocateAria")) + '">' + esc(t("hosp.relocate")) + "</button>"
+            : "") +
+          "</div>"
+        : "") + "</div>";
+    var status = '<div class="hosp-status" aria-live="polite">' +
+      esc(hospitalError ? t(hospitalError) : far ? t("hosp.far") : hospitalPosition ? t("hosp.sorted") : "") + "</div>";
+    var emergency = num
+      ? '<a class="hosp-emergency" href="tel:' + esc(num) + '" aria-label="' +
+        esc(t("hosp.emergencyAria").replace("{num}", num)) + '">' +
+        esc(t("hosp.emergency")) + " " + esc(num) + "</a>"
+      : "";
+    var body;
+    if (!items.length) {
+      // 0 家城市：只显示一行提示，不渲染空列表块
+      body = '<p class="hosp-empty">' + esc(t("hosp.empty")) + "</p>";
+    } else {
+      var visible = hospitalVisible(items, more, HOSP_EXPANDED_MAX);
+      var list = '<ul role="list">' + visible.map(function (h) {
+        var name = h.name[LANG] || h.name[CID === "vn" ? "vi" : "th"] || h.name.en;
+        var d = hospitalPosition ? hospitalDistance(hospitalPosition, h) : null;
+        var badges = hospitalBadges(h).map(function (k) {
+          var cls = k === "hosp.badge.intl" ? ' class="intl"' : k === "hosp.badge.pti" ? ' class="pti"' : "";
+          var tip = k === "hosp.badge.pti" ? ' title="' + esc(t("hosp.ptiTip")) + '"' : "";
+          return "<span" + cls + tip + ">" + esc(t(k)) + "</span>";
+        }).join("");
+        return '<li>' +
+          '<div class="hosp-name"><strong>' + esc(name) + "</strong>" +
+          '<span class="hosp-badges">' + badges + "</span></div>" +
+          '<div class="hosp-address" title="' + esc(h.address) + '">' + esc(h.address) + "</div>" +
+          '<div class="hosp-actions">' +
+            '<a class="hosp-call" href="tel:' + esc(h.phone) + '" aria-label="' +
+              esc(t("hosp.callAria").replace("{name}", name).replace("{phone}", h.phone)) + '">📞 ' + esc(hospitalLocalPhone(h.phone, CID)) + "</a>" +
+            '<a class="hosp-map" target="_blank" rel="noopener" aria-label="' +
+              esc(t("hosp.mapAria").replace("{name}", name)) + '" href="https://www.google.com/maps/search/?api=1&amp;query=' +
+              esc(h.lat) + "," + esc(h.lng) + '">📍 ' + esc(t("hosp.map")) + "</a>" +
+            (d !== null ? '<span class="hosp-distance">' + esc(formatHospitalDistance(d)) + "</span>" : "") +
+          "</div></li>";
+      }).join("") + "</ul>";
+      var delta = hospitalMoreDelta(items, HOSP_EXPANDED_MAX);
+      var moreBtn = hospitalShowMore(items, more, HOSP_EXPANDED_MAX)
+        ? '<button class="hosp-more" type="button" aria-expanded="false" aria-label="' +
+          esc(t("hosp.moreAria").replace("{n}", delta)) + '">' +
+          esc(t("hosp.more").replace("{n}", delta)) + "</button>"
+        : "";
+      body = list + moreBtn;
+    }
+    var note = '<div class="hosp-note">' + esc(t("hosp.note")) +
+      ' <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OSM · ODbL</a> · ' +
+      esc(meta.updatedAt || "") + "</div>";
+    section.innerHTML = heading + status + emergency + body + note;
+    var b = section.querySelector(".hosp-more");
+    if (b) b.onclick = function () { section.dataset.more = "true"; renderHospitals(section); };
+    section.querySelectorAll(".hosp-locate,.hosp-relocate").forEach(function (b2) { b2.onclick = locateHospitals; });
+  }
+
+  function locateHospitals() {
+    if (hospitalPending) return;
+    hospitalPending = true;
+    hospitalError = "";
+    function refresh() {
+      document.querySelectorAll(".hospitals").forEach(renderHospitals);
+    }
+    refresh();
+    navigator.geolocation.getCurrentPosition(function (p) {
+      hospitalPending = false;
+      hospitalPosition = { lat: p.coords.latitude, lng: p.coords.longitude };
+      try {
+        sessionStorage.setItem("hospitalPosition", JSON.stringify(hospitalPosition));
+      } catch (e) {
+      }
+      refresh();
+      var nearest = R.nearestCity(hospitalPosition.lat, hospitalPosition.lng);
+      if (nearest && nearest.country.id === CID) revealCity(nearest.city.id, true);
+    }, function (e) {
+      hospitalPending = false;
+      hospitalPosition = null;
+      try {
+        sessionStorage.removeItem("hospitalPosition");
+      } catch (ignore) {
+      }
+      hospitalError = e.code === 1 ? "hosp.denied" : "hosp.failed";
+      refresh();
+    }, { timeout: 1e4, maximumAge: 6e4 });
+  }
+  
   function cityCard(c, city) {
     var wc = weatherCity(c.id, city.id);
     var cr = R.cityRisk(wc, city, hourKey(c.tz));
@@ -822,11 +1029,15 @@
       html += '<a class="pill" href="tel:' + esc(number) + '">' + esc(t('country.' + kind)) + ' ' + esc(number) + '</a>';
     });
     html += '</div></div><section class="section country-cities">' + sectionHead('country.citiesTitle', 'country.citiesHint').replace('</h2>', '</h2>' + SEA_OUTFIT.switcher());
-    c.cities.slice().sort(function (a, b) { return R.cityRisk(weatherCity(c.id, b.id), b, hourKey(c.tz)).level - R.cityRisk(weatherCity(c.id, a.id), a, hourKey(c.tz)).level; }).forEach(function (city, i) {
+    var preferred = c.id === 'vn' ? ['hcm','hanoi','danang','nhatrang','phuquoc'] : c.id === 'th' ? ['bangkok','chiangmai','phuket','pattaya','hua hin','chonburi'] : [];
+    var orderedCities = preferred.map(function (id) { return c.cities.find(function (city) { return city.id === id; }); }).filter(Boolean);
+    c.cities.forEach(function (city) { if (!orderedCities.includes(city)) orderedCities.push(city); });
+    orderedCities.forEach(function (city, i) {
       var risk = R.cityRisk(weatherCity(c.id, city.id), city, hourKey(c.tz));
-      html += '<details data-city="' + esc(city.id) + '" class="city-row' + (i >= 5 ? ' city-extra' : '') + '"><summary>' + '<span class="city-name">' + esc(loc(city.name)) + '</span> ' + badge(risk.level) + '<span class="city-metrics">' + esc(cityMetrics(c, city)) + '</span></summary>' + cityCard(c, city) + '</details>';
+      var hasHospitals = !(CID === 'vn' && city.id === 'phuquoc');
+      html += '<details data-city="' + esc(city.id) + '" class="city-row' + (i >= 5 ? ' city-extra' : '') + '"><summary>' + '<span class="city-name">' + esc(loc(city.name)) + '</span> ' + badge(risk.level) + (['vn','th'].includes(CID) && hasHospitals ? '<button type="button" class="hosp-jump" aria-label="'+esc(t('hosp.jumpAria'))+'">🏥 '+esc(t('hosp.short'))+'</button>' : '') + '<span class="city-metrics">' + esc(cityMetrics(c, city)) + '</span></summary>' + cityCard(c, city) + '</details>';
     });
-    html += '<button type="button" class="pill city-more" aria-expanded="false">' + esc(t('country.showAll')) + '</button></section>';
+    html += '<button type="button" class="pill city-more" aria-expanded="false">' + esc(t('country.showAll').replace('{total}', c.cities.length).replace('{remaining}', Math.max(0, c.cities.length - 5))) + '</button></section>';
 
     // 逐城市 7 天雨量 + 台风/洪水角标
     html += countryTrendHtml(c);
@@ -1015,7 +1226,7 @@
       var key = hashTab();
       if (keys.includes(key)) select(key,false);
       else if (location.hash === '#trip') select('trip',false);
-      else { var target = document.getElementById(location.hash.slice(1)); if (target) { var parentPanel = target.closest('[role=tabpanel]'); if (parentPanel) select(parentPanel.id.replace('country-panel-',''),false); if (target.tagName === 'DETAILS') target.open = true; target.scrollIntoView(); } }
+      else { var rawHash = location.hash.slice(1), hashCity = new URLSearchParams(rawHash).get('city'); if ((hashCity || rawHash) && revealCity(hashCity || rawHash, true)) return; var target = document.getElementById(rawHash); if (target) { var parentPanel = target.closest('[role=tabpanel]'); if (parentPanel) select(parentPanel.id.replace('country-panel-',''),false); if (target.tagName === 'DETAILS') revealCity(target.dataset.city, false); target.scrollIntoView(); } }
     };
     // Combine controls and confirmed closures, deduping official source + location.
     var hazard = sections[6], cards = Array.from(hazard.querySelectorAll('.adv-card'));
@@ -1041,10 +1252,15 @@
     var footer = document.querySelector('.footer > .panel');
     var old = footer.querySelector('#defs'); if (old) old.closest('.section').remove();
     footer.prepend(sections[7]);
-    document.querySelectorAll('.city-row').forEach(function (row) { row.addEventListener('toggle',function () { attractionToggle(row, R.countryById(CID).cities.find(function(city) { return city.id === row.dataset.city; })); if (row.open) document.querySelectorAll('.city-row').forEach(function (other) { if (other !== row) other.open = false; }); }); });
-    var more = main.querySelector('.city-more'); more.addEventListener('click',function () { var open = more.getAttribute('aria-expanded') !== 'true'; more.setAttribute('aria-expanded',String(open)); main.querySelector('.country-cities').classList.toggle('show-all',open); more.textContent = t(open ? 'country.showLess' : 'country.showAll'); });
+    document.querySelectorAll('.city-row').forEach(function (row) { row.addEventListener('toggle',function () { hospitalToggle(row); attractionToggle(row, R.countryById(CID).cities.find(function(city) { return city.id === row.dataset.city; })); if (row.open) document.querySelectorAll('.city-row').forEach(function (other) { if (other !== row) other.open = false; }); }); });
+    main.querySelectorAll('.hosp-jump').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();var row=b.closest('details');row.open=true;hospitalToggle(row,true);});});
+    var more = main.querySelector('.city-more'); more.addEventListener('click',function () { var open = more.getAttribute('aria-expanded') !== 'true'; more.setAttribute('aria-expanded',String(open)); main.querySelector('.country-cities').classList.toggle('show-all',open); more.textContent = open ? t('country.showLess') : t('country.showAll').replace('{total}', R.countryById(CID).cities.length).replace('{remaining}', Math.max(0, R.countryById(CID).cities.length - 5)); });
     select(selected,false);
+    function updateTopbarMargin() { var topbar = document.querySelector('.topbar'); if (topbar) document.documentElement.style.setProperty('--topbar-height', Math.ceil(topbar.getBoundingClientRect().height) + 'px'); }
+    updateTopbarMargin(); window.addEventListener('resize', updateTopbarMargin);
     if (location.hash && !hashTab()) window.onhashchange();
+    var queryCity = new URLSearchParams(location.search).get('city');
+    if (queryCity) revealCity(queryCity, true);
   }
 
   function initMap() {

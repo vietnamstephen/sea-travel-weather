@@ -535,6 +535,15 @@ def main():
     output['meta'].update(countries=list(output['countries']),
         cityCount=sum(len(cities) for cities in output['countries'].values()),
         buildScope={'country':args.country, 'city':args.city})
+    overrides_path=ROOT/'data/attractions_overrides.json'
+    if overrides_path.exists():
+        overrides=json.loads(overrides_path.read_text())
+        for cities in output['countries'].values():
+            for items in cities.values():
+                for item in items:
+                    manual=overrides.get(item['qid'],{}).get('zh')
+                    if manual:
+                        item['name']['zh']=manual
     target.write_text(json.dumps(output,ensure_ascii=False,indent=2)+'\n')
     print(f'{target}: {target.stat().st_size} bytes')
 
