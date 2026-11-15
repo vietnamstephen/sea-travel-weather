@@ -714,7 +714,7 @@
       function pin() { return '<svg aria-hidden="true"><use href="#i-map-pin"></use></svg>'; }
       function placeholder() { return '<div class="attr-placeholder" aria-hidden="true">'+pin()+'</div>'; }
       var section = document.createElement('section'); section.className = 'attractions';
-      section.innerHTML = '<svg class="attr-sprite" aria-hidden="true"><symbol id="i-caret" viewBox="0 0 16 16"><path d="M5 2l6 6-6 6"/></symbol></svg><div class="attr-heading"><h3>'+esc(t('attr.title'))+'</h3><span>'+items.length+'</span></div><div class="attr-scroll"><ul role="list" tabindex="0" aria-label="'+esc(t('attr.listAria').replace('{city}',loc(city.name)))+'">'+items.map(function(a,i) {
+      section.innerHTML = '<svg class="attr-sprite" width="0" height="0" aria-hidden="true"><symbol id="i-caret" viewBox="0 0 16 16"><path d="M5 2l6 6-6 6"/></symbol></svg><div class="attr-heading"><h3>'+esc(t('attr.title'))+'</h3><span>'+items.length+'</span></div><div class="attr-scroll"><ul role="list" tabindex="0" aria-label="'+esc(t('attr.listAria').replace('{city}',loc(city.name)))+'">'+items.map(function(a,i) {
         var name=label(a), intro=a.intro && a.intro[LANG] || '', p=a.photo, credit='';
         if (p) {
           var author=sanitiseAuthor(p.author), publicDomain=/CC0|public domain/i.test(p.license);

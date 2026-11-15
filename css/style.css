@@ -613,6 +613,7 @@ body[data-page="country"] .footer summary{cursor:pointer;font-weight:700}
 
 /* P6: only mounted inside an open city. */
 .attractions{border-top:1px dashed var(--line);margin-top:4px;padding-top:8px;min-width:0}
+.attr-sprite{position:absolute;width:0;height:0;overflow:hidden}
 .attr-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;color:var(--sub)}
 .attr-heading h3{font-size:14px;margin:0;color:var(--txt)}
 .attr-scroll{position:relative;min-width:0}
@@ -641,7 +642,6 @@ body[data-page="country"] .footer summary{cursor:pointer;font-weight:700}
 .attr-scroll.has-overflow ul{mask-image:linear-gradient(to right,transparent 0,#000 56px,#000 calc(100% - 56px),transparent 100%)}
 .attr-scroll.has-overflow.is-start ul{mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 56px),transparent 100%)}
 .attr-scroll.has-overflow.is-end ul{mask-image:linear-gradient(to right,transparent 0,#000 56px, #000 100%)}
-.attr-sprite{position:absolute;width:0;height:0;overflow:hidden}
 .attr-arrow svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 }
 @media (hover:hover) and (min-width:768px){
