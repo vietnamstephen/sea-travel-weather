@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "cached": true,
+  "data": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Flight details: {'code': 200, 'message': 'Success', 'data': [{'fcategory': '4', 'ftype': 'A321', 'fservice': 'J', 'FirstClassCheckinTable': '41-46', 'BusinessCheckinTable': '41-46', 'FlightNo': '9G824', 'FlightCompany': '太阳富国航空公司', 'FlightDepcode': 'SGN', 'FlightArrcode': 'HAN', 'AircraftNumber': '', 'FlightDeptimePlanDate': '2026-11-16 09:25:00', 'FlightArrtimePlanDate': '2026-11-16 11:35:00', 'FlightDeptimeReadyDate': '', 'FlightArrtimeReadyDate': '2026-11-16 11:35:00', 'FlightDeptimeDate': '', 'FlightArrtimeDate': '', 'FlightIngateTime': '', 'FlightOutgateTime': '', 'CheckinTable': '32-39', 'CheckDoor': 'D1、D2号门', 'BoardGate': '', 'ReachExit': '', 'BaggageID': '', 'BoardState': '', 'FlightState': '计划', 'FlightHTerminal': 'T3', 'FlightTerminal': 'T1', 'org_timezone': '25200', 'dst_timezone': '25200', 'ShareFlightNo': '', 'StopFlag': '0', 'ShareFlag': '0', 'ArrStandGate': '', 'DepStandGate': '', 'DelayReason': '', 'Food': 'H', 'LastCheckinTime': '2026-11-16 08:45:00', 'EstimateBoardingStartTime': '', 'EstimateBoardingEndTime': '', 'FlightDep': '胡志明市', 'FlightArr': '河内', 'deptel': '+84 28 38485383', 'arrtel': '+84 1900 636 535', 'airlinetel': '', 'bridge': '', 'arr_bridge': '', 'FlightDepAirport': '胡志明新山一', 'FlightArrAirport': '内排', 'TodayTimeRate': '', 'OntimeRate': '76.67%', 'ArrOntimeRate': '96.67%', 'generic': 'A321', 'FlightYear': None, 'DepWeather': '||||', 'ArrWeather': '||||', 'FlightDuration': '105', 'distance': '1155', 'FastestExitTime': '', 'SlowestExitTime': '', 'VeryZhunReadyDeptimeDate': '2026-11-16 09:25:00', 'VeryZhunReadyArrtimeDate': '2026-11-16 11:10:00', 'AssistFlightState': '计划', 'DepAirportLat': '10.813045', 'DepAirportLon': '106.662476', 'DepTerminalLat': '10.813045', 'DepTerminalLon': '106.662476', 'ArrAirportLat': '21.214184', 'ArrAirportLon': '105.802826', 'ArrTerminalLat': '21.214184', 'ArrTerminalLon': '105.802826', 'FlightStateNum': 0, 'alternate_info': [], 'StopAirportCode': '', 'StopCity': '', 'FlightCancelTime': '', 'FillFlightNo': '', 'FillFlightInfo': None, 'FastestExitDuration': None, 'SlowestExitDuration': None}], 'request_id': '7527667377266233344', 'timestamp': '2026-11-15T17:42:40.123044+08:00'}"
+      }
+    ],
+    "isError": false
+  }
+}

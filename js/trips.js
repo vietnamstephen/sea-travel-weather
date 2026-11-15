@@ -78,23 +78,55 @@
   function t(k) { return window.I18N.t(k, window.SEA_APP.lang); }
   function e(v) { return R.esc(v); }
   function loc(v) { return v[window.SEA_APP.lang] || v.en; }
+  function foldPlace(value) {
+    return String(value || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[./',’_`-]+/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  // Nicknames and shorthands that are not already a city id, IATA code, or official name.
+  var PLACE_ALIASES = {
+    saigon: 'SGN', 'sai gon': 'SGN', tphcm: 'SGN', 'tp hcm': 'SGN', hcmc: 'SGN',
+    'tp ho chi minh': 'SGN', 'thanh pho ho chi minh': 'SGN',
+    'krung thep': 'BKK', krungthep: 'BKK',
+    jb: 'JHB'
+  };
+  function placeKeys(name) {
+    var raw = String(name || ''), keys = [foldPlace(raw)];
+    // Split official names like "Bali / Denpasar" before punctuation is folded away.
+    String(name || '').split(/\s*[\/(,|·•]\s*/).forEach(function (part) {
+      var folded = foldPlace(part.replace(/\)/g, ''));
+      if (folded) keys.push(folded);
+      if (folded.indexOf(' ') !== -1) keys.push(folded.replace(/\s+/g, ''));
+      var stripped = folded.replace(/\b(city|island|island-wide|intl|international|airport)\b/g, '').replace(/\s+/g, ' ').trim();
+      if (stripped) keys.push(stripped);
+      if (stripped.indexOf(' ') !== -1) keys.push(stripped.replace(/\s+/g, ''));
+    });
+    return keys;
+  }
   function known(value) {
-    var key = value.trim().toLowerCase(), found = null;
+    var key = foldPlace(value), found = null;
+    if (!key) return null;
     // Airport records disambiguate airports shared by several monitored cities.
     D.countries.forEach(function (c) {
       c.airports.forEach(function (a) {
-        if (a.iata.toLowerCase() === key) found = { country: c, city: R.cityById(c, a.city), airport: a.iata };
+        if (foldPlace(a.iata) === key) found = { country: c, city: R.cityById(c, a.city), airport: a.iata };
       });
     });
     if (found) return found;
     D.countries.forEach(function (c) {
       c.cities.forEach(function (city) {
-        if (city.id.toLowerCase() === key || Object.keys(city.name).some(function (l) { return city.name[l].toLowerCase() === key; })) {
+        if (foldPlace(city.id) === key || Object.keys(city.name).some(function (l) { return placeKeys(city.name[l]).indexOf(key) !== -1; })) {
           found = { country: c, city: city, airport: city.airport };
         }
       });
     });
-    return found;
+    if (found) return found;
+    if (PLACE_ALIASES[key]) return known(PLACE_ALIASES[key]);
+    return null;
+  }
+  function airportCode(value) {
+    var place = known(value);
+    if (place && place.airport) return place.airport;
+    value = String(value || '').trim();
+    return /^[A-Z]{3}$/i.test(value) ? value.toUpperCase() : '';
   }
   function errorKey(err, auth) {
     var code = err && err.code, text = String(err && err.message || '').replace(/_/g, ' ');
@@ -276,7 +308,12 @@
   function parseFlightPayload(value) {
     if (value && typeof value === 'object' && value.content) value = value.content[0] && value.content[0].text;
     if (typeof value !== 'string') return value;
-    try { return JSON.parse(value); } catch (err) { /* Python literal below. */ }
+    try { return JSON.parse(value); } catch (err) { /* Labelled or Python literal below. */ }
+    // MCP tool text is often "Flight details: {'code': 200, ...}" — strip a leading label only.
+    var labelled = value.match(/^[\sA-Za-z][A-Za-z0-9 _.-]*:\s*([\[{][\s\S]*)$/);
+    if (labelled) {
+      try { return JSON.parse(labelled[1]); } catch (err) { value = labelled[1]; }
+    }
     var at = 0, depth = 0;
     function fail() { throw new SyntaxError('Invalid flight payload'); }
     function ws() { while (/\s/.test(value.charAt(at)) && at < value.length) at++; }
@@ -501,10 +538,8 @@
       remember();
       var dep = (draft.origin || '').trim(), arr = (draft.destination || '').trim(), date = draft.trip_date;
       if (!dep || !arr || !validPlace(dep) || !validPlace(arr) || !validDate(date)) return null;
-      var a = known(dep), b = known(arr);
-      dep = /^[a-z]{3}$/i.test(dep) ? dep.toUpperCase() : a && a.airport;
-      arr = /^[a-z]{3}$/i.test(arr) ? arr.toUpperCase() : b && b.airport;
-      if (!/^[A-Z]{3}$/.test(dep || '') || !/^[A-Z]{3}$/.test(arr || '')) return null;
+      dep = airportCode(dep); arr = airportCode(arr);
+      if (!dep || !arr) return null;
       return { dep: dep, arr: arr, date: date, limit: 20, detail: 'summary' };
     }
     function draw() {
@@ -566,7 +601,7 @@
     input.addEventListener('blur', closeSuggestions);
     ['origin', 'destination', 'trip_date'].forEach(function (f) { document.getElementById('trips-' + f).addEventListener('input', function () { combo = ''; closeSuggestions(); }); });
   }
-  window.SEA_TRIPS = { parseFlightPayload: parseFlightPayload, flightHtml: flightHtml, suggestionOptions: suggestionOptions, extractFlights: extractFlights };
+  window.SEA_TRIPS = { parseFlightPayload: parseFlightPayload, flightHtml: flightHtml, suggestionOptions: suggestionOptions, extractFlights: extractFlights, known: known, airportCode: airportCode };
   async function flight(trip, action, host, btn) {
     if (!premium()) { showLock(host, 'flightVip'); return; }
     if (!C.FLIGHT_PROXY_URL) { host.textContent = t('trips.flightUnconfigured'); return; }
@@ -576,13 +611,11 @@
       var auth = await client.auth.getSession();
       if (uid !== account || !premium()) return;
       if (auth.error || !auth.data.session) throw new Error('auth');
-      var args = { date: trip.trip_date }, dep = known(trip.origin), arr = known(trip.destination);
+      var args = { date: trip.trip_date }, dep = airportCode(trip.origin), arr = airportCode(trip.destination);
       if (action === 'status') args.fnum = trip.flight_no;
-      if (dep && dep.airport) args.dep = dep.airport;
-      else if (/^[A-Z]{3}$/i.test(trip.origin)) args.dep = trip.origin.toUpperCase();
+      if (dep) args.dep = dep;
       else args.depcity = trip.origin;
-      if (arr && arr.airport) args.arr = arr.airport;
-      else if (/^[A-Z]{3}$/i.test(trip.destination)) args.arr = trip.destination.toUpperCase();
+      if (arr) args.arr = arr;
       else args.arrcity = trip.destination;
       if (action === 'status') { delete args.depcity; delete args.arrcity; }
       else { args.limit = 20; args.detail = 'summary'; }
