@@ -196,11 +196,11 @@
     return '<div class="trips-weather"><b>' + e(loc(place.city.name)) + '</b> · ' + e(rows[selected[0]].time.slice(0, 10)) +
       ' <span class="badge ' + k + '">' + '<span aria-hidden="true">' + ({green:'✓',yellow:'!',orange:'▲',red:'✕'})[k] + '</span> ' + e(t('level.' + k)) + '</span><p>' + e(t(exact ? 'trips.forecast' : 'trips.forecastFallback')) + '</p><p>' +
       e(t('fact.temp')) + ': ' + (temps.length ? e(Math.min.apply(null, temps).toFixed(1) + '–' + Math.max.apply(null, temps).toFixed(1)) : '—') + ' °C · ' +
-      e(t('fact.rain')) + ': ' + e(rain.toFixed(1)) + ' mm</p><p class="hint">' + e(t('trips.riskNote')) + '</p></div>';
+      e(t('fact.rain')) + ': ' + e(rain.toFixed(1)) + ' mm</p>' + window.SEA_OUTFIT.row(R.outfitDay(wc, date)) + '<p class="hint">' + e(t('trips.riskNote')) + '</p></div>';
   }
   function render() {
     closeSuggestions();
-    var html = '<div class="section-head"><h1>' + e(t('nav.trips')) + '</h1></div>';
+    var html = '<div class="section-head"><h1>' + e(t('nav.trips')) + '</h1>' + window.SEA_OUTFIT.switcher() + '</div>';
     if (!C.SUPABASE_URL || !C.SUPABASE_ANON_KEY) {
       main.innerHTML = html + '<div class="panel"><h2>' + e(t('trips.unconfigured')) + '</h2><p>' + e(t('trips.coming')) + '</p></div>'; return;
     }

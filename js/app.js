@@ -629,7 +629,7 @@
       });
       html += '<a class="country-card risk-' + R.LEVEL_KEYS[cr.level] + '" href="' + c.id + '.html">' +
         '<div class="cc-head"><span class="cc-flag">' + c.flag + '</span><div class="cc-identity">' +
-        '<div class="cc-name">' + esc(loc(c.name)) + '</div>' +
+        '<div class="cc-name">' + esc(loc(c.name)) + SEA_OUTFIT.badge(c.cities.map(function(city){ return weatherCity(c.id,city.id); }), hourKey(c.tz).slice(0,10)) + '</div>' +
         '<div class="cc-sub">' + esc(loc(c.capital)) + ' · ' + esc(c.utc) + '</div></div>' +
         '<div class="cc-risk">' + badge(cr.level) + '</div></div>' +
         '<div class="cc-metrics">' +
@@ -725,7 +725,7 @@
       '<div style="font-size:var(--body-size,14px);color:var(--sub);margin-top:10px">' + esc(t('city.forecast7')) + ' · ' + esc(t('city.rainUnit')) + '</div>' +
       '<div class="spark">' + (spark7 || '<i style="height:2px"></i>') + '</div>' +
       '<div class="spark-labels"><span>' + (daily[0] ? esc(daily[0].time.slice(5)) : '') + '</span><span>' + (daily[6] ? esc(daily[6].time.slice(5)) : '') + '</span></div>' +
-      '</div>';
+      SEA_OUTFIT.row(R.outfitDay(wc, hourKey(c.tz).slice(0,10))) + '</div>';
   }
 
   // 配置了 API Key 后，在这里展示第三方返回的航班状态（明确标注需以航司公告为准）
@@ -768,7 +768,7 @@
       var number = c.emergency[kind];
       html += '<a class="pill" href="tel:' + esc(number) + '">' + esc(t('country.' + kind)) + ' ' + esc(number) + '</a>';
     });
-    html += '</div></div><section class="section country-cities">' + sectionHead('country.citiesTitle', 'country.citiesHint');
+    html += '</div></div><section class="section country-cities">' + sectionHead('country.citiesTitle', 'country.citiesHint').replace('</h2>', '</h2>' + SEA_OUTFIT.switcher());
     c.cities.slice().sort(function (a, b) { return R.cityRisk(weatherCity(c.id, b.id), b, hourKey(c.tz)).level - R.cityRisk(weatherCity(c.id, a.id), a, hourKey(c.tz)).level; }).forEach(function (city, i) {
       var risk = R.cityRisk(weatherCity(c.id, city.id), city, hourKey(c.tz));
       html += '<details class="city-row' + (i >= 5 ? ' city-extra' : '') + '"><summary>' + '<span class="city-name">' + esc(loc(city.name)) + '</span> ' + badge(risk.level) + '<span class="city-metrics">' + esc(cityMetrics(c, city)) + '</span></summary>' + cityCard(c, city) + '</details>';

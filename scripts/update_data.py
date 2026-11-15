@@ -32,7 +32,7 @@ SEA Travel Weather · 每日数据更新脚本（本机运行，无需任何第�
     因此不设 provider，页面统一给出官方核实入口。
 
 数据安全
-  本脚本只读公开天气数据，不读取任何供应商、采购订单、工厂或 Home Depot 相关数据。
+  本脚本只读取公开天气与灾害数据。
 """
 import argparse
 import datetime as dt
@@ -76,8 +76,8 @@ RIVER_POINTS = [
     ('cagayan', 'ph', 17.6200, 121.7200),         # 卡加延河 · 土格加劳
 ]
 CURRENT_VARS = 'temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_gusts_10m'
-HOURLY_VARS = 'temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,weather_code,wind_speed_10m,wind_gusts_10m,visibility'
-DAILY_VARS = 'temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,weather_code'
+HOURLY_VARS = 'apparent_temperature,temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,weather_code,wind_speed_10m,wind_gusts_10m,visibility'
+DAILY_VARS = 'apparent_temperature_max,uv_index_max,wind_gusts_10m_max,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,weather_code'
 
 # 与 js/data.js 中的 cities 保持一致；--check 会做一致性校验。
 LOCATIONS = [
@@ -142,6 +142,42 @@ def build_url(lat, lon, tz, hourly_vars):
     return API + '?' + urllib.parse.urlencode(q)
 
 
+def enrich_daily(data):
+    """Aggregate local daytime hours inclusively; never retain extra hourly series."""
+    h, d = data.get('hourly', {}), data.get('daily', {})
+    def values(key, indices):
+        a = h.get(key, [])
+        return [a[i] for i in indices if i < len(a) and a[i] is not None]
+    for j, date in enumerate(d.get('time', [])):
+        indices = [i for i, t in enumerate(h.get('time', [])) if t[:10] == date]
+        daytime = [i for i in indices if 8 <= int(h['time'][i][11:13]) <= 20]
+        additions = {}
+        apparent = values('apparent_temperature', daytime)
+        if apparent:
+            additions['apparent_temperature_max'] = max(apparent)
+        else:
+            # Retain the API daily apparent maximum, then fall back to air temperature.
+            daily_apparent = d.get('apparent_temperature_max', [])
+            daily_air = d.get('temperature_2m_max', [])
+            if j >= len(daily_apparent) or daily_apparent[j] is None:
+                if j < len(daily_air) and daily_air[j] is not None:
+                    additions['apparent_temperature_max'] = daily_air[j]
+        for key, source in [('precipitation_probability_daytime_max', 'precipitation_probability'), ('wind_gusts_10m_daytime_max', 'wind_gusts_10m')]:
+            v = values(source, daytime)
+            if v:
+                additions[key] = max(v)
+        for key, hour in [('temperature_morning', 8), ('temperature_evening', 20)]:
+            exact = values('temperature_2m', [i for i in indices if int(h['time'][i][11:13]) == hour])
+            nearby = values('temperature_2m', [i for i in indices if hour-1 <= int(h['time'][i][11:13]) <= hour+1])
+            if exact or nearby:
+                additions[key] = exact[0] if exact else round(sum(nearby)/len(nearby), 2)
+        for key, value in additions.items():
+            d.setdefault(key, [None] * len(d['time']))[j] = value
+    h.pop('apparent_temperature', None)
+    h.pop('uv_index', None)
+    return data
+
+
 def pull_city(lat, lon, tz):
     """先带 visibility 请求；个别模型不支持该变量时自动降级重试。"""
     degraded = False
@@ -155,6 +191,7 @@ def pull_city(lat, lon, tz):
         degraded = True
     if 'hourly' not in data or 'time' not in data['hourly']:
         raise ValueError('Open-Meteo 返回缺少 hourly.time')
+    enrich_daily(data)
     return {
         'lat': lat, 'lon': lon,
         'current': data.get('current', {}),

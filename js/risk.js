@@ -383,7 +383,52 @@
     return -1;
   }
 
+  // Outfit thresholds are independent of travel-risk severity.
+  var OUTFIT = { hot:32, warm:26, mild:20, cool:14, range:8, rainChance:30, heavyChance:60, drizzle:1, rain:10, storm:25, gust:40, thunder:95, thunderMax:99, uv:6, highUV:8 };
+  function outfit(day, gender) {
+    day = day || {};
+    var items = [], C = OUTFIT;
+    function add(id, category, key) { if (!items.some(function (x) { return x.id === 'i-' + id; })) items.push({id:'i-' + id, category:category, key:'outfit.' + (key || id)}); }
+    var temp = num(day.apparent_temperature_max);
+    if (temp === null) temp = num(day.temperature_2m_max);
+    if (temp === null) temp = num(day.temperature_2m);
+    var female = gender === 'female', band = null;
+    if (temp !== null) {
+      band = temp >= C.hot ? 'hot' : temp >= C.warm ? 'warm' : temp >= C.mild ? 'mild' : temp >= C.cool ? 'cool' : 'cold';
+      var clothes = band === 'hot' ? (female ? ['tank','skirt','sandal'] : ['tshirt','pants','sandal']) : band === 'warm' ? (female ? ['tshirt','dress','sandal'] : ['tshirt','pants','sneaker']) : band === 'mild' ? [female ? 'long-sleeve' : 'shirt','pants','sneaker'] : band === 'cool' ? ['long-sleeve','hoodie','pants','sneaker'] : ['long-sleeve','jacket','pants','boot'];
+      clothes.forEach(function (id) { add(id,'clothes', band === 'hot' && id === 'pants' ? 'light-pants' : id); });
+      var morning = num(day.temperature_morning), evening = num(day.temperature_evening);
+      var range = morning !== null && evening !== null ? Math.abs(evening-morning) : num(day.temperature_2m_max) !== null && num(day.temperature_2m_min) !== null ? Math.abs(day.temperature_2m_max-day.temperature_2m_min) : 0;
+      if (range >= C.range && band !== 'cold') add('jacket','optional','thin-jacket');
+    }
+    var p = num(day.precipitation_probability_daytime_max); if (p === null) p = num(day.precipitation_probability_max);
+    var rain = num(day.precipitation_sum), gust = num(day.wind_gusts_10m_daytime_max);
+    if (gust === null) gust = num(day.wind_gusts_10m_max);
+    if (gust === null) gust = num(day.wind_gusts_10m);
+    if (gust === null && !Object.keys(day).some(function (k) { return /gust/.test(k); })) gust = num(day.wind_speed_10m_max);
+    var code = num(day.weather_code);
+    if (rain !== null && rain >= C.storm || gust !== null && gust >= C.gust || code !== null && code >= C.thunder && code <= C.thunderMax) { add('raincoat','rain'); add('boot','rain'); }
+    else if (p !== null && p >= C.heavyChance && rain !== null && rain >= C.rain && rain < C.storm) add('umbrella','rain');
+    else if (p !== null && p >= C.rainChance && p < C.heavyChance || rain !== null && rain >= C.drizzle && rain < C.rain) add('umbrella-simple','rain');
+    var uv = num(day.uv_index_max);
+    if (uv !== null && uv >= C.uv) add('sunscreen','sun');
+    if (band === 'hot' || uv !== null && uv >= C.highUV) add('cap','accessory');
+    if (uv !== null && uv >= C.highUV) add('sunglasses','accessory');
+    return { band:band, items:items, keys:items.map(function (x) { return x.key; }) };
+  }
+  function outfitDay(wc, date) {
+    var day = dailyRows(wc && wc.daily).filter(function (d) { return d.time === date; })[0];
+    if (!day) return null;
+    day = Object.assign({}, day);
+    if (num(day.wind_gusts_10m_daytime_max) === null && num(day.wind_gusts_10m_max) === null && wc.hourly && wc.hourly.wind_gusts_10m) {
+      var gusts = hourlyRows(wc.hourly).filter(function (h) { return h.time.slice(0,10) === date; }).map(function (h) { return num(h.wind_gusts_10m); }).filter(function (v) { return v !== null; });
+      day.wind_gusts_10m_max = gusts.length ? Math.max.apply(null,gusts) : null;
+    }
+    return day;
+  }
+
   root.SEA_RISK = {
+    outfit: outfit, outfitDay: outfitDay, outfitConfig: OUTFIT,
     esc: esc, hav: hav, hourlyRows: hourlyRows, dailyRows: dailyRows,
     countryById: countryById, cityById: cityById,
     hourRisk: hourRisk, cityRisk: cityRisk, countryRisk: countryRisk,
