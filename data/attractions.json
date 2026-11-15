@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-11-15T12:23:57.256481+00:00",
+    "generatedAt": "2026-11-15T16:48:41.239172+00:00",
     "source": "Wikidata SPARQL + entity API; OpenStreetMap Overpass; Wikimedia Commons extmetadata",
     "countries": [
       "vn",
@@ -12,7 +12,7 @@
     ],
     "cityCount": 37,
     "radiusKm": 18,
-    "ranking": "Wikidata sitelinks descending; minimum 2 (sparse coastal 1); max 8; OSM supplements",
+    "ranking": "City must-sees first; otherwise Wikidata sitelinks descending; minimum 2 (sparse coastal 1); max 8; OSM supplements",
     "nameFallback": "English, then Vietnamese/Thai, then available label",
     "locationFilter": "Reference origins; inland >12 km only reviewed usual-departure exceptions; nearest-city beyond 8 km",
     "reviewedExclusions": {
@@ -64,6 +64,17 @@
       "Q262459": "monument",
       "Q110354503": "museum"
     },
+    "mustSeeWhitelist": {
+      "singapore": {
+        "Q2709506": {
+          "type": "zoo",
+          "reason": "Singapore Zoo: must-see island-wide Singapore destination; explicitly requested, regardless of class discovery, ranking or nearest-city assignment"
+        }
+      }
+    },
+    "commercialExceptions": [
+      "Q16678462"
+    ],
     "cityExclusions": {
       "dongnai": [
         "Q2930683",
@@ -1579,13 +1590,6 @@
       },
       {
         "city": "singapore",
-        "id": "Q2709506",
-        "km": 11.69,
-        "action": "remove",
-        "reason": "Nearer to another city attractions origin (before ranking)"
-      },
-      {
-        "city": "singapore",
         "id": "Q2234723",
         "km": 11.63,
         "action": "remove",
@@ -2094,6 +2098,13 @@
         "km": 14.05,
         "action": "remove",
         "reason": "Nearer to another city attractions origin (before ranking)"
+      },
+      {
+        "city": "singapore",
+        "id": "Q2709506",
+        "km": 11.69,
+        "action": "keep",
+        "reason": "Singapore Zoo: must-see island-wide Singapore destination; explicitly requested, regardless of class discovery, ranking or nearest-city assignment"
       },
       {
         "city": "singapore",
@@ -5397,6 +5408,10 @@
           "country": "sg"
         }
       ]
+    },
+    "buildScope": {
+      "country": "sg",
+      "city": "singapore"
     }
   },
   "countries": {
@@ -9053,6 +9068,38 @@
     "sg": {
       "singapore": [
         {
+          "qid": "Q2709506",
+          "name": {
+            "zh": "新加坡动物园",
+            "en": "Singapore Zoo",
+            "vi": "Sở thú Singapore",
+            "th": "สวนสัตว์สิงคโปร์",
+            "id": "Kebun Binatang Singapura"
+          },
+          "type": "zoo",
+          "lat": 1.404709,
+          "lng": 103.79105,
+          "sitelinks": 27,
+          "intro": {
+            "zh": "",
+            "en": "Zoological gardens in Singapore",
+            "vi": "",
+            "th": "",
+            "id": "taman di Singapura"
+          },
+          "maps": "https://www.google.com/maps/search/?api=1&query=1.404709,103.79105",
+          "photo": {
+            "author": "Terence",
+            "license": "CC BY 2.5",
+            "licenseUrl": "https://creativecommons.org/licenses/by/2.5",
+            "filePage": "https://commons.wikimedia.org/wiki/File:Singapore_Zoo.JPG",
+            "thumb330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/Singapore_Zoo.JPG/330px-Singapore_Zoo.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width330": 330,
+            "thumb500": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/Singapore_Zoo.JPG/500px-Singapore_Zoo.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width500": 500
+          }
+        },
+        {
           "qid": "Q3046409",
           "name": {
             "zh": "新加坡植物园",
@@ -9264,38 +9311,6 @@
             "thumb330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Gopuram_-_Sri_Mariamman_Temple_Singapore_%282023%29_-_img_01.jpg/330px-Gopuram_-_Sri_Mariamman_Temple_Singapore_%282023%29_-_img_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
             "width330": 330,
             "thumb500": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Gopuram_-_Sri_Mariamman_Temple_Singapore_%282023%29_-_img_01.jpg/500px-Gopuram_-_Sri_Mariamman_Temple_Singapore_%282023%29_-_img_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-            "width500": 500
-          }
-        },
-        {
-          "qid": "Q6970475",
-          "name": {
-            "zh": "新加坡国家美术馆",
-            "en": "National Gallery Singapore",
-            "vi": "National Gallery Singapore",
-            "th": "National Gallery Singapore",
-            "id": "Galeri Nasional Singapura"
-          },
-          "type": "museum",
-          "lat": 1.29049,
-          "lng": 103.85186,
-          "sitelinks": 19,
-          "intro": {
-            "zh": "位于新加坡的美术馆",
-            "en": "public institution and national museum in Singapore",
-            "vi": "",
-            "th": "",
-            "id": "salah satu teater di Singapura"
-          },
-          "maps": "https://www.google.com/maps/search/?api=1&query=1.29049,103.85186",
-          "photo": {
-            "author": "Jacklee",
-            "license": "CC BY-SA 4.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-            "filePage": "https://commons.wikimedia.org/wiki/File:Padang_Atrium,_National_Gallery_Singapore_-_20151127-03.jpg",
-            "thumb330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Padang_Atrium%2C_National_Gallery_Singapore_-_20151127-03.jpg/330px-Padang_Atrium%2C_National_Gallery_Singapore_-_20151127-03.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-            "width330": 330,
-            "thumb500": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Padang_Atrium%2C_National_Gallery_Singapore_-_20151127-03.jpg/500px-Padang_Atrium%2C_National_Gallery_Singapore_-_20151127-03.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
             "width500": 500
           }
         }

@@ -4,6 +4,7 @@
 Output: meta + countries[country][city] arrays. Names use five site languages,
 falling back to English/local labels. Photos are Commons extmetadata-verified.
 Run: python3 scripts/build_attractions.py --country vn,th
+Or rebuild one city: python3 scripts/build_attractions.py --country sg --city singapore
 Use --country all (also the default) for all official cities.
 """
 import argparse
@@ -25,6 +26,11 @@ def source_text(values, lang, fallback=""):
     keys = ["zh-hans", "zh-cn", "zh"] if lang == "zh" else [lang]
     value = next((values[k]["value"] for k in keys if values.get(k, {}).get("value")), fallback)
     return SIMPLIFY.convert(value) if lang == "zh" else value
+
+# Explicit city-level must-sees supplement discovery and take ranking priority.
+WHITELIST = json.loads((Path(__file__).parent / 'attractions_whitelist.json').read_text())
+# Reviewed museum: private operation alone must not remove this cultural venue.
+COMMERCIAL_EXCEPTIONS = {'Q16678462'}
 
 # Reviewed P625 snapshots / explicit centre overrides, separate from weather.
 ORIGINS = json.loads((Path(__file__).parent / "attractions_origins.json").read_text())
@@ -175,6 +181,8 @@ def sanitise_author(value):
     value = clean(value)
     value = re.sub(r'\s+', ' ', value).strip()
     value = re.sub(r'^.*?\.(?:jpg|jpeg|png|svg):\s*', '', value, flags=re.I)
+    value = re.sub(r'^No machine-readable author provided\.\s*', '', value, flags=re.I)
+    value = re.sub(r'\s+assumed\s*\(based on copyright claims\)\.?$', '', value, flags=re.I)
     value = re.sub(r'^Photographer:\s*', '', value, flags=re.I)
     value = re.sub(r'\s+at\s+[a-z-]+\.wikipedia$', '', value, flags=re.I)
     value = re.sub(r'^The original uploader was (.*?) at .*$', r'\1', value, flags=re.I)
@@ -221,6 +229,7 @@ def photo(filename):
 def build_city(city, neighbours, relaxed=False):
     if city['id'] == 'bacgiang':
         return []  # Known inland coverage gap; never pad with Bac Ninh venues.
+    required = WHITELIST.get(city['id'], {})
     radius, minimum = (30, 1) if relaxed else (18, 2)
     values = ' '.join('wd:'+q for q in TYPES)
     query = f'''SELECT DISTINCT ?item ?coord ?distance ?links ?kind WHERE {{
@@ -254,7 +263,7 @@ def build_city(city, neighbours, relaxed=False):
                 reason = 'Nearer to another city attractions origin (before ranking)'
             elif km>12 and not(city['coastal'] or city['island'] or qid in DAY_TRIPS.get(city['id'],{})):
                 reason = 'Inland >12 km without usual-departure evidence (before ranking)'
-            if reason:
+            if reason and qid not in required:
                 REVIEW.append({'city':city['id'],'id':qid,'km':round(km,2),'action':'remove','reason':reason})
                 continue
         if qid not in candidates:
@@ -262,10 +271,18 @@ def build_city(city, neighbours, relaxed=False):
         elif list(TYPES.values()).index(kind) < list(TYPES.values()).index(candidates[qid]['type']):
             candidates[qid]['type'] = kind
     ranked = sorted(candidates, key=lambda q:(-candidates[q]['links'],q))[:32]
-    if not ranked:
+    if not ranked and not required:
         return []
     entities = fetch('https://www.wikidata.org/w/api.php', {'action':'wbgetentities','format':'json',
-        'ids':'|'.join(ranked), 'props':'labels|claims|descriptions','languages':'|'.join(['zh-hans','zh-cn'] + LANGS)})['entities']
+        'ids':'|'.join(ranked), 'props':'labels|claims|descriptions','languages':'|'.join(['zh-hans','zh-cn'] + LANGS)})['entities'] if ranked else {}
+    if required:
+        explicit = fetch('https://www.wikidata.org/w/api.php', {'action':'wbgetentities','format':'json',
+            'ids':'|'.join(required), 'props':'labels|claims|descriptions|sitelinks',
+            'languages':'|'.join(['zh-hans','zh-cn'] + LANGS)})['entities']
+        entities.update(explicit)
+        for qid, entry in required.items():
+            candidates[qid] = {'links':len(explicit[qid].get('sitelinks',{})), 'type':entry['type']}
+        ranked = list(required) + [qid for qid in ranked if qid not in required]
     result = []
     for qid in ranked:
         if qid in EXCLUDE or qid in CITY_EXCLUDE.get(city['id'], set()):
@@ -280,7 +297,7 @@ def build_city(city, neighbours, relaxed=False):
             REVIEW.append({'city':city['id'],'id':qid,'action':'remove','reason':'Wikidata P17 is a different country'})
             continue
         description = ' '.join(x['value'] for x in entity.get('descriptions',{}).values()).lower()
-        if classes & COMMERCIAL_CLASSES or re.search(r'theme park|amusement park|water park|shopping mall|shopping cent(?:er|re)|crocodile farm|animal show|night safari', description):
+        if qid not in required and qid not in COMMERCIAL_EXCEPTIONS and (classes & COMMERCIAL_CLASSES or re.search(r'theme park|amusement park|water park|shopping mall|shopping cent(?:er|re)|crocodile farm|animal show|night safari', description)):
             REVIEW.append({'city':city['id'], 'id':qid, 'action':'remove', 'reason':'Commercial amusement / shopping venue'})
             continue
         # Demolished/dissolved sites are unsuitable current visitor suggestions.
@@ -293,12 +310,12 @@ def build_city(city, neighbours, relaxed=False):
             continue
         p = points[0]; lat, lng = p['latitude'], p['longitude']
         km = distance(city['lat'],city['lon'],lat,lng)
-        if km>radius:
+        if km>radius and qid not in required:
             REVIEW.append({'city':city['id'],'id':qid,'km':round(km,2),'action':'remove','reason':'Outside query radius after entity coordinate check'})
             continue
         if km > 12:
             reason = DAY_TRIPS.get(city['id'], {}).get(qid)
-            keep = bool(city['coastal'] or city['island'] or reason)
+            keep = bool(qid in required or city['coastal'] or city['island'] or reason)
             if not keep:
                 REVIEW.append({'city':city['id'], 'id':qid, 'km':round(km,2),
                                'action':'remove', 'reason':'Inland >12 km without usual-departure evidence'})
@@ -306,7 +323,7 @@ def build_city(city, neighbours, relaxed=False):
         # Avoid borrowing a neighbouring pilot city's landmarks. The 8 km
         # core remains eligible; outside it require this to be the nearest
         # attractions reference point in the country (conservative regional selection).
-        if any(n['id']!=city['id'] and
+        if qid not in required and any(n['id']!=city['id'] and
                 distance(n['lat'],n['lon'],lat,lng)<km for n in neighbours):
             REVIEW.append({'city':city['id'],'id':qid,'km':round(km,2),'action':'remove','reason':'Nearer to another official city attractions origin'})
             continue
@@ -326,11 +343,17 @@ def build_city(city, neighbours, relaxed=False):
             'intro':{k:source_text(entity.get('descriptions',{}),k) for k in LANGS},
             'maps':f'https://www.google.com/maps/search/?api=1&query={lat},{lng}',
             'photo':photo(filename) if filename else None})
-        if km>12:
+        if qid in required:
+            REVIEW.append({'city':city['id'],'id':qid,'km':round(km,2),'action':'keep',
+                           'reason':required[qid]['reason']})
+        elif km>12:
             REVIEW.append({'city':city['id'],'id':qid,'km':round(km,2),'action':'keep',
                            'reason':DAY_TRIPS.get(city['id'],{}).get(qid,'Coastal/island regional attraction within query radius')})
         if len(result)==8:
             break
+    missing = set(required) - {a['qid'] for a in result}
+    if missing:
+        raise RuntimeError(f"{city['id']}: required attractions failed source validation: {sorted(missing)}")
     return result
 
 def add_osm(city, neighbours, items):
@@ -381,7 +404,7 @@ def add_osm(city, neighbours, items):
             continue
         # Conservative OSM commercial gate: identified private attractions,
         # amusement/retail facilities and animal farms are never supplements.
-        if (tags.get('leisure') in {'water_park','amusement_arcade'} or tags.get('shop') or
+        if qid not in COMMERCIAL_EXCEPTIONS and (tags.get('leisure') in {'water_park','amusement_arcade'} or tags.get('shop') or
             tags.get('attraction') in {'theme_park','amusement_ride','animal'} or
             tags.get('operator:type') in {'private','commercial'} or
             re.search(r'vinwonders|vinpearl|grand world|safari|theme park|amusement|crocodile|shopping|mall|farm|raceway|fish sauce|animal show',name,re.I)):
@@ -407,7 +430,7 @@ def add_osm(city, neighbours, items):
             entity=fetch('https://www.wikidata.org/w/api.php',{'action':'wbgetentities','format':'json',
                 'ids':qid,'props':'labels|descriptions|claims|sitelinks','languages':'|'.join(['zh-hans','zh-cn']+LANGS)})['entities'][qid]
             descriptions=entity.get('descriptions',{})
-            if re.search(r'theme park|amusement park|water park|shopping mall|shopping cent(?:er|re)|crocodile farm|animal show|night safari',source_text(descriptions,'en'),re.I):
+            if qid not in COMMERCIAL_EXCEPTIONS and re.search(r'theme park|amusement park|water park|shopping mall|shopping cent(?:er|re)|crocodile farm|animal show|night safari',source_text(descriptions,'en'),re.I):
                 REVIEW.append({'city':city['id'],'id':qid,'action':'remove','reason':'Commercial Wikidata-linked OSM venue'})
                 continue
             names={k:source_text(entity.get('labels',{}),k,names[k]) for k in LANGS}
@@ -426,6 +449,7 @@ def main():
     global CACHE_ONLY
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--country',default='all',help='comma-separated country ids, or all')
+    parser.add_argument('--city', help='comma-separated city ids; preserve all other cities')
     parser.add_argument('--cache-only',action='store_true',help='Rebuild from verified HTTP cache without network requests')
     args=parser.parse_args()
     CACHE_ONLY=args.cache_only
@@ -433,6 +457,9 @@ def main():
     selected=[c for c in official if args.country=='all' or c['id'] in args.country.split(',')]
     if args.country!='all' and set(args.country.split(',')) - {c['id'] for c in official}:
         parser.error('Unknown country id')
+    selected_cities = set(args.city.split(',')) if args.city else None
+    if selected_cities and selected_cities - {c['id'] for country in selected for c in country['cities']}:
+        parser.error('Unknown city id for selected countries')
     output={'meta':{'generatedAt':datetime.now(timezone.utc).isoformat(),
         'source':'Wikidata SPARQL + entity API; OpenStreetMap Overpass; Wikimedia Commons extmetadata',
         'countries':[c['id'] for c in selected], 'cityCount':sum(len(c['cities']) for c in selected),
@@ -441,12 +468,16 @@ def main():
         'locationFilter':'18 km maximum; beyond 8 km must be nearest official city point in country',
         'reviewedExclusions':EXCLUDE,
         'reviewedTypes':TYPE_OVERRIDES,
+        'mustSeeWhitelist':WHITELIST,
+        'commercialExceptions':sorted(COMMERCIAL_EXCEPTIONS),
         'cityExclusions':{k:sorted(v) for k,v in CITY_EXCLUDE.items()},
         'failures':FAILURES},'countries':{}}
     for country in selected:
         output['countries'][country['id']]={}
         neighbours = [attraction_origin(c) for c in country['cities']] + REGIONAL_NEIGHBOURS.get(country['id'], [])
         for weather_city in country['cities']:
+            if selected_cities and weather_city['id'] not in selected_cities:
+                continue
             city = attraction_origin(weather_city)
             city['country']=country['id']
             print(f"Building {country['id']}/{city['id']}",flush=True)
@@ -472,7 +503,7 @@ def main():
     output['meta'].update(attractionsOrigins=ORIGINS, review=list(reviewed.values()),
         radiusKm=18, sparseCoastalRadiusKm=30,
         locationFilter='Reference origins; inland >12 km only reviewed usual-departure exceptions; nearest-city beyond 8 km',
-        ranking='Wikidata sitelinks descending; minimum 2 (sparse coastal 1); max 8; OSM supplements',
+        ranking='City must-sees first; otherwise Wikidata sitelinks descending; minimum 2 (sparse coastal 1); max 8; OSM supplements',
         chinese='zh-hans, zh-cn, zh; OpenCC t2s for names and intros', warnings=WARNINGS,
         regionalNeighbours=REGIONAL_NEIGHBOURS)
     if FAILURES:
@@ -480,9 +511,30 @@ def main():
     target=ROOT/'data/attractions.json'
     if target.exists():
         previous=json.loads(target.read_text())
+        rebuilt = {city for cities in output['countries'].values() for city in cities}
+        output['meta']['warnings'] = [w for w in previous['meta'].get('warnings', [])
+                                      if w.split(':', 1)[0] not in rebuilt] + WARNINGS
+        fresh_review = output['meta']['review']
+        merged_review, inserted = [], set()
+        for row in previous['meta'].get('review', []):
+            city_id = row['city']
+            if city_id not in rebuilt:
+                merged_review.append(row)
+            elif city_id not in inserted:
+                merged_review.extend(r for r in fresh_review if r['city'] == city_id)
+                inserted.add(city_id)
+        merged_review.extend(r for r in fresh_review if r['city'] not in inserted)
+        output['meta']['review'] = merged_review
         for cid, data in previous['countries'].items():
             if cid not in output['countries']:
                 output['countries'][cid]=data
+            else:
+                for city_id, items in data.items():
+                    output['countries'][cid].setdefault(city_id, items)
+        output['countries'] = {cid:output['countries'][cid] for cid in dict.fromkeys(list(previous['countries']) + list(output['countries']))}
+    output['meta'].update(countries=list(output['countries']),
+        cityCount=sum(len(cities) for cities in output['countries'].values()),
+        buildScope={'country':args.country, 'city':args.city})
     target.write_text(json.dumps(output,ensure_ascii=False,indent=2)+'\n')
     print(f'{target}: {target.stat().st_size} bytes')
 

@@ -72,3 +72,46 @@ for country in b.cities():
 `;
  execFileSync('python3',['-B','-c',py]);
 });
+
+test('must-see Singapore Zoo survives missing class discovery and nearer-city assignment',()=>{
+ const py=`from scripts import build_attractions as b
+from unittest.mock import patch
+assert b.sanitise_author('No machine-readable author provided. <a>Terence</a> assumed (based on copyright claims).') == 'Terence'
+qid='Q2709506'
+def claim(value): return {'mainsnak':{'datavalue':{'value':value}}}
+entity={'labels':{'en':{'value':'Singapore Zoo'}},'descriptions':{},'sitelinks':{'enwiki':{}},'claims':{'P625':[claim({'latitude':1.4043,'longitude':103.793,'globe':'http://www.wikidata.org/entity/Q2'})],'P17':[claim({'id':'Q334'})]}}
+def fetch(url, params):
+ if 'sparql' in url: return {'results':{'bindings':[]}}
+ return {'entities':{qid:entity}}
+city={'id':'singapore','country':'sg','lat':1.3,'lon':103.8,'coastal':True,'island':True}
+with patch.object(b,'fetch',side_effect=fetch):
+ result=b.build_city(city,[{'id':'jurong','lat':1.4043,'lon':103.793}])
+ assert [a['qid'] for a in result]==[qid]
+ entity['claims']['P17']=[claim({'id':'Q881'})]
+ try: b.build_city(city,[])
+ except RuntimeError: pass
+ else: raise AssertionError('whitelist must retain country validation')
+`;
+ execFileSync('python3',['-B','-c',py]);
+ const d=JSON.parse(fs.readFileSync('data/attractions.json'));
+ assert(d.countries.sg.singapore.some(a=>a.qid==='Q2709506'&&a.type==='zoo'));
+});
+
+test('Phuket Seashell Museum survives private-operator OSM gate while ordinary commercial venues do not',()=>{
+ const py=`from scripts import build_attractions as b
+from unittest.mock import patch
+assert 'Q16678462' not in b.EXCLUDE
+city={'id':'phuket','lat':7.8,'lon':98.3,'coastal':True,'island':True}
+def fetch(url,params,**kwargs):
+ if 'overpass' in url: return {'elements':[
+  {'type':'node','id':1,'lat':7.8,'lon':98.3,'tags':{'name':'Phuket Seashell Museum','tourism':'museum','operator:type':'private','wikidata':'Q16678462'}},
+  {'type':'node','id':2,'lat':7.81,'lon':98.31,'tags':{'name':'Commercial Museum','tourism':'museum','operator:type':'private','wikidata':'Q999'}}]}
+ return {'entities':{'Q16678462':{'labels':{'en':{'value':'Phuket Seashell Museum'}},'descriptions':{},'claims':{},'sitelinks':{'enwiki':{}}}}}
+with patch.object(b,'fetch',side_effect=fetch),patch.object(b,'CACHE',b.ROOT/'not-a-cache'):
+ result=b.add_osm(city,[],[])
+ assert [a['qid'] for a in result]==['Q16678462']
+`;
+ execFileSync('python3',['-B','-c',py]);
+ const d=JSON.parse(fs.readFileSync('data/attractions.json'));
+ assert(d.countries.th.phuket.some(a=>a.qid==='Q16678462'));
+});
