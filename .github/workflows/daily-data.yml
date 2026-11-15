@@ -1,0 +1,174 @@
+name: daily-data
+
+on:
+  schedule:
+    - cron: '0 18 * * *' # Main: 01:00 GMT+7; schedules run on main.
+    - cron: '30 18 * * *' # Backup: 01:30 GMT+7.
+  workflow_dispatch:
+
+concurrency:
+  group: daily-data
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pages: write
+  actions: read
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Dependencies
+        run: echo 'scripts/update_data.py uses only the Python standard library; no dependencies to install.'
+
+      - name: Check backup window
+        id: backup
+        env:
+          EVENT: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          python3 - <<'PY'
+          import datetime as dt
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          now = dt.datetime.now(dt.timezone.utc)
+          skip = False
+          if os.environ['EVENT'] == 'schedule' and os.environ['SCHEDULE'] == '30 18 * * *':
+              cutoff = now.replace(hour=17, minute=0, second=0, microsecond=0)
+              try:
+                  stamp = json.loads(Path('data/weather.json').read_text())['meta']['generatedAt']
+                  generated = dt.datetime.fromisoformat(stamp.replace('Z', '+00:00'))
+                  skip = generated >= cutoff
+              except (OSError, ValueError, KeyError, TypeError):
+                  pass
+              # Checkout stays shallow; fetch history only for this backup check.
+              subprocess.run(['git', 'fetch', '--unshallow', 'origin', 'main'], check=True)
+              latest = subprocess.check_output([
+                  'git', 'log', '-1', '--format=%ct', '--grep=^weather data update', 'origin/main'
+              ], text=True).strip()
+              if latest:
+                  age = now.timestamp() - int(latest)
+                  skip = skip or 0 <= age <= 2 * 60 * 60
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              out.write(f'skip={str(skip).lower()}\n')
+          print('Backup skipped: recent update found.' if skip else 'Update required.')
+          PY
+
+      - name: Update data (capture exit code)
+        if: steps.backup.outputs.skip != 'true'
+        id: update
+        shell: bash
+        run: |
+          set +e
+          python3 scripts/update_data.py
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Classify result and append run log
+        if: steps.backup.outputs.skip != 'true'
+        id: result
+        env:
+          UPDATE_EXIT: ${{ steps.update.outputs.exit_code }}
+          EVENT: ${{ github.event_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python3 - <<'PY'
+          import datetime as dt
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          weather = Path('data/weather.json')
+          generated = '—'
+          failed = 0
+          # Avoid counting stale failures after an all-city failure that retained old data.
+          changed_weather = bool(subprocess.check_output(
+              ['git', 'diff', '--name-only', 'HEAD', '--', str(weather)], text=True).strip())
+          if weather.exists():
+              meta = json.loads(weather.read_text())['meta']
+              generated = meta.get('generatedAt', '—')
+              if changed_weather or int(os.environ['UPDATE_EXIT']) == 0:
+                  failed = len(meta.get('failed', []))
+          changed = bool(subprocess.check_output(
+              ['git', 'status', '--porcelain', '--', 'data/'], text=True).strip())
+          code = int(os.environ['UPDATE_EXIT'])
+          result = (f'FAIL(exit {code})' if code else
+                    f'FAIL({failed} cities failed)' if failed > 3 else
+                    'PUSHED' if changed else 'NO_CHANGE')
+          date = dt.datetime.now(dt.timezone(dt.timedelta(hours=7))).strftime('%Y-%m-%d %H:%M')
+          commit = '见本提交' if result == 'PUSHED' else '—'
+          executor = f"[GitHub Actions ({os.environ['EVENT']})]({os.environ['RUN_URL']})"
+          with Path('docs/ops/run-log.md').open('a') as log:
+              log.write(f'| {date} | {generated} | {result} | {commit} | {executor} |\n')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              out.write(f'result={result}\ngenerated={generated}\ndate={date}\ndata_changed={str(changed).lower()}\n')
+          print(f'{result}; failed cities: {failed}')
+          PY
+
+      - name: Commit and push (three attempts)
+        if: steps.backup.outputs.skip != 'true'
+        id: publish
+        env:
+          RESULT: ${{ steps.result.outputs.result }}
+          GENERATED: ${{ steps.result.outputs.generated }}
+          DATE: ${{ steps.result.outputs.date }}
+          DATA_CHANGED: ${{ steps.result.outputs.data_changed }}
+        run: |
+          git config user.name vietnamstephen
+          git config user.email vietnamstephen@users.noreply.github.com
+          git add -- data/ docs/ops/run-log.md
+          if [ "$DATA_CHANGED" = true ]; then
+            git commit -m "weather data update $GENERATED"
+          else
+            git commit -m "ops: run-log $DATE $RESULT"
+          fi
+          for attempt in 1 2 3; do
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              echo 'pushed=true' >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; then
+              git rebase --abort
+            fi
+            sleep "$((attempt * 5))"
+          done
+          echo '::error::Unable to push after three attempts.'
+          exit 1
+
+      - name: Request legacy Pages build
+        if: steps.publish.outputs.pushed == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          if gh api -X POST "repos/$REPOSITORY/pages/builds"; then
+            echo 'Pages build request succeeded.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Pages build request failed; inspect this step for the API response.' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+      - name: Report data failure
+        if: always() && startsWith(steps.result.outputs.result, 'FAIL')
+        env:
+          RESULT: ${{ steps.result.outputs.result }}
+        run: |
+          echo "::error::$RESULT"
+          exit 1
