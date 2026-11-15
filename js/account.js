@@ -21,7 +21,11 @@
     return e.vip_until && date(e.vip_until) ? t('account.until') + ' ' + date(e.vip_until) : t('account.forever');
   }
   function statusHtml(e, s) {
-    return esc(statusText(e,s)) + (visible(e) ? ' <a href="pricing.html">' + esc(t(vip(e) ? 'pricing.title' : 'pricing.upgrade')) + '</a>' : '') + (e && e.payments_beta ? ' <small class="account-beta">' + esc(t('account.beta')) + '</small>' : '');
+    return esc(statusText(e,s)) + (e && e.payments_beta ? ' <small class="account-beta">' + esc(t('account.beta')) + '</small>' : '');
+  }
+  function pricingLink(e) {
+    if (!visible(e)) return '';
+    return '<a class="account-pricing" href="pricing.html">' + esc(t(vip(e) ? 'pricing.title' : 'pricing.upgrade')) + '</a>';
   }
   function client() {
     if (window.SEA_TRIPS_CLIENT) return Promise.resolve(window.SEA_TRIPS_CLIENT);
@@ -40,7 +44,7 @@
     if (url && /^https?:\/\//i.test(url)) {
       var img = document.createElement('img'); img.alt = ''; img.referrerPolicy = 'no-referrer'; img.onerror = function () { img.remove(); }; img.src = url; button.querySelector('.account-avatar').appendChild(img);
     }
-    menu.innerHTML = user ? '<div class="account-email">' + esc(user.email) + '</div><p class="account-status">' + statusHtml(value,subscription) + '</p><a href="trips.html">' + esc(t('nav.trips')) + '</a><button type="button" class="account-signout">' + esc(t('trips.signOut')) + '</button>' : '';
+    menu.innerHTML = user ? '<div class="account-email">' + esc(user.email) + '</div><p class="account-status">' + statusHtml(value,subscription) + '</p>' + pricingLink(value) + '<a href="trips.html">' + esc(t('nav.trips')) + '</a><button type="button" class="account-signout">' + esc(t('trips.signOut')) + '</button>' : '';
     if (!user) close(false);
   }
   async function refresh(db) {

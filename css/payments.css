@@ -33,7 +33,6 @@ body[data-page="pricing"] .brand-logo { background: var(--payment-accent); }
 body[data-page="pricing"] .notice.warn { color: var(--sub); background: var(--panel2); border-color: var(--line); }
 @media (max-width: 720px) {
   .payment-plans { grid-template-columns: minmax(0, 1fr); }
-  .payment-plan.featured { order: -1; }
   .payment-table th, .payment-table td { padding: 10px 6px; }
 }
 body[data-page="pricing"] .sidebar { min-width: 0; }
@@ -46,3 +45,15 @@ body[data-page="pricing"] .brand { max-width: 100%; }
 
 .payment-plan.payment-pass { align-items: stretch; }
 .payment-plan.payment-pass > .payment-price { flex: initial; }
+
+.payment-plans { grid-template-columns: minmax(0, 1fr); }
+.payment-toggle { display: flex; flex-wrap: nowrap; gap: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; padding: 0; }
+.payment-toggle .pill { flex: 1 1 0; margin: 0; border: 0; border-radius: 0; border-right: 1px solid var(--line); background: var(--panel); color: var(--txt); white-space: nowrap; min-width: 0; padding: 10px 8px; font-size: 14px; }
+.payment-toggle .pill:last-child { border-right: 0; }
+.payment-toggle .pill[aria-selected="true"], .payment-toggle .pill[aria-pressed="true"] { background: var(--payment-accent); color: var(--panel); }
+.payment-plan-body { display: flex; flex-direction: column; gap: 14px; }
+.payment-plan-body[hidden] { display: none; }
+@media (max-width: 640px) {
+  .payment-toggle { flex-wrap: wrap; }
+  .payment-toggle .pill { flex: 1 1 33%; font-size: 13px; }
+}

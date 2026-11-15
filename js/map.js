@@ -90,17 +90,17 @@
         '<div class="map-fallback" id="mapFallback" hidden></div>' +
       '</div>' +
       '<div class="map-legend">' +
-        '<div class="map-legend-col"><b>' + esc(t('map.legendRadar')) + '</b>' +
+        '<details class="map-legend-col"><summary>' + esc(t('map.legendRadar')) + '</summary>' +
           '<div class="map-ramp"><i style="background:#9ad6f5"></i><i style="background:#4a90d9"></i><i style="background:#3fbf5f"></i><i style="background:#f2d24b"></i><i style="background:#ef8a3c"></i><i style="background:#d63b3b"></i><i style="background:#a02c8f"></i></div>' +
-          '<span>' + esc(t('map.legendRadarHint')) + '</span></div>' +
-        '<div class="map-legend-col"><b>' + esc(t('map.legendRisk')) + '</b><div class="map-legend-dots">' +
+          '<span>' + esc(t('map.legendRadarHint')) + '</span></details>' +
+        '<details class="map-legend-col"><summary>' + esc(t('map.legendRisk')) + '</summary><div class="map-legend-dots">' +
           ['green', 'yellow', 'orange', 'red'].map(function (k, i) {
             return '<span><span aria-hidden="true" style="color:' + RISK_COLORS[i] + '">' + ['✓', '!', '▲', '✕'][i] + '</span>' + esc(t('level.short.' + k)) + '</span>';
-          }).join('') + '</div><span>' + esc(t('map.legendRiskHint')) + '</span></div>' +
-        '<div class="map-legend-col"><b>' + esc(t('map.legendEvent')) + '</b><div class="map-legend-dots">' +
+          }).join('') + '</div><span>' + esc(t('map.legendRiskHint')) + '</span></details>' +
+        '<details class="map-legend-col"><summary>' + esc(t('map.legendEvent')) + '</summary><div class="map-legend-dots">' +
           '<span><i style="background:#dc2626">●</i>' + esc(t('gdacs.red')) + '</span><span><i style="background:#ea580c">●</i>' + esc(t('gdacs.orange')) + '</span>' +
           '<span><i style="background:#2563eb">●</i>' + esc(t('gdacs.green')) + '</span></div>' +
-          '<span>🌀 ' + esc(t('map.eventTC')) + ' · 🌊 ' + esc(t('map.eventFL')) + '</span></div>' +
+          '<span>🌀 ' + esc(t('map.eventTC')) + ' · 🌊 ' + esc(t('map.eventFL')) + '</span></details>' +
       '</div>' +
       '<div class="map-status" id="mapStatus"></div>' +
       '<div class="map-credit">' + esc(t('map.credit')) +

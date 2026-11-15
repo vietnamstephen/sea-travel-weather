@@ -221,11 +221,8 @@
         '<span class="badge yellow"><span aria-hidden="true">!</span>' + e(t('level.yellow')) + '</span></article>';
       if ((C.AUTH_PROVIDERS || {}).google) html += '<button type="button" class="btn-primary trips-google" data-action="google"' +
         (busy || !client ? ' disabled' : '') + '>' + e(t('trips.google')) + '</button>';
-      html += '<p class="hint trips-flight-lock">' + e(ft('flightVip')) + '</p></div>';
+      html += '<p class="trips-flight-lock">' + e(t('trips.flightSoon')) + '</p></div>';
     } else {
-      html += '<div class="trips-actions"><span>' + e(session.user.email || '') + '</span>' + button('trips.signOut', 'signout', busy) + '</div>';
-      html += '<p class="account-status">' + window.SEA_ACCOUNT.statusHtml(entitlement || {effective_role:role}, accountSubscription) + '</p>';
-      if (entitlement && entitlement.cancel_at) html += '<p class="hint">' + e(t('pricing.cancelAt')) + ' ' + e(new Date(entitlement.cancel_at).toLocaleDateString()) + '</p>';
       html += '<h2>' + e(t(editing ? 'trips.edit' : 'trips.add')) + '</h2><form id="trips-form"><div class="form-row">';
       fields.forEach(function (f) {
         html += '<div class="field"><label for="trips-' + f + '">' + e(t('trips.' + f)) + '</label>';

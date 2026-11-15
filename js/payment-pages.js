@@ -4,6 +4,7 @@
   var page = document.body.getAttribute('data-page'), main = document.getElementById('main');
   var subscription = null, refreshVersion = 0;
   var session = null, entitlement = null, loading = C.PAYMENTS_ENABLED && page === 'pricing';
+  var selectedPlan = 'yearly';
   function t(key) { return window.I18N.t(key, (window.SEA_APP || {}).lang || 'zh'); }
   function e(value) { return window.SEA_RISK.esc(value == null ? '' : value); }
   function links() { return '<div class="payment-links"><a href="terms.html">' + e(t('legal.terms')) + '</a><a href="privacy.html">' + e(t('legal.privacy')) + '</a><a href="terms.html#refund">' + e(t('legal.refund')) + '</a></div>'; }
@@ -45,20 +46,42 @@
       var plan = P.prices[key];
       return '<div class="payment-price">' + e(plan.display) + ' <small>/ ' + e(t('pricing.' + plan.period)) + '</small></div>';
     }
-    html += '<div class="payment-plans" id="plans"><section class="panel payment-plan payment-free"><h2>' + e(t('pricing.free')) + '</h2><ul class="payment-features">' + ['weatherOnly', 'risk', 'savedTrips'].map(function (key) { return '<li>' + e(t('pricing.' + key)) + '</li>'; }).join('') + '</ul><a class="pill" href="trips.html">' + e(t('trips.google')) + '</a></section>';
-    ['monthly', 'yearly'].forEach(function (key) {
-      html += '<section class="panel payment-plan' + (key === 'yearly' ? ' featured' : '') + '"><div class="payment-plan-heading"><h2>' + e(t('pricing.' + key)) + '</h2>' + (key === 'yearly' ? '<span class="payment-badge">' + e(t('pricing.recommended')) + '</span>' : '') + '</div>' + price(key);
-      var monthly = P.prices.monthly, yearly = P.prices.yearly, baseline = monthly.amount * 12;
-      if (key === 'yearly' && monthly.currency === yearly.currency && baseline > yearly.amount && yearly.amount >= 0) {
-        var locale = (window.SEA_APP || {}).lang || 'zh';
-        var saving = new Intl.NumberFormat(locale, { style: 'currency', currency: yearly.currency }).format(baseline - yearly.amount);
-        var percent = new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 }).format((baseline - yearly.amount) / baseline);
-        html += '<p class="payment-saving">' + e(t('pricing.savings').replace('{amount}', saving).replace('{percent}', percent)) + '</p>';
-      }
-      html += '<p>' + e(t('pricing.recurring')) + '</p>' + checkout(key) + '</section>';
+    function yearlySavePercent() {
+      var monthly = P.prices.monthly, yearly = P.prices.yearly, baseline = monthly && yearly ? monthly.amount * 12 : 0;
+      if (!monthly || !yearly || monthly.currency !== yearly.currency || !(baseline > yearly.amount) || yearly.amount < 0) return null;
+      return Math.round((baseline - yearly.amount) / baseline * 100);
+    }
+    function yearlyLabel() {
+      var percent = yearlySavePercent();
+      return percent == null ? t('pricing.segYearlyPlain') : t('pricing.segYearly').replace('{percent}', String(percent));
+    }
+    if (!P.prices[selectedPlan]) selectedPlan = 'yearly';
+    var percent = yearlySavePercent(), locale = (window.SEA_APP || {}).lang || 'zh';
+    html += '<div class="payment-plans" id="plans"><section class="panel payment-plan featured"><div class="payment-toggle" role="tablist" aria-label="VIP">';
+    [['yearly', yearlyLabel()], ['monthly', t('pricing.segMonthly')], ['pass7', t('pricing.segPass7')]].forEach(function (item) {
+      html += '<button type="button" class="pill" role="tab" id="price-tab-' + item[0] + '" aria-controls="price-panel-' + item[0] + '" tabindex="' + (item[0] === selectedPlan ? '0' : '-1') + '" data-price-tab="' + item[0] + '" aria-selected="' + (item[0] === selectedPlan ? 'true' : 'false') + '"' +
+        (item[0] === selectedPlan ? ' aria-pressed="true"' : '') + '>' + e(item[1]) + '</button>';
     });
-    html += '<section class="panel payment-plan payment-pass"><h2>' + e(t('pricing.pass7')) + '</h2><p>' + e(t('pricing.oneTime')) + '</p>' + price('pass7') + checkout('pass7') + '</section></div>';
-    html += '<section class="panel payment-comparison"><table class="payment-table"><thead><tr><th scope="col">' + e(t('pricing.feature')) + '</th><th scope="col">' + e(t('pricing.free')) + '</th><th scope="col">VIP</th></tr></thead><tbody>';
+    html += '</div><h2>' + e(t('pricing.vipTitle')) + '</h2>';
+    ['yearly', 'monthly', 'pass7'].forEach(function (key) {
+      html += '<div class="payment-plan-body" role="tabpanel" id="price-panel-' + key + '" aria-labelledby="price-tab-' + key + '" data-price-panel="' + key + '"' + (key === selectedPlan ? '' : ' hidden') + '>';
+      if (key === 'pass7') html += '<p>' + e(t('pricing.oneTime')) + '</p>' + price(key) + checkout(key);
+      else {
+        html += price(key);
+        var monthly = P.prices.monthly, yearly = P.prices.yearly, baseline = monthly.amount * 12;
+        if (key === 'yearly' && percent != null) {
+          var saving = new Intl.NumberFormat(locale, { style: 'currency', currency: yearly.currency }).format(baseline - yearly.amount);
+          var percentLabel = new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 }).format(percent / 100);
+          html += '<p class="payment-saving">' + e(t('pricing.savings').replace('{amount}', saving).replace('{percent}', percentLabel)) + '</p>';
+        }
+        html += '<p>' + e(t('pricing.recurring')) + '</p>' + checkout(key);
+      }
+      html += '</div>';
+    });
+    html += '</section><section class="panel payment-plan payment-free"><h2>' + e(t('pricing.free')) + '</h2><ul class="payment-features">' +
+      ['weatherOnly', 'risk', 'savedTrips'].map(function (key) { return '<li>' + e(t('pricing.' + key)) + '</li>'; }).join('') +
+      '</ul><a class="pill" href="trips.html">' + e(t('trips.google')) + '</a></section></div>';
+    html += '<section class="panel payment-comparison"><table class="payment-table"><thead><tr><th scope="col">' + e(t('pricing.feature')) + '</th><th scope="col">' + e(t('pricing.freeCol')) + '</th><th scope="col">VIP</th></tr></thead><tbody>';
     ['weatherOnly', 'risk', 'savedTrips', 'flightStatus', 'suggestions'].forEach(function (key, index) {
       html += '<tr><th scope="row">' + e(t('pricing.' + key)) + '</th><td>' + (index < 3 ? '✓' : '—') + '</td><td>✓</td></tr>';
     });
@@ -85,7 +108,28 @@
       session = nextSession; entitlement = nextEntitlement; subscription = nextSubscription; window.dispatchEvent(new CustomEvent('sea:payments-visibility', { detail: entitlement })); loading = false; render();
     } catch (err) { if (version !== refreshVersion) return; loading = false; render(); var host = document.getElementById('payments-message'); if (host) host.textContent = t('pricing.error'); }
   }
+  main.addEventListener('keydown', function (event) {
+    var tab = event.target.closest('[data-price-tab]');
+    if (!tab) return;
+    var tabs = Array.from(main.querySelectorAll('[data-price-tab]')), i = tabs.indexOf(tab);
+    var next = event.key === 'ArrowRight' ? (i + 1) % tabs.length : event.key === 'ArrowLeft' ? (i + tabs.length - 1) % tabs.length : event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : null;
+    if (next !== null) { event.preventDefault(); tabs[next].click(); tabs[next].focus(); }
+  });
   main.addEventListener('click', function (event) {
+    var tab = event.target.closest('[data-price-tab]');
+    if (tab) {
+      selectedPlan = tab.getAttribute('data-price-tab');
+      main.querySelectorAll('[data-price-tab]').forEach(function (el) {
+        var on = el === tab;
+        el.setAttribute('aria-selected', on ? 'true' : 'false');
+        el.tabIndex = on ? 0 : -1;
+        if (on) el.setAttribute('aria-pressed', 'true'); else el.removeAttribute('aria-pressed');
+      });
+      main.querySelectorAll('[data-price-panel]').forEach(function (el) {
+        el.hidden = el.getAttribute('data-price-panel') !== selectedPlan;
+      });
+      return;
+    }
     var button = event.target.closest('[data-plan]');
     if (button && !button.disabled) api.openCheckout(button.getAttribute('data-plan'));
     if (event.target.closest('[data-payment-refresh]')) refresh();

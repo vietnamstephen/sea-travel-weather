@@ -510,7 +510,6 @@ html[lang="th"] body, html[lang="th"] button, html[lang="th"] input, html[lang="
 .detail-content > .section{margin-top:0}
 @media(min-width:640px){.detail-panel > summary{display:none}}
 @media(max-width:639px){
- .brand-sub{display:none}
  .nav-card{mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent);-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent);padding-right:24px}
  .country-card{padding:10px 12px;gap:5px;min-height:80px;justify-content:center}
  .cc-head{align-items:center;gap:8px}
@@ -531,3 +530,25 @@ html[lang="th"] body, html[lang="th"] button, html[lang="th"] input, html[lang="
  body[data-page="overview"] .map-stage{height:360px}
  body[data-page="overview"] .section{margin-top:16px}
 }
+
+/* P3.1 density and account/pricing follow-up */
+@media(max-width:640px){
+  .brand-sub{display:none!important}
+  .brand-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
+.account-pricing{display:block;margin-top:12px;white-space:nowrap}
+.account-status{margin:8px 0 0}
+.trips-flight-lock{margin-top:8px;font-size:13px;color:var(--sub);text-align:center}
+.legend-fold{margin-top:10px}
+.legend-fold > summary{cursor:pointer;font-weight:700;color:var(--sub);font-size:13px;list-style:none}
+.legend-fold > summary::-webkit-details-marker{display:none}
+.legend-fold > summary::after{content:" ▸";font-weight:700}
+.legend-fold[open] > summary::after{content:" ▾"}
+.legend-fold .legend-extra{margin-top:8px}
+.map-legend-col > summary{cursor:pointer;font-weight:700;color:var(--txt);list-style:none}
+.map-legend-col > summary::-webkit-details-marker{display:none}
+.map-legend-col > summary::after{content:" ▸"}
+.map-legend-col[open] > summary::after{content:" ▾"}
+.footer-notes summary{cursor:pointer;font-weight:700;padding:6px 0}
+.footer-notes h4{margin-top:14px}
+.footer-notes p{margin-top:8px}

@@ -395,8 +395,9 @@
     return '<div class="chart-legend"><span><i style="background:#f1f5fb"></i>&lt; 2 mm</span>' +
       '<span><i style="background:#dbeafe"></i>2–10 mm</span><span><i style="background:#bcd6fb"></i>10–25 mm</span>' +
       '<span><i style="background:#f9cf9a"></i>25–50 mm</span><span><i style="background:#f6b7ae"></i>≥ 50 mm</span></div>' +
+      '<details class="legend-fold"><summary>' + esc(t('home.legend')) + '</summary>' +
       '<div class="legend-extra"><span>' + esc(t('trend.eventLegend')) + '</span></div>' +
-      '<div class="legend-extra"><span>' + esc(t('trend.levelLegend')) + '</span></div>';
+      '<div class="legend-extra"><span>' + esc(t('trend.levelLegend')) + '</span></div></details>';
   }
 
   // 事件横幅：按国家过滤；状态标签按是否存在进行中事件动态给出
@@ -651,7 +652,7 @@
     var days = ref && ref.daily ? R.dailyRows(ref.daily) : [];
     var dayLabels = days.slice(0, 7).map(function (d) { return String(d.time).slice(0, 10); });
     html += '<div class="section">' + sectionHead('home.trendTitle', 'home.trendHint') +
-      '<div class="panel">' + eventBannerHtml(null) +
+      '<div class="panel">' +
       '<div class="rain-table-scroll"><table style="width:100%;border-collapse:separate;border-spacing:4px;min-width:620px;font-size:var(--body-size,14px)">' +
       '<thead><tr><th style="text-align:left;min-width:130px">' + esc(t('nav.section')) + '</th>';
     days.slice(0, 7).forEach(function (d) {
@@ -844,6 +845,7 @@
     applyI18nDynamic();
     initTrip(PAGE === 'country' ? R.countryById(CID) : null);
     initMap();
+    notifyTrips();
   }
 
   // Reuse the advisory content so overview and country data stay in sync.
@@ -877,15 +879,16 @@
         if (next !== null) { event.preventDefault(); select(next); buttons[next].focus(); }
       });
     }
-    add('adv.eventTitle', [cards[0]], eventsFor(null).length);
-    add('adv.ctrlTitle', [cards[1], cards[3]], D.countries.reduce(function (n, c) { return n + c.controls.length; }, 0) + ((ADV && ADV.confirmedClosures) || []).length);
-    add('adv.floodTitle', [cards[2]], ((ADV && ADV.flood) || []).filter(function (f) { return f.status === 'ok'; }).length);
-    add('trip.title', [document.getElementById('trip')]);
+    var eventCard = cards[0], controlCards = [cards[1], cards[3]], floodCard = cards[2];
+    var controlCount = D.countries.reduce(function (n, c) { return n + c.controls.length; }, 0) + ((ADV && ADV.confirmedClosures) || []).length;
+    var floodCount = ((ADV && ADV.flood) || []).filter(function (f) { return f.status === 'ok'; }).length;
     advisory.querySelector('.adv-grid').remove();
-    add('adv.title', Array.from(advisory.children));
+    var leftover = Array.from(advisory.children);
+    add('adv.eventTitle', [eventCard], eventsFor(null).length);
+    add('adv.ctrlTitle', controlCards.concat(leftover), controlCount);
+    add('adv.floodTitle', [floodCard], floodCount);
+    add('trip.title', [document.getElementById('trip')]);
     advisory.remove();
-    var warning = main.querySelector(':scope > .notice');
-    if (warning) panels[4].querySelector('.detail-content').appendChild(warning);
     var selected = 3;
     function select(i) { selected = i; sync(); }
     function sync() {
