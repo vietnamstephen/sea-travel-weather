@@ -115,6 +115,8 @@ try {
     const context = await browser.newContext({ viewport: { width: 390, height: 900 } });
     const page = await context.newPage();
     await page.goto(`${origin}/${country}.html`, { waitUntil: 'domcontentloaded' });
+    // Country markup is rendered after the initial document; wait before checking its order.
+    await page.locator('.city-row').first().waitFor({ state: 'attached', timeout: 15000 });
     const firstFive = await page.locator('.city-row').evaluateAll((rows) => rows.slice(0,5).map((row) => row.dataset.city));
     record(JSON.stringify(firstFive) === JSON.stringify(expected), `${country} default city order ${JSON.stringify(firstFive)} != ${JSON.stringify(expected)}`);
     const total = await page.locator('.city-row').count();

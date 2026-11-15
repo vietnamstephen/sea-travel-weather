@@ -684,6 +684,7 @@
 
   // One shared request, started only by an expanded city.
   var attractionsRequest;
+  var attractionOverridesRequest;
   function sanitiseAuthor(value) {
     return String(value || '').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim()
       .replace(/^.*?\.(?:jpg|jpeg|png|svg):\s*/i, '')
@@ -702,34 +703,42 @@
     if (!attractionsRequest) attractionsRequest = fetch('data/attractions.json').then(function(r) {
       if (!r.ok) throw new Error('Attractions unavailable'); return r.json();
     }).catch(function() { return {countries:{}}; });
-    attractionsRequest.then(function(data) {
+    if (!attractionOverridesRequest) attractionOverridesRequest = fetch('data/attractions_overrides.json').then(function(r) { return r.ok ? r.json() : {}; }).catch(function() { return {}; });
+    Promise.all([attractionsRequest, attractionOverridesRequest]).then(function(results) {
+      var data=results[0], overrides=results[1] || {};
       if (!row.open || !row.isConnected || row.querySelector('.attractions')) return;
       var items = ((data.countries[CID] || {})[city.id] || []).slice().sort(function(a,b) { return b.sitelinks-a.sitelinks; }).slice(0,8);
       if (!items.length) return;
       var local = ({vn:'vi',th:'th',id:'id'}[CID] || 'en');
-      function label(v) { return v && (v[LANG] || v.en || v[local]) || ''; }
+      function label(a) { var v=a.name || {}, manual=overrides[a.qid] || {}; if(LANG==='zh') return manual.zh || (v[local] && (v[local]!==v.en || /[^\x00-\x7f]/.test(v[local])) ? v[local] : ''); return v[LANG] || v[local] || ''; }
       function pin() { return '<svg aria-hidden="true"><use href="#i-map-pin"></use></svg>'; }
       function placeholder() { return '<div class="attr-placeholder" aria-hidden="true">'+pin()+'</div>'; }
       var section = document.createElement('section'); section.className = 'attractions';
-      section.innerHTML = '<div class="attr-heading"><h3>'+esc(t('attr.title'))+'</h3><span>'+items.length+'</span></div><div class="attr-scroll"><ul role="list" tabindex="0" aria-label="'+esc(t('attr.listAria').replace('{city}',loc(city.name)))+'">'+items.map(function(a,i) {
-        var name=label(a.name), intro=a.intro && a.intro[LANG] || '', p=a.photo, credit='';
+      section.innerHTML = '<svg class="attr-sprite" aria-hidden="true"><symbol id="i-caret" viewBox="0 0 16 16"><path d="M5 2l6 6-6 6"/></symbol></svg><div class="attr-heading"><h3>'+esc(t('attr.title'))+'</h3><span>'+items.length+'</span></div><div class="attr-scroll"><ul role="list" tabindex="0" aria-label="'+esc(t('attr.listAria').replace('{city}',loc(city.name)))+'">'+items.map(function(a,i) {
+        var name=label(a), intro=a.intro && a.intro[LANG] || '', p=a.photo, credit='';
         if (p) {
           var author=sanitiseAuthor(p.author), publicDomain=/CC0|public domain/i.test(p.license);
           var full=publicDomain?t('attr.commons'):t('attr.credit').replace('{author}',author).replace('{license}',p.license);
           credit='<div class="attr-credit" title="'+esc(full)+'">'+(publicDomain?esc(full):'<span class="attr-author">📷 <a target="_blank" rel="noopener" href="'+esc(p.filePage)+'">'+esc(author)+'</a></span><span class="attr-sep" aria-hidden="true"> · </span><a class="attr-license" target="_blank" rel="noopener" href="'+esc(p.licenseUrl)+'">'+esc(p.license)+'</a>')+'</div>';
         }
         return '<li class="attr-card'+(i>=4?' attr-extra':'')+'"><div class="attr-media">'+(p?'<img loading="lazy" decoding="async" width="640" height="400" src="'+esc(p.thumb330)+'" srcset="'+esc(p.thumb330)+' '+p.width330+'w, '+esc(p.thumb500)+' '+p.width500+'w" sizes="(min-width: 640px) 220px, 156px" alt="'+esc(name)+'">':placeholder())+'</div><div class="attr-name">'+esc(name)+'</div>'+(intro?'<div class="attr-intro">'+esc(intro)+'</div>':'')+credit+'<a class="attr-map" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query='+encodeURIComponent(a.lat+','+a.lng)+'" aria-label="'+esc(t('attr.mapAria').replace('{name}',name))+'">'+pin()+esc(t('attr.map'))+'</a></li>';
-      }).join('')+'</ul></div>'+(items.length>4?'<button class="attr-more" type="button" aria-expanded="false">'+esc(t('attr.more').replace('{n}',items.length-4))+'</button>':'');
+      }).join('')+'</ul>'+(items.length>4?'<button class="attr-arrow attr-prev" type="button" aria-label="'+esc(t('attr.prev'))+'"><svg aria-hidden="true"><use href="#i-caret"></use></svg></button><button class="attr-arrow attr-next" type="button" aria-label="'+esc(t('attr.next'))+'"><svg aria-hidden="true"><use href="#i-caret"></use></svg></button>':'')+'</div>'+(items.length>4?'<button class="attr-more" type="button" aria-expanded="false">'+esc(t('attr.more').replace('{n}',items.length-4))+'</button>':'');
       row.querySelector('.city-card').appendChild(section);
       section.querySelectorAll('img').forEach(function(img) { img.addEventListener('error',function() {
         var credit=img.closest('.attr-card'); img.parentNode.innerHTML=placeholder();
         if (credit) { var line=credit.querySelector('.attr-credit'); if(line)line.remove(); }
       },{once:true}); });
       var list=section.querySelector('ul'), wrap=section.querySelector('.attr-scroll');
-      function fade() { wrap.classList.toggle('at-end',list.scrollLeft+list.clientWidth>=list.scrollWidth-2); }
-      list.addEventListener('scroll',fade,{passive:true}); requestAnimationFrame(fade);
+      function fade() { var start=list.scrollLeft<=2,end=list.scrollLeft+list.clientWidth>=list.scrollWidth-2; wrap.classList.toggle('is-start',start);wrap.classList.toggle('is-end',end);wrap.classList.toggle('has-overflow',list.scrollWidth>list.clientWidth+2); }
+      list.addEventListener('scroll',fade,{passive:true});
+      // The first measurement can happen before the browser has resolved the
+      // desktop flex widths. Recheck after that class change has laid out, and
+      // when late image sizing changes the rail's scroll width.
+      requestAnimationFrame(function() { fade(); requestAnimationFrame(fade); });
+      section.querySelectorAll('img').forEach(function(img) { img.addEventListener('load',fade,{once:true}); });
       section.attrResizeObserver = new ResizeObserver(fade); section.attrResizeObserver.observe(list);
-      list.addEventListener('keydown',function(e) { if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();list.scrollBy({left:e.key==='ArrowRight'?166:-166,behavior:'smooth'});} });
+      list.addEventListener('keydown',function(e) { if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();list.scrollBy({left:e.key==='ArrowRight'?list.clientWidth*3/4:-list.clientWidth*3/4,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});} });
+      section.querySelectorAll('.attr-arrow').forEach(function(b){b.addEventListener('click',function(){list.scrollBy({left:(b.classList.contains('attr-next')?1:-1)*(list.querySelector('.attr-card').getBoundingClientRect().width+(parseFloat(getComputedStyle(list).columnGap)||0))*3,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});});
       var more=section.querySelector('.attr-more'); if(more)more.addEventListener('click',function(){section.classList.add('attr-expanded');more.setAttribute('aria-expanded','true');more.hidden=true;});
     });
   }
@@ -1025,7 +1034,8 @@
     c.cities.forEach(function (city) { if (!orderedCities.includes(city)) orderedCities.push(city); });
     orderedCities.forEach(function (city, i) {
       var risk = R.cityRisk(weatherCity(c.id, city.id), city, hourKey(c.tz));
-      html += '<details data-city="' + esc(city.id) + '" class="city-row' + (i >= 5 ? ' city-extra' : '') + '"><summary>' + '<span class="city-name">' + esc(loc(city.name)) + '</span> ' + badge(risk.level) + (['vn','th'].includes(CID) ? '<button type="button" class="hosp-jump" aria-label="'+esc(t('hosp.jumpAria'))+'">🏥 '+esc(t('hosp.short'))+'</button>' : '') + '<span class="city-metrics">' + esc(cityMetrics(c, city)) + '</span></summary>' + cityCard(c, city) + '</details>';
+      var hasHospitals = !(CID === 'vn' && city.id === 'phuquoc');
+      html += '<details data-city="' + esc(city.id) + '" class="city-row' + (i >= 5 ? ' city-extra' : '') + '"><summary>' + '<span class="city-name">' + esc(loc(city.name)) + '</span> ' + badge(risk.level) + (['vn','th'].includes(CID) && hasHospitals ? '<button type="button" class="hosp-jump" aria-label="'+esc(t('hosp.jumpAria'))+'">🏥 '+esc(t('hosp.short'))+'</button>' : '') + '<span class="city-metrics">' + esc(cityMetrics(c, city)) + '</span></summary>' + cityCard(c, city) + '</details>';
     });
     html += '<button type="button" class="pill city-more" aria-expanded="false">' + esc(t('country.showAll').replace('{total}', c.cities.length).replace('{remaining}', Math.max(0, c.cities.length - 5))) + '</button></section>';
 

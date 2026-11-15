@@ -115,3 +115,16 @@ with patch.object(b,'fetch',side_effect=fetch),patch.object(b,'CACHE',b.ROOT/'no
  const d=JSON.parse(fs.readFileSync('data/attractions.json'));
  assert(d.countries.th.phuket.some(a=>a.qid==='Q16678462'));
 });
+
+test('hospital-5 Chinese attraction overrides and Da Nang park photo have sourced fallback data',()=>{
+ const overrides=JSON.parse(fs.readFileSync('data/attractions_overrides.json','utf8'));
+ assert.equal(overrides.Q18164670.zh,'第五军区博物馆');
+ assert.equal(overrides.Q60853845.zh,'山茶半岛灵应寺观音像');
+ const park=JSON.parse(fs.readFileSync('data/attractions.json','utf8')).countries.vn.danang.find(a=>a.qid==='Q32176308');
+ assert.equal(park.name.vi,'Công viên 29 tháng 3');
+ assert.equal(park.photo.author,'Martin Lewison');
+ assert.equal(park.photo.license,'CC BY 2.0');
+ assert.match(park.photo.filePage,/commons\.wikimedia\.org/);
+ assert.match(source,/manual\.zh \|\| \(v\[local\] &&/);
+ assert.doesNotMatch(source,/LANG==='zh' \? \(manual\.zh \|\| v\.en/);
+});

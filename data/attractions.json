@@ -6096,7 +6096,16 @@
             "id": ""
           },
           "maps": "https://www.google.com/maps/search/?api=1&query=16.062705,108.204812",
-          "photo": null
+          "photo": {
+            "thumb330": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/March_29_Park,_Da_Nang_(49358095917).jpg/330px-March_29_Park,_Da_Nang_(49358095917).jpg",
+            "thumb500": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/March_29_Park,_Da_Nang_(49358095917).jpg/500px-March_29_Park,_Da_Nang_(49358095917).jpg",
+            "width330": 330,
+            "width500": 500,
+            "author": "Martin Lewison",
+            "license": "CC BY 2.0",
+            "filePage": "https://commons.wikimedia.org/wiki/File:March_29_Park%2C_Da_Nang_%2849358095917%29.jpg",
+            "licenseUrl": "https://creativecommons.org/licenses/by/2.0/"
+          }
         },
         {
           "qid": "Q3917231",
