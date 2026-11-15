@@ -8,7 +8,7 @@ const R=ctx.window.SEA_RISK;
 const ids=(d,g)=>Array.from(R.outfit(d,g).items,x=>x.id);
 const base={precipitation_probability_max:0,precipitation_sum:0};
 test('five temperature bands, coherent sets for both genders',()=>{
- const sets={male:[['tshirt','pants','sandal'],['tshirt','pants','sneaker'],['shirt','pants','sneaker'],['long-sleeve','hoodie','pants','sneaker'],['long-sleeve','jacket','pants','boot']],female:[['tank','skirt','sandal'],['tshirt','dress','sandal'],['long-sleeve','pants','sneaker'],['long-sleeve','hoodie','pants','sneaker'],['long-sleeve','jacket','pants','boot']]};
+ const sets={male:[['tshirt','shorts','sandal'],['tshirt','pants','sneaker'],['shirt','pants','sneaker'],['long-sleeve','hoodie','pants','sneaker'],['long-sleeve','jacket','pants','boot']],female:[['tank','skirt','sandal'],['tshirt','dress','sandal'],['long-sleeve','pants','sneaker'],['long-sleeve','hoodie','pants','sneaker'],['long-sleeve','jacket','pants','boot']]};
  for(const g of ['male','female'])[32,26,20,14,13].forEach((temp,i)=>{const r=R.outfit({...base,apparent_temperature_max:temp},g);assert.equal(r.band,['hot','warm','mild','cool','cold'][i]);assert.deepEqual(Array.from(r.items.filter(x=>x.category==='clothes'),x=>x.id),sets[g][i].map(x=>'i-'+x));});
 });
 test('optional jacket uses morning/evening then air range, no cold duplicate',()=>{
@@ -35,4 +35,29 @@ test('missing values skip independently; daytime preference and real daily fixtu
 test('outfit is pure and hourly gust fallback never uses ordinary wind when gust series exists',()=>{
  const day={temperature_2m_max:30,precipitation_sum:15,precipitation_probability_max:80,uv_index_max:9};const before=JSON.stringify(day);R.outfit(day,'female');assert.equal(JSON.stringify(day),before);
  const wc={daily:{time:['2026-11-15'],temperature_2m_max:[30],wind_speed_10m_max:[80]},hourly:{time:['2026-11-15T09:00','2026-11-15T10:00'],wind_gusts_10m:[20,42]}};assert(ids(R.outfitDay(wc,'2026-11-15')).includes('i-raincoat'));wc.hourly.wind_gusts_10m=[null,null];assert(!ids(R.outfitDay(wc,'2026-11-15')).includes('i-raincoat'));
+});
+
+test('storm replaces the sole clothes shoe for both genders in every band',()=>{
+ for(const gender of ['male','female'])for(const temp of [33,28,22,16,10])for(const trigger of [{precipitation_sum:25},{weather_code:95},{wind_gusts_10m_max:40}]){
+  const result=R.outfit({apparent_temperature_max:temp,...trigger},gender);
+  const shoes=result.items.filter(x=>['i-sandal','i-sneaker','i-boot'].includes(x.id));
+  assert.equal(shoes.length,1);assert.equal(shoes[0].id,'i-boot');assert.equal(shoes[0].category,'clothes');
+  assert.deepEqual(Array.from(result.items.filter(x=>x.category==='rain'),x=>x.id),['i-raincoat']);
+  assert(!result.items.some(x=>x.id.includes('umbrella')));
+ }
+});
+test('raincoat suppresses hot cap unless UV reaches 8; dry hot retains cap',()=>{
+ for(const gender of ['male','female'])for(const uv of [null,0,7,8]){
+  assert.equal(ids({apparent_temperature_max:33,precipitation_sum:25,uv_index_max:uv},gender).includes('i-cap'),uv===8);
+  assert(ids({apparent_temperature_max:33,precipitation_sum:0,uv_index_max:uv},gender).includes('i-cap'));
+ }
+});
+test('hot male wears shorts instead of pants at apparent 32',()=>{
+ const result=R.outfit({apparent_temperature_max:32},'male');assert(result.keys.includes('outfit.shorts'));assert(!ids({apparent_temperature_max:32},'male').includes('i-pants'));
+});
+test('morning/evening jacket boundary is inclusive 8, overrides larger air range',()=>{
+ for(const delta of [7,8])for(const gender of ['male','female']){
+  const result=R.outfit({apparent_temperature_max:28,temperature_morning:24,temperature_evening:24-delta,temperature_2m_max:30,temperature_2m_min:10},gender);
+  assert.equal(result.items.some(x=>x.category==='optional'&&x.key==='outfit.thin-jacket'),delta===8);
+ }
 });

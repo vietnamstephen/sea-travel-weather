@@ -44,7 +44,7 @@
     if (url && /^https?:\/\//i.test(url)) {
       var img = document.createElement('img'); img.alt = ''; img.referrerPolicy = 'no-referrer'; img.onerror = function () { img.remove(); }; img.src = url; button.querySelector('.account-avatar').appendChild(img);
     }
-    menu.innerHTML = user ? '<div class="account-email">' + esc(user.email) + '</div><p class="account-status">' + statusHtml(value,subscription) + '</p>' + pricingLink(value) + '<a href="trips.html">' + esc(t('nav.trips')) + '</a><button type="button" class="account-signout">' + esc(t('trips.signOut')) + '</button>' : '';
+    menu.innerHTML = user ? '<div class="account-email" title="' + esc(user.email) + '">' + esc(user.email) + '</div><p class="account-status">' + statusHtml(value,subscription) + '</p>' + pricingLink(value) + '<a href="trips.html">' + esc(t('nav.trips')) + '</a><button type="button" class="account-signout">' + esc(t('trips.signOut')) + '</button>' : '';
     if (!user) close(false);
   }
   async function refresh(db) {

@@ -372,7 +372,8 @@ button{cursor:pointer}
 .trips-locked{color:var(--sub);background:var(--bg);border-style:dashed}
 .trips-vip{font-size:var(--body-size,14px);white-space:nowrap;background:#f1eee5;color:#79632d;border-radius:5px;padding:2px 5px;margin-left:4px}
 .trips-admin{margin-top:20px}.trips-admin-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.trips-admin-row>span{flex:1;min-width:160px;overflow-wrap:anywhere}.trips-admin-row small{display:block;color:var(--sub);margin-top:5px}
+.trips-admin-row>span{flex:1;min-width:160px;max-width:100%}.trips-admin-row small{display:block;color:var(--sub);margin-top:5px}
+.trips-admin-email{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 .trips-admin-row label{font-size:var(--body-size,14px)}.trips-admin-row select{display:block;padding:7px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
 .field:has(#trips-flight_no){position:relative;min-width:0}
 .trips-suggestions{position:absolute;top:67px;left:0;right:0;z-index:1100;max-height:270px;overflow:auto;background:var(--panel);border:1px solid var(--line,#dce4eb);border-radius:12px;box-shadow:0 12px 32px rgba(21,51,71,.24)}
@@ -472,8 +473,8 @@ button:focus-visible,a:focus-visible,.lang-opt:focus-visible,.nav-link:focus-vis
 input:focus-visible,select:focus-visible,textarea:focus-visible {
   outline:3px solid #2563eb;outline-offset:2px;
 }
-.skip-link{position:fixed;top:8px;left:8px;z-index:10000;padding:10px 16px;background:#fff;color:#1746a2;border-radius:6px;max-width:calc(100vw - 16px);transform:translateY(calc(-100% - 16px))}
-.skip-link:focus{transform:translateY(0)}
+.skip-link{position:fixed;top:8px;left:8px;z-index:10000;padding:10px 16px;background:#fff;color:#1746a2;border-radius:6px;max-width:calc(100vw - 16px);opacity:0;pointer-events:none;clip-path:inset(50%);overflow:hidden}
+.skip-link:focus,.skip-link:focus-visible{opacity:1;pointer-events:auto;clip-path:none;overflow:visible}
 html[lang="th"] body, html[lang="th"] button, html[lang="th"] input, html[lang="th"] select{line-height:1.7}
 .trips-upgrade{display:inline-flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--blue);border-radius:10px;background:var(--panel);font-size:12px;max-width:100%;overflow-wrap:anywhere}
 
@@ -488,7 +489,7 @@ html[lang="th"] body, html[lang="th"] button, html[lang="th"] input, html[lang="
 .account-tag{font-size:12px;padding-right:7px}
 .account-menu{position:absolute;right:0;top:calc(100% + 8px);width:310px;max-width:calc(100vw - 24px);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:0 12px 32px #10182826;z-index:1100;overflow-wrap:anywhere}
 .account-menu[hidden]{display:none}
-.account-email{font-weight:700}
+.account-email{display:block;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 .account-menu>a,.account-signout{display:block;margin-top:12px}
 .account-signout{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer}
 .account-beta{display:inline-block;background:var(--blue-soft);color:var(--blue);border-radius:20px;padding:2px 7px;font-size:12px}
