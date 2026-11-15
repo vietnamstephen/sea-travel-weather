@@ -349,5 +349,18 @@
     "pti": false,
     "ptiSource": null,
     "reviewNote": "Ministry PDF p359 private institutions; international designation in listed name."
+  },
+  "way/189618479": {
+    "city": "chiangmai",
+    "ownership": "public",
+    "phone": "+6653936150",
+    "address": "110 Suthep Road, Si Phum, Mueang Chiang Mai, Chiang Mai 50200",
+    "source": "https://www.med.cmu.ac.th",
+    "intl": false,
+    "er24": false,
+    "checkedAt": "2026-11-16",
+    "pti": false,
+    "ptiSource": null,
+    "reviewNote": "Public MOPH teaching hospital (Maharaj Nakorn / Suandok, OSM emergency=yes), added to pair a public general hospital with the existing private international hospital. Phone +6653936150 is the recorded OSM phone tag 053936150 normalized to E.164; address from OSM addr:* tags; official website from OSM website tag. Values were reviewed from the frozen OSM snapshot only, not independently confirmed against the live site (outbound page fetch unavailable). 24h and international-department status unconfirmed (er24=false, intl=false). pti=false: not verified against the PTI official list."
   }
 }

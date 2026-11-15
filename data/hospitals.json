@@ -14,10 +14,93 @@
         "https://new.pti.com.vn/wp-content/uploads/2026/10/Danh-sach-CSYT-bao-lanh-qua-FHVI.pdf"
       ],
       "checkedAt": "2026-11-15",
-      "method": "Manual facility AND address matching; never inferred from hospital names. Unchecked = false.",
+      "rosterSource": "Committed pilot manual-review records in scripts/hospitals_reviewed.json (facility + address matched to INSMART/FHVI rows).",
+      "method": "Manual facility AND address matching against the official PTI lists; never inferred from hospital names. Unchecked = false. Only the committed roster keeps pti=true; no coverage was added without verification.",
+      "recheckAttemptedAt": "2026-11-16",
+      "recheckNote": "Live re-verification of the official PTI PDFs was not possible in this build environment (outbound page fetch unavailable). The committed roster and its 2026-11-15 check date were preserved; every newly added record has pti=false per the unverified=false rule. Re-confirm against the insurer latest list before relying on coverage.",
       "caveat": "Product, policy, service and department restrictions apply; listing is not a guarantee of emergency direct billing."
     },
     "scope": "Reviewed pilot; OSM API bounding boxes recorded per city. Not an exhaustive hospital directory. No-phone, duplicate and unverified records excluded.",
+    "thresholds": {
+      "minHospitalsPerCity": 2
+    },
+    "insufficientCities": {
+      "ayutthaya": {
+        "country": "th",
+        "published": 1,
+        "reason": "Only 0 of 1 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "bacgiang": {
+        "country": "vn",
+        "published": 0,
+        "reason": "Only 0 of 7 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "bacninh": {
+        "country": "vn",
+        "published": 0,
+        "reason": "Only 0 of 7 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "bangkok": {
+        "country": "th",
+        "published": 1,
+        "reason": "Only 1 of 4 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "binhduong": {
+        "country": "vn",
+        "published": 0,
+        "reason": "Only 0 of 1 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "chachoengsao": {
+        "country": "th",
+        "published": 1,
+        "reason": "Only 0 of 4 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "dalat": {
+        "country": "vn",
+        "published": 1,
+        "reason": "Only 0 of 2 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "dongnai": {
+        "country": "vn",
+        "published": 0,
+        "reason": "Only 0 of 1 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "haiphong": {
+        "country": "vn",
+        "published": 1,
+        "reason": "Only 0 of 9 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "hanoi": {
+        "country": "vn",
+        "published": 1,
+        "reason": "Only 0 of 8 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "nhatrang": {
+        "country": "vn",
+        "published": 1,
+        "reason": "Only 0 of 10 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "phuket": {
+        "country": "th",
+        "published": 1,
+        "reason": "Only 0 of 2 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "phuquoc": {
+        "country": "vn",
+        "published": 0,
+        "reason": "The recorded OSM bounding box contains no hospital candidates for this city."
+      },
+      "quynhon": {
+        "country": "vn",
+        "published": 0,
+        "reason": "Only 0 of 5 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      },
+      "samutprakan": {
+        "country": "th",
+        "published": 1,
+        "reason": "Only 0 of 2 OSM hospital candidates carry a phone tag; no further verifiable-phone records were reviewed for this city."
+      }
+    },
     "origins": {
       "hcm": {
         "lat": 10.775555555555556,
@@ -242,10 +325,10 @@
       "chiangmai": {
         "osmCandidates": 3,
         "osmWithPhone": 2,
-        "published": 1,
-        "publishedWithPhone": 1,
+        "published": 2,
+        "publishedWithPhone": 2,
         "publishedPhonePercent": 100,
-        "verifiedPhoneCandidatePercent": 33.3,
+        "verifiedPhoneCandidatePercent": 66.7,
         "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=98.977333,18.782889,98.989333,18.794889",
         "bboxDelta": 0.006
       },
@@ -749,6 +832,34 @@
           "ptiCheckedAt": null,
           "ptiSource": null,
           "reviewNote": "Official announcement replaces old OSM 053920300; use new emergency line. International hospital: https://www.chiangmairam.com/aboutus"
+        },
+        {
+          "id": "osm:way/189618479",
+          "city": "chiangmai",
+          "name": {
+            "zh": "โรงพยาบาลมหาราชนครเชียงใหม่",
+            "en": "Maharaj Nakorn Chiang Mai Hospital",
+            "vi": "โรงพยาบาลมหาราชนครเชียงใหม่",
+            "th": "โรงพยาบาลมหาราชนครเชียงใหม่",
+            "id": "โรงพยาบาลมหาราชนครเชียงใหม่"
+          },
+          "ownership": "public",
+          "intl": false,
+          "pti": false,
+          "er24": false,
+          "address": "110 Suthep Road, Si Phum, Mueang Chiang Mai, Chiang Mai 50200",
+          "phone": "+6653936150",
+          "lat": 18.790839974137928,
+          "lng": 98.97490250172415,
+          "rank": 2,
+          "sources": [
+            "https://www.openstreetmap.org/way/189618479",
+            "https://www.med.cmu.ac.th"
+          ],
+          "checkedAt": "2026-11-16",
+          "ptiCheckedAt": null,
+          "ptiSource": null,
+          "reviewNote": "Public MOPH teaching hospital (Maharaj Nakorn / Suandok, OSM emergency=yes), added to pair a public general hospital with the existing private international hospital. Phone +6653936150 is the recorded OSM phone tag 053936150 normalized to E.164; address from OSM addr:* tags; official website from OSM website tag. Values were reviewed from the frozen OSM snapshot only, not independently confirmed against the live site (outbound page fetch unavailable). 24h and international-department status unconfirmed (er24=false, intl=false). pti=false: not verified against the PTI official list."
         }
       ],
       "phuket": [
