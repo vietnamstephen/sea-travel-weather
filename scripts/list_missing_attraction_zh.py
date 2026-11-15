@@ -11,16 +11,17 @@ for country,cities in data['countries'].items():
     for city,items in cities.items():
         for a in items:
             names=a.get('name') or {}; zh=names.get('zh',''); en=names.get('en','')
-            if zh and zh.casefold()!=en.casefold(): continue
-            count+=1; manual=overrides.get(a['qid'],{}).get('zh')
+            manual=overrides.get(a['qid'],{}).get('zh')
             local={'vn':'vi','th':'th','id':'id','my':'id','sg':'id','ph':'id'}.get(country,'')
             local_name=names.get(local,'') if local else ''
-            display=manual or (local_name if local_name and local_name.casefold()!=en.casefold() else '（缺；不回退英文）')
+            display=manual or (zh if zh and zh.casefold()!=en.casefold() else '') or (local_name if local_name and (local_name.casefold()!=en.casefold() or any(ord(ch)>127 for ch in local_name)) else '')
+            if display: continue
+            count+=1; display='（缺；不回退英文）'
             note=overrides.get(a['qid'],{}).get('note','')
             status=('人工核定 / '+note if manual and note.startswith('人工') else
                     ('译名待当地母语者复核 / '+note if manual and '待当地母语者复核' in note else
                      ('保留来源当地专名 / '+note if manual else
-                      ('界面回退当地语言名 / '+local if display!='（缺；不回退英文）' else '仅有英文来源，待核实'))))
+                      ('界面回退当地语言名 / '+local if local_name and local_name!=en else '仅有英文来源，待核实'))))
             lines.append(f"| {country}/{city} | `{a['qid']}` | {en.replace('|','/')} | {display.replace('|','/')} | {status} |")
 out='\n'.join(lines)+'\n'
 print(out,end='')

@@ -612,10 +612,11 @@ body[data-page="country"] .footer summary{cursor:pointer;font-weight:700}
 .outfit-row.outfit-many{flex-direction:column;align-items:flex-start}
 
 /* P6: only mounted inside an open city. */
-.attractions{border-top:1px dashed var(--line);margin-top:12px;padding-top:10px;min-width:0}
+.attractions{border-top:1px dashed var(--line);margin-top:4px;padding-top:8px;min-width:0}
 .attr-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;color:var(--sub)}
 .attr-heading h3{font-size:14px;margin:0;color:var(--txt)}
 .attr-scroll{position:relative;min-width:0}
+.attr-nav,.attr-arrow{display:none}
 .attractions ul{list-style:none;padding:0;margin:0;display:flex;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;gap:10px;scrollbar-width:thin}
 .attr-card{min-width:0;transition:transform .15s,box-shadow .15s;border-radius:10px}
 .attr-media{aspect-ratio:16/10;border-radius:10px;overflow:hidden}
@@ -640,14 +641,15 @@ body[data-page="country"] .footer summary{cursor:pointer;font-weight:700}
 .attr-scroll.has-overflow ul{mask-image:linear-gradient(to right,transparent 0,#000 56px,#000 calc(100% - 56px),transparent 100%)}
 .attr-scroll.has-overflow.is-start ul{mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 56px),transparent 100%)}
 .attr-scroll.has-overflow.is-end ul{mask-image:linear-gradient(to right,transparent 0,#000 56px, #000 100%)}
-.attr-arrow{display:none;position:absolute;z-index:2;top:66px;width:36px;height:36px;padding:0;align-items:center;justify-content:center;border-radius:50%;border:1px solid var(--line);background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer}
 .attr-sprite{position:absolute;width:0;height:0;overflow:hidden}
-.attr-arrow svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.attr-prev{left:8px}.attr-prev svg{transform:scaleX(-1)}.attr-next{right:8px}
-.attr-scroll.is-start .attr-prev,.attr-scroll.is-end .attr-next{display:none}
+.attr-arrow svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 }
-@media(min-width:640px){.attr-scroll.has-overflow .attr-arrow{display:flex}.attr-scroll.is-start .attr-prev,.attr-scroll.is-end .attr-next{display:none}}
-@media(min-width:640px){.attr-scroll.has-overflow.is-start .attr-next,.attr-scroll.has-overflow.is-end .attr-prev{display:flex}}
+@media (hover:hover) and (min-width:768px){
+.attr-scroll.has-overflow .attr-nav{display:block;position:absolute;inset:0;pointer-events:none}
+.attr-scroll.has-overflow .attr-arrow{display:flex;position:absolute;z-index:2;top:66px;width:36px;height:36px;padding:0;align-items:center;justify-content:center;border-radius:50%;border:1px solid var(--line);background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer;pointer-events:auto}
+.attr-scroll.has-overflow.is-start .attr-prev,.attr-scroll.has-overflow.is-end .attr-next{display:none}
+.attr-prev{left:8px}.attr-prev svg{transform:scaleX(-1)}.attr-next{right:8px}
+}
 @media(prefers-reduced-motion:reduce){.attr-scroll .attr-arrow{scroll-behavior:auto}}
 @media(max-width:639px){
 .attractions ul{scrollbar-width:none}

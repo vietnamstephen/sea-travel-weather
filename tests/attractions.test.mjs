@@ -42,6 +42,18 @@ test('Chinese source selection prefers Simplified variants and converts Traditio
  execFileSync('python3',['-B','-c',py]);
 });
 
+test('no previously available Chinese attraction name is lost since d96937c',()=>{
+ const old=JSON.parse(execFileSync('git',['show','d96937c:data/attractions.json'],{encoding:'utf8'}));
+ const current=JSON.parse(fs.readFileSync('data/attractions.json','utf8'));
+ const lost=[];
+ for(const [country,cities] of Object.entries(old.countries))for(const [city,items] of Object.entries(cities))for(const a of items){
+  if(!a.name?.zh||a.name.zh===a.name.en)continue;
+  const next=(current.countries[country]?.[city]||[]).find(x=>x.qid===a.qid);
+  if(!next?.name?.zh||next.name.zh===next.name.en)lost.push(`${country}/${city}/${a.qid}`);
+ }
+ assert.equal(lost.length,0,`lost Chinese names: ${lost.join(', ')}`);
+});
+
 test('pilot cleanup preserves inland gap, commercial exclusions and licensed source-only supplements',()=>{
  const d=JSON.parse(fs.readFileSync('data/attractions.json'));
  assert.equal(d.countries.vn.bacgiang.length,0);
@@ -125,6 +137,6 @@ test('hospital-5 Chinese attraction overrides and Da Nang park photo have source
  assert.equal(park.photo.author,'Martin Lewison');
  assert.equal(park.photo.license,'CC BY 2.0');
  assert.match(park.photo.filePage,/commons\.wikimedia\.org/);
- assert.match(source,/manual\.zh \|\| \(v\[local\] &&/);
+ assert.match(source,/manual\.zh \|\| \(v\.zh && v\.zh!==v\.en \? v\.zh : ''\)/);
  assert.doesNotMatch(source,/LANG==='zh' \? \(manual\.zh \|\| v\.en/);
 });

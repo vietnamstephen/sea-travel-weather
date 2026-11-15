@@ -6,12 +6,19 @@
 
 - 桌面景点轨道：5 张及以上时按 `(100% - 48px)/4.4` 显示卡片，间距 16px；最多 4 张时等分。滚动位置通过 `is-start` / `is-end` 更新渐隐和箭头；箭头在支持 hover 的桌面显示，按三张卡片宽度滚动，并遵从 reduced-motion。移动端规则未改。
 - 医院区块沿用 hospital-4 的默认 3 家、带 `+N` 的更多按钮和五种语言文案；OSM 来源文字增加 2px 左内边距，与医院卡片内容左边缘对齐（桌面 10px，窄屏 8px）。
-- 中文景点名按人工覆盖 → 当地语言名回退；没有中文名或当地语言名时显示空名，不回退英文。新增 `data/attractions_overrides.json`，构建脚本会将覆盖值写回数据构建结果。
+- 中文景点名回退顺序为 `data/attractions_overrides.json` 覆盖 → Wikidata 中文标签（zh-hans / zh-cn / zh，繁体经 OpenCC 转简体，已落入 `name.zh`）→ 当地语言名；界面不回退英文。
 - Zone 5 Military Museum 改为「第五军区博物馆」；Son Tra Guanyin 改为「山茶半岛灵应寺观音像」。另为当前 91 条空中文/英文同名记录补覆盖或本地名，脚本 `scripts/list_missing_attraction_zh.py` 输出逐条清单；本报告下方附清单。对纯拉丁专名的部分条目标出待当地母语者复核。
 - March 29 Park 增加 Wikimedia Commons 图片 [Martin Lewison 的照片](https://commons.wikimedia.org/wiki/File:March_29_Park,_Da_Nang_(49358095917).jpg)，标注作者 Martin Lewison 与 CC BY 2.0，许可证链接已写入数据。图像来自公园类别页内文件列表，许可证和作者信息以文件页为准。
 - 新增 `scripts/hospital-5-playwright.mjs`：自带本地 HTTP 服务，使用 `createRequire` 加载 Playwright；生成岘港 1280/390 整页图、桌面轨道图和四城两种视口高度数据。整页截图前只在脚本中把 header 改为 `position:static`。
 
 ## 自动化验收状态
+
+### hospital-5g 修复（2026-11-16）
+
+- 中文名显示恢复覆盖 → Wikidata `name.zh`（构建端依次选 zh-hans / zh-cn / zh，繁体转简体）→ 当地语言名；岘港前三项保留为「岘港占族雕刻艺术博物馆」「耶稣圣心主教座堂」「灵应寺」。缺中文名清单已重生成：0 条。
+- `.attr-nav` 与 `.attr-arrow` 默认隐藏；仅 `(hover:hover) and (min-width:768px)` 且轨道溢出时启用，导航层绝对定位在相对定位轨道上。手机岘港增加景点区约 220px 及箭头不可见断言。医院到景点区的空白来自两区块相邻各自的 12px 上边距；景点区改为 4px，并略减上内边距。
+- 新增对比 `d96937c:data/attractions.json` 的 node 回归测试，旧有中文名丢失数为 0。
+- `PATH="$PWD/.venv/bin:$PATH" node --test`：64/64 通过。Playwright 受沙盒限制未运行；四城本轮实测高度、浏览器断言和截图仍待 Mac 包装环境运行。脚本只会写 `hospital-5-danang-390.png` 与 `hospital-5-danang-rail.png`。
 
 ### hospital-5c 窄修
 
@@ -51,109 +58,9 @@ NODE_PATH=~/WorkBuddy/pw/node_modules node scripts/hospital-5-playwright.mjs
 
 ## 中文名缺失记录清单
 
-此清单由 `python3 scripts/list_missing_attraction_zh.py` 生成。输入是原数据中中文名为空或等于英文名的记录；已覆盖 91 个唯一 ID。带“待当地母语者复核”的译法保留在清单中，方便后续核对。
+此清单由 `python3 scripts/list_missing_attraction_zh.py` 生成。按覆盖 → Wikidata 中文名 → 当地语言名的回退链检查当前数据；只有全链为空的记录才列出。
 
 | 国家/城市 | 景点 ID | 英文名 | 当前中文显示 | 处理 |
 |---|---|---|---|
-| vn/hcm | `Q4448947` | Mariamman Temple, Ho Chi Minh City | Đền Bà Ấn (Thành phố Hồ Chí Minh) | 保留来源当地专名 / 保留来源当地名称（vi） |
-| vn/danang | `Q18164670` | Zone 5 Military Museum | 第五军区博物馆 | 人工核定 / 人工译名；依据越南语 Bảo tàng Quân khu 5 |
-| vn/danang | `Q60853845` | Son Tra Guanyin | 山茶半岛灵应寺观音像 | 人工核定 / 人工译名；依据景点专名与所在地 Son Tra Peninsula / Linh Ung Pagoda |
-| vn/danang | `Q32176308` | March 29 Park | 三月二十九日公园 | 人工核定 / 人工译名；依据越南语 Công viên 29 tháng 3 |
-| vn/phuquoc | `osm:node/3482735052` | Trúc Lâm Hộ Quốc Zen Monastery | Trúc Lâm Hộ Quốc 禅寺 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| vn/phuquoc | `osm:way/32003769` | Long beach | Bãi Trường | 保留来源当地专名 / 保留来源当地名称（vi） |
-| vn/phuquoc | `osm:node/5158463023` | Hung Quoc Convent | 兴国修道院 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| vn/phuquoc | `osm:node/7148312785` | Tiên Sơn Đỉnh - good viewpoint | 仙山顶观景点 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| vn/nhatrang | `Q8052668` | Yersin Museum | Bảo tàng Alexandre Yersin | 保留来源当地专名 / 保留来源当地名称（vi） |
-| vn/quynhon | `Q10825825` | Banh It Cham Towers | Tháp Bánh Ít | 保留来源当地专名 / 保留来源当地名称（vi） |
-| vn/quynhon | `Q10825860` | Doi Cham Towers | Tháp Đôi | 保留来源当地专名 / 保留来源当地名称（vi） |
-| vn/quynhon | `Q10825827` | Binh Lam Cham Tower | Tháp Bình Lâm | 保留来源当地专名 / 保留来源当地名称（vi） |
-| vn/dalat | `Q6554125` | Linh Son Pagoda | Chùa Linh Sơn (Đà Lạt) | 保留来源当地专名 / 保留来源当地名称（vi） |
-| vn/dalat | `Q10752061` | Đà Lạt flower park | Công viên hoa Đà Lạt | 保留来源当地专名 / 保留来源当地名称（vi） |
-| vn/dalat | `Q10800878` | Cam Ly Church | Nhà thờ Cam Ly | 保留来源当地专名 / 保留来源当地名称（vi） |
-| vn/bacninh | `Q10748407` | Thần-quang Pagoda | Chùa Dạm | 保留来源当地专名 / 保留来源当地名称（vi） |
-| vn/bacninh | `Q66092478` | Ham Long Buddhist temple | Chùa Hàm Long | 保留来源当地专名 / 保留来源当地名称（vi） |
-| vn/haiphong | `osm:way/240479613` | Bảo tàng Hải quân | 越南海军博物馆 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| vn/haiphong | `osm:way/962922519` | Bảo tàng Xi măng Việt Nam | 越南水泥博物馆 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| vn/haiphong | `osm:way/1049831208` | Hai Phong Museum | 海防博物馆 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| vn/haiphong | `osm:node/14086666270` | Bao Tàng Quan Khu 3 | 第三军区博物馆 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| vn/haiphong | `osm:node/2797512242` | Bao Dai Villa | 保大别墅 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| vn/binhduong | `Q16481110` | Phu Cuong Communal House | Đình Phú Cường | 保留来源当地专名 / 保留来源当地名称（vi） |
-| vn/binhduong | `Q18461586` | Tan An Communal House | Đình Tân An | 保留来源当地专名 / 保留来源当地名称（vi） |
-| vn/dongnai | `Q31992793` | Citadel of Bien Hoa | Thành cổ Biên Hòa | 保留来源当地专名 / 保留来源当地名称（vi） |
-| vn/dongnai | `Q112648602` | Dong Nai Museum | Bảo tàng Đồng Nai | 保留来源当地专名 / 保留来源当地名称（vi） |
-| vn/dongnai | `Q5003209` | Buu Phong Temple | Chùa Bửu Phong | 保留来源当地专名 / 保留来源当地名称（vi） |
-| th/chiangmai | `Q843034` | Doi Suthep-Pui National Park | อุทยานแห่งชาติดอยสุเทพ-ปุย | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/chiangmai | `Q4818120` | Attaqwa Mosque | มัสยิดอัตตักวา | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/chiangmai | `Q15708582` | Op Khan National Park | อุทยานแห่งชาติออบขาน | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/chiangmai | `Q1642767` | Chiang Mai National Museum | พิพิธภัณฑสถานแห่งชาติ เชียงใหม่ | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/phuket | `Q48948294` | Holy Trinity Church | 圣三一教堂 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| th/phuket | `Q13018175` | Thalang National Museum | พิพิธภัณฑสถานแห่งชาติ ถลาง | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/phuket | `Q16678462` | Phuket Seashell Museum | 普吉贝壳博物馆 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| th/phuket | `Q56561800` | Wat Si Sunthon | วัดศรีสุนทร | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/pattaya | `Q13017342` | Phra Chuthathut Palace | พระจุฑาธุชราชฐาน | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/pattaya | `Q107057762` | Viharn Sien | อเนกกุศลศาลา | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/pattaya | `Q110354503` | USS LSM-333 | เรือหลวงกูด | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/pattaya | `Q28671215` | All Saints church | 诸圣堂 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| th/pattaya | `Q115120592` | Giant Monk Statue, Ko Lan | 阁兰岛巨型僧侣像 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| th/pattaya | `Q16004176` | Tham Mangkhon Khao | ถ้ำมังกรขาว | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/pattaya | `Q4294192` | Mini Siam | เมืองจำลองพัทยา | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/chonburi | `Q3576017` | Khao Kheow Open Zoo | สวนสัตว์เปิดเขาเขียว | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/chonburi | `Q53995363` | Chaloem Phrakiat Park | สวนเฉลิมพระเกียรติ ร.9 ชลบุรี | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/rayong | `Q1551842` | Khao Laem Ya – Mu Ko Samet National Park | อุทยานแห่งชาติเขาแหลมหญ้า-หมู่เกาะเสม็ด | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/rayong | `Q1132057` | Rayong Aquarium | สถานแสดงพันธุ์สัตว์น้ำระยอง | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/rayong | `Q13022367` | Suan Si Mueang | สวนศรีเมือง | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/rayong | `Q49567040` | สวนรัชมังคลาภิาษก | สวนรัชมังคลาภิษก | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| th/ayutthaya | `Q1062477` | Chao Sam Phraya National Museum | พิพิธภัณฑสถานแห่งชาติ เจ้าสามพระยา | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/ayutthaya | `Q55096367` | Phet Fort | ป้อมเพชร | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/ayutthaya | `Q1061764` | Chandra Kasem palace | พระราชวังจันทรเกษม | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/ayutthaya | `Q13017705` | Queen Suriyothai Monument | พระราชานุสาวรีย์สมเด็จพระสุริโยทัย | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/samutprakan | `Q16304373` | Chulachomklao Fort | ป้อมพระจุลจอมเกล้า | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/samutprakan | `Q107920843` | Phlaeng Faifa Fort | ป้อมแผลงไฟฟ้า | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/samutprakan | `Q124023139` | Wanatham Park | สวนวนธรรม | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/samutprakan | `Q16304359` | Phi Suea Samut Fort | ป้อมผีเสื้อสมุทร | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/samutsakhon | `Q109449352` | Wichien Chodok Fort | ป้อมวิเชียรโชฎก | 保留来源当地专名 / 保留来源当地名称（th） |
-| th/samutsakhon | `Q141925262` | Samutsakhon Science Centre for Education | ศูนย์วิทยาศาสตร์เพื่อการศึกษาสมุทรสาคร | 保留来源当地专名 / 保留来源当地名称（th） |
-| sg/singapore | `Q6819812` | Merlion Park | Taman Merlion | 保留来源当地专名 / 保留来源当地名称（id） |
-| sg/jurong | `Q12497267` | Masjid Al-Firdaus | Masjid Al-Firdaus | 译名待当地母语者复核 / 译名/保留当地专名；源名来自景点数据；部分仅英文/拉丁拼写，译法待当地母语者复核 |
-| sg/jurong | `Q13647385` | Masjid Al-Khair | Masjid Al-Khair | 译名待当地母语者复核 / 译名/保留当地专名；源名来自景点数据；部分仅英文/拉丁拼写，译法待当地母语者复核 |
-| sg/jurong | `Q4986869` | Bukit Batok Nature Park | 武吉巴督自然公园 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| sg/jurong | `Q134883157` | Masjid Pusara Aman | Masjid Pusara Aman | 译名待当地母语者复核 / 译名/保留当地专名；源名来自景点数据；部分仅英文/拉丁拼写，译法待当地母语者复核 |
-| sg/jurong | `Q4504909` | Church of St Mary of the Angels | Gereja Santa Maria dari Para Malaikat, Bukit Batok | 保留来源当地专名 / 保留来源当地名称（id） |
-| sg/changi | `Q2477258` | Masjid Al-Ansar | Masjid Al-Ansar | 译名待当地母语者复核 / 译名/保留当地专名；源名来自景点数据；部分仅英文/拉丁拼写，译法待当地母语者复核 |
-| sg/changi | `Q1088320` | Masjid Al-Mawaddah | Masjid Al-Mawaddah | 译名待当地母语者复核 / 译名/保留当地专名；源名来自景点数据；部分仅英文/拉丁拼写，译法待当地母语者复核 |
-| sg/changi | `Q4262113` | Masjid Darul Ghufran | Masjid Darul Ghufran | 译名待当地母语者复核 / 译名/保留当地专名；源名来自景点数据；部分仅英文/拉丁拼写，译法待当地母语者复核 |
-| sg/changi | `Q712057` | Masjid Al-Istiqamah | Masjid Al-Istiqamah | 译名待当地母语者复核 / 译名/保留当地专名；源名来自景点数据；部分仅英文/拉丁拼写，译法待当地母语者复核 |
-| sg/changi | `Q3720047` | Masjid Taha | Masjid Taha | 译名待当地母语者复核 / 译名/保留当地专名；源名来自景点数据；部分仅英文/拉丁拼写，译法待当地母语者复核 |
-| sg/changi | `Q4262083` | Masjid Al-Abdul Razak | Masjid Al-Abdul Razak | 译名待当地母语者复核 / 译名/保留当地专名；源名来自景点数据；部分仅英文/拉丁拼写，译法待当地母语者复核 |
-| sg/changi | `Q4262158` | Masjid Al-Istighfar | Masjid Al-Istighfar | 译名待当地母语者复核 / 译名/保留当地专名；源名来自景点数据；部分仅英文/拉丁拼写，译法待当地母语者复核 |
-| my/penang | `Q7586151` | Sri Mahamariamman Temple, Penang | Kuil Shri Mariamman, Pulau Pinang | 保留来源当地专名 / 保留来源当地名称（id） |
-| my/kotakinabalu | `Q15274240` | Sacred Heart Cathedral, Kota Kinabalu | Katedral Kota Kinabalu | 保留来源当地专名 / 保留来源当地名称（id） |
-| my/kotakinabalu | `Q1464088` | St. Michael's Church, Penampang | Gereja Santo Mikael, Penampang | 保留来源当地专名 / 保留来源当地名称（id） |
-| my/johor | `Q4749689` | An-Nur Kotaraya Mosque | An-Nur Kotaraya Mosque | 译名待当地母语者复核 / 译名/保留当地专名；源名来自景点数据；部分仅英文/拉丁拼写，译法待当地母语者复核 |
-| my/johor | `Q12904639` | Masjid Jamek Larkin | Masjid Jamek Larkin | 译名待当地母语者复核 / 译名/保留当地专名；源名来自景点数据；部分仅英文/拉丁拼写，译法待当地母语者复核 |
-| my/johor | `Q16869231` | Kolam Ayer Mosque | Kolam Ayer Mosque | 译名待当地母语者复核 / 译名/保留当地专名；源名来自景点数据；部分仅英文/拉丁拼写，译法待当地母语者复核 |
-| my/johor | `Q16874356` | Ungku Tun Aminah Mosque | Ungku Tun Aminah Mosque | 译名待当地母语者复核 / 译名/保留当地专名；源名来自景点数据；部分仅英文/拉丁拼写，译法待当地母语者复核 |
-| id/bali | `Q3025956` | Ubud Monkey Forest | Mandala Wisata Wenara Wana | 保留来源当地专名 / 保留来源当地名称（id） |
-| id/surabaya | `Q60674533` | House of Sampoerna | 三宝麟博物馆 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| id/surabaya | `Q12483951` | Church of the Birth of Our Lady, Surabaya | Gereja Katolik Kelahiran Santa Perawan Maria | 保留来源当地专名 / 保留来源当地名称（id） |
-| id/yogyakarta | `Q2551916` | Fort Vredeburg | Benteng Vredeburg | 保留来源当地专名 / 保留来源当地名称（id） |
-| id/yogyakarta | `Q4271636` | Sonobudoyo Museum | Museum Sonobudoyo | 保留来源当地专名 / 保留来源当地名称（id） |
-| id/yogyakarta | `Q12499663` | Dharma Wiratama Museum | Museum Pusat TNI AD "Dharma Wiratama" | 保留来源当地专名 / 保留来源当地名称（id） |
-| ph/manila | `Q1417648` | Masjid Al-Dahab | Masjid Al-Dahab Manila | 保留来源当地专名 / 保留来源当地名称（id） |
-| ph/cebu | `Q1869800` | Cebu Taoist Temple | 宿务道教寺 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| ph/cebu | `Q2110972` | Museo Sugbo | 宿务博物馆 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| ph/cebu | `Q5052254` | Cathedral Museum of Cebu | 宿务主教座堂博物馆 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| ph/davao | `Q19894703` | San Pedro Cathedral | Katedral Davao | 保留来源当地专名 / 保留来源当地名称（id） |
-| ph/davao | `Q16966803` | People's Park | 达沃人民公园 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
-| ph/davao | `Q28937529` | Magsaysay Park | 马格赛赛公园 | 译名待当地母语者复核 / 依当地通行地名直译；待当地母语者复核 |
 
-共 91 条缺中文标签记录；已配置人工/当地语言覆盖 91 个唯一 ID。
-
-## hospital-5f 收尾（2026-11-16 05:0x Asia/Saigon，Mac 包装环境实测）
-
-- 根因（探针，岘港 1280）：真正溢出的是 `.attr-scroll ul`（scrollWidth 1564 > clientWidth 971，overflow-x:auto，scroll-snap x mandatory）；`.attr-scroll` 为 overflow:visible（1564/971 → 971/971）。点击「下一组」后 ul.scrollLeft 0 → 593，功能正常；验收脚本读的是外层 `.attr-scroll` 的 scrollLeft，所以恒为 0。脚本改为读取 `.attr-scroll ul`。scroll-snap 未吞掉平滑滚动，无需改 scrollTo。
-- 箭头步长改为 3 ×（卡宽 + 列间距），一次前进 3 张卡；reduced-motion 下仍为 behavior:auto。
-- 390 间距：`.city-row summary` 已有 column-gap:8px。7 个报 0 的城市是收起状态的 `.city-extra`（display:none，尺寸全 0）。脚本先点「显示全部城市」再测量，12 个城市间距均 ≥ 8px 且不换行。
-- 结果：hospital-5-playwright 0 失败；hospital-3-playwright 0 失败；`node --test` 63/63 通过（本节取代上方 58/63 的记录）。
-- 页高（px）：danang 3772 / 2784，hcm 3654 / 2758，samutsakhon 3663 / 3000，bangkok 3423 / 2635（390 / 1280）。
-- 箭头随本次上线（未使用 视觉优化队列 #A1 降级方案）。
+共 0 条缺中文标签记录；已配置人工/当地语言覆盖 91 个唯一 ID。

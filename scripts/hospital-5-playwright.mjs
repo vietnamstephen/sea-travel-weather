@@ -27,24 +27,22 @@ try{
   await page.locator(`.city-row[data-city="${city}"] .attractions img`).evaluateAll(xs=>xs.forEach(x=>x.loading='eager'));
   await page.evaluate(()=>Promise.all([...document.querySelectorAll('.attractions img')].map(x=>x.decode().catch(()=>{}))));
   await page.waitForTimeout(350);
-  const measured=await page.evaluate(()=>({height:document.documentElement.scrollHeight,hospital:Math.ceil(document.querySelector('.hospitals')?.getBoundingClientRect().height||0),count:document.querySelectorAll('.hospitals li').length,phoneMin:Math.min(...[...document.querySelectorAll('.hosp-call')].map(x=>Math.round(x.getBoundingClientRect().height))),attractionCount:document.querySelectorAll('.attr-card').length,viewport:innerWidth}));
+  const measured=await page.evaluate(()=>({height:document.documentElement.scrollHeight,hospital:Math.ceil(document.querySelector('.hospitals')?.getBoundingClientRect().height||0),attractions:Math.ceil(document.querySelector('.attractions')?.getBoundingClientRect().height||0),count:document.querySelectorAll('.hospitals li').length,phoneMin:Math.min(...[...document.querySelectorAll('.hosp-call')].map(x=>Math.round(x.getBoundingClientRect().height))),attractionCount:document.querySelectorAll('.attr-card').length,viewport:innerWidth}));
   heights.push({country,city,width,...measured});
-  if(city==='danang'&&width===390){record(measured.hospital<=700,`Danang mobile hospitals ${measured.hospital}px > 700`);await page.evaluate(()=>{const h=document.querySelector('header');if(h)h.style.position='static';});await page.screenshot({path:join(out,'hospital-5-danang-390.png'),fullPage:true});}
+  if(city==='danang'&&width===390){record(measured.hospital<=700,`Danang mobile hospitals ${measured.hospital}px > 700`);record(measured.height>=3300&&measured.height<=3600,`Danang mobile page height ${measured.height}px not near 3455`);const hidden=await page.locator('.attr-nav,.attr-arrow').evaluateAll(xs=>xs.every(x=>getComputedStyle(x).display==='none'&&!x.getClientRects().length));record(hidden,'390px .attr-nav and .attr-arrow must be invisible');await page.evaluate(()=>{const h=document.querySelector('header');if(h)h.style.position='static';});await page.screenshot({path:join(out,'hospital-5-danang-390.png'),fullPage:true});}
   if(city==='danang'&&width===1280){
    const rail=page.locator('.attr-scroll'); await rail.waitFor();
    const railState=await rail.evaluate(el=>({overflow:el.classList.contains('has-overflow'),start:el.classList.contains('is-start'),prev:getComputedStyle(el.querySelector('.attr-prev')).display,next:getComputedStyle(el.querySelector('.attr-next')).display,mask:getComputedStyle(el.querySelector('ul')).maskImage}));
    record(railState.overflow,'Da Nang desktop rail should overflow');record(railState.start,'Da Nang desktop rail should start at beginning');record(railState.next!=='none'&&await page.locator('.attr-next').isVisible(),'next arrow should be visible at start');record(railState.prev==='none','previous arrow should hide at start');record(railState.mask!=='none','desktop rail mask should be active');
    await rail.screenshot({path:join(out,'hospital-5-danang-rail.png')});
-   await page.evaluate(()=>{const h=document.querySelector('header');if(h)h.style.position='static';});await page.screenshot({path:join(out,'hospital-5-danang-1280.png'),fullPage:true});
+   await page.evaluate(()=>{const h=document.querySelector('header');if(h)h.style.position='static';});
   }
   {
    const page=await browser.newPage({viewport:{width:390,height:900}});
    await page.goto(`http://127.0.0.1:${port}/vn.html?lang=zh`,{waitUntil:'networkidle'});
    const phu=page.locator('.city-row[data-city="phuquoc"]'); await phu.waitFor({state:'attached'});
-   await phu.screenshot({path:join(out,'hospital-5-phuquoc-collapsed.png')});
    record(await phu.locator('.hosp-jump').count()===0,'Phu Quoc collapsed row must not show the hospital marker when hospital count is zero');
    const danang=page.locator('.city-row[data-city="danang"]');
-   await danang.screenshot({path:join(out,'hospital-5-danang-collapsed.png')});
    // Expand the 7 collapsed .city-extra rows first: hidden rows have zero-size rects, so measuring them reported gap 0 (hospital-5f root cause).
    await page.locator('.city-more').click(); await page.locator('.city-row[data-city="dongnai"] summary').waitFor({state:'visible'});
    const layouts=await page.locator('.city-row summary').evaluateAll(rows=>rows.map(el=>{

@@ -710,7 +710,7 @@
       var items = ((data.countries[CID] || {})[city.id] || []).slice().sort(function(a,b) { return b.sitelinks-a.sitelinks; }).slice(0,8);
       if (!items.length) return;
       var local = ({vn:'vi',th:'th',id:'id'}[CID] || 'en');
-      function label(a) { var v=a.name || {}, manual=overrides[a.qid] || {}; if(LANG==='zh') return manual.zh || (v[local] && (v[local]!==v.en || /[^\x00-\x7f]/.test(v[local])) ? v[local] : ''); return v[LANG] || v[local] || ''; }
+      function label(a) { var v=a.name || {}, manual=overrides[a.qid] || {}; if(LANG==='zh') return manual.zh || (v.zh && v.zh!==v.en ? v.zh : '') || (v[local] && (v[local]!==v.en || /[^\x00-\x7f]/.test(v[local])) ? v[local] : ''); return v[LANG] || v[local] || ''; }
       function pin() { return '<svg aria-hidden="true"><use href="#i-map-pin"></use></svg>'; }
       function placeholder() { return '<div class="attr-placeholder" aria-hidden="true">'+pin()+'</div>'; }
       var section = document.createElement('section'); section.className = 'attractions';
@@ -722,7 +722,7 @@
           credit='<div class="attr-credit" title="'+esc(full)+'">'+(publicDomain?esc(full):'<span class="attr-author">📷 <a target="_blank" rel="noopener" href="'+esc(p.filePage)+'">'+esc(author)+'</a></span><span class="attr-sep" aria-hidden="true"> · </span><a class="attr-license" target="_blank" rel="noopener" href="'+esc(p.licenseUrl)+'">'+esc(p.license)+'</a>')+'</div>';
         }
         return '<li class="attr-card'+(i>=4?' attr-extra':'')+'"><div class="attr-media">'+(p?'<img loading="lazy" decoding="async" width="640" height="400" src="'+esc(p.thumb330)+'" srcset="'+esc(p.thumb330)+' '+p.width330+'w, '+esc(p.thumb500)+' '+p.width500+'w" sizes="(min-width: 640px) 220px, 156px" alt="'+esc(name)+'">':placeholder())+'</div><div class="attr-name">'+esc(name)+'</div>'+(intro?'<div class="attr-intro">'+esc(intro)+'</div>':'')+credit+'<a class="attr-map" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query='+encodeURIComponent(a.lat+','+a.lng)+'" aria-label="'+esc(t('attr.mapAria').replace('{name}',name))+'">'+pin()+esc(t('attr.map'))+'</a></li>';
-      }).join('')+'</ul>'+(items.length>4?'<button class="attr-arrow attr-prev" type="button" aria-label="'+esc(t('attr.prev'))+'"><svg aria-hidden="true"><use href="#i-caret"></use></svg></button><button class="attr-arrow attr-next" type="button" aria-label="'+esc(t('attr.next'))+'"><svg aria-hidden="true"><use href="#i-caret"></use></svg></button>':'')+'</div>'+(items.length>4?'<button class="attr-more" type="button" aria-expanded="false">'+esc(t('attr.more').replace('{n}',items.length-4))+'</button>':'');
+      }).join('')+'</ul>'+(items.length>4?'<div class="attr-nav"><button class="attr-arrow attr-prev" type="button" aria-label="'+esc(t('attr.prev'))+'"><svg aria-hidden="true" width="18" height="18"><use href="#i-caret"></use></svg></button><button class="attr-arrow attr-next" type="button" aria-label="'+esc(t('attr.next'))+'"><svg aria-hidden="true" width="18" height="18"><use href="#i-caret"></use></svg></button></div>':'')+'</div>'+(items.length>4?'<button class="attr-more" type="button" aria-expanded="false">'+esc(t('attr.more').replace('{n}',items.length-4))+'</button>':'');
       row.querySelector('.city-card').appendChild(section);
       section.querySelectorAll('img').forEach(function(img) { img.addEventListener('error',function() {
         var credit=img.closest('.attr-card'); img.parentNode.innerHTML=placeholder();
