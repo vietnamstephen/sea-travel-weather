@@ -113,11 +113,11 @@ test('default 3 / more up to 6; 0-family empty; 1-family no more; reduced cap 5'
   const danang = data.countries.vn.danang.length;
   const phuquoc = data.countries.vn.phuquoc.length;
   const bangkok = data.countries.th.bangkok.length;
-  assert.equal(danang, 6);
+  assert.equal(danang, 5, 'exclude non-hospital district health center');
   assert.equal(phuquoc, 0);
   assert.equal(bangkok, 1);
   assert.equal(F.hospitalVisible(data.countries.vn.danang, false, 6).length, 3);
-  assert.equal(F.hospitalVisible(data.countries.vn.danang, true, 6).length, 6);
+  assert.equal(F.hospitalVisible(data.countries.vn.danang, true, 6).length, 5);
   assert.equal(F.hospitalShowMore(data.countries.vn.phuquoc, false, 6), false);
   assert.equal(F.hospitalShowMore(data.countries.th.bangkok, false, 6), false);
 });
@@ -139,6 +139,15 @@ test('emergency number read by country from data meta (not hardcoded in UI)', ()
   assert.match(render, /num = hospitalEmergency\(meta, CID\)/);
   assert.match(render, /hosp-emergency"\s+href="tel:' \+ esc\(num\)/);
   assert.ok(!/\b(115|1669|119)\b/.test(render), 'no literal emergency number in renderHospitals');
+});
+
+test('district health centers are excluded and verified Vietnamese hospital spelling is restored', () => {
+  const vn = Object.values(data.countries.vn).flat() as any[];
+  assert.ok(!vn.some((h) => h.id === 'osm:way/1226646134'), 'district health center is primary care, not a hospital');
+  const binhDan = vn.find((h) => h.id === 'osm:node/729405667');
+  assert.ok(binhDan);
+  assert.equal(binhDan.name.vi, 'Bệnh viện Đa khoa Bình Dân');
+  assert.match(binhDan.reviewNote, /binhdanhospital\.vn/);
 });
 
 test('local phone format beside E.164 tel:', () => {

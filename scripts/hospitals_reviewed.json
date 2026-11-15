@@ -101,20 +101,14 @@
     "checkedAt": "2026-11-15",
     "pti": true,
     "ptiSource": "https://new.pti.com.vn/wp-content/uploads/2026/10/Danh-sach-CSYT-bao-lanh-qua-INSMART.pdf",
-    "reviewNote": "INSMART DNPOPULARHOS and FHVI row 57. Distinct from unverified duplicate/other Binh Dan record."
-  },
-  "way/1226646134": {
-    "city": "danang",
-    "ownership": "public",
-    "phone": "+842363895192",
-    "address": "38 Cao Thắng, Đà Nẵng",
-    "source": "https://ttythaichau.danang.vn/thong-tin-lien-he",
-    "intl": false,
-    "er24": false,
-    "checkedAt": "2026-11-15",
-    "pti": false,
-    "ptiSource": null,
-    "reviewNote": ""
+    "reviewNote": "INSMART DNPOPULARHOS and FHVI row 57. Distinct from unverified duplicate/other Binh Dan record. Official facility name verified at https://binhdanhospital.vn/ and Ministry of Health provider registry; accent-restored.",
+    "name": {
+      "zh": "Bệnh viện Đa khoa Bình Dân",
+      "en": "Bệnh viện Đa khoa Bình Dân",
+      "vi": "Bệnh viện Đa khoa Bình Dân",
+      "th": "Bệnh viện Đa khoa Bình Dân",
+      "id": "Bệnh viện Đa khoa Bình Dân"
+    }
   },
   "way/1167738442": {
     "city": "nhatrang",

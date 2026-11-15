@@ -223,10 +223,10 @@
       "danang": {
         "osmCandidates": 10,
         "osmWithPhone": 1,
-        "published": 6,
-        "publishedWithPhone": 6,
+        "published": 5,
+        "publishedWithPhone": 5,
         "publishedPhonePercent": 100,
-        "verifiedPhoneCandidatePercent": 60.0,
+        "verifiedPhoneCandidatePercent": 50.0,
         "osmSourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=108.197722,16.057444,108.221722,16.081444",
         "bboxDelta": 0.012
       },
@@ -547,11 +547,11 @@
           "id": "osm:node/729405667",
           "city": "danang",
           "name": {
-            "zh": "Benh Vien Da Khoa Binh Dan",
-            "en": "Benh Vien Da Khoa Binh Dan",
-            "vi": "Benh Vien Da Khoa Binh Dan",
-            "th": "Benh Vien Da Khoa Binh Dan",
-            "id": "Benh Vien Da Khoa Binh Dan"
+            "zh": "Bệnh viện Đa khoa Bình Dân",
+            "en": "Bệnh viện Đa khoa Bình Dân",
+            "vi": "Bệnh viện Đa khoa Bình Dân",
+            "th": "Bệnh viện Đa khoa Bình Dân",
+            "id": "Bệnh viện Đa khoa Bình Dân"
           },
           "ownership": "private",
           "intl": false,
@@ -569,7 +569,7 @@
           "checkedAt": "2026-11-15",
           "ptiCheckedAt": "2026-11-15",
           "ptiSource": "https://new.pti.com.vn/wp-content/uploads/2026/10/Danh-sach-CSYT-bao-lanh-qua-INSMART.pdf",
-          "reviewNote": "INSMART DNPOPULARHOS and FHVI row 57. Distinct from unverified duplicate/other Binh Dan record."
+          "reviewNote": "INSMART DNPOPULARHOS and FHVI row 57. Distinct from unverified duplicate/other Binh Dan record. Official facility name verified at https://binhdanhospital.vn/ and Ministry of Health provider registry; accent-restored."
         },
         {
           "id": "osm:node/7541325568",
@@ -628,34 +628,6 @@
           "reviewNote": "INSMART DANANGHOS. Listing explicitly excludes emergency department direct billing; tooltip must state service/policy conditions apply."
         },
         {
-          "id": "osm:way/1226646134",
-          "city": "danang",
-          "name": {
-            "zh": "Trung tâm Y tế quận Hải Châu",
-            "en": "Trung tâm Y tế quận Hải Châu",
-            "vi": "Trung tâm Y tế quận Hải Châu",
-            "th": "Trung tâm Y tế quận Hải Châu",
-            "id": "Trung tâm Y tế quận Hải Châu"
-          },
-          "ownership": "public",
-          "intl": false,
-          "pti": false,
-          "er24": false,
-          "address": "38 Cao Thắng, Đà Nẵng",
-          "phone": "+842363895192",
-          "lat": 16.07644537142857,
-          "lng": 108.21427137142857,
-          "rank": 5,
-          "sources": [
-            "https://www.openstreetmap.org/way/1226646134",
-            "https://ttythaichau.danang.vn/thong-tin-lien-he"
-          ],
-          "checkedAt": "2026-11-15",
-          "ptiCheckedAt": null,
-          "ptiSource": null,
-          "reviewNote": ""
-        },
-        {
           "id": "osm:way/372433951",
           "city": "danang",
           "name": {
@@ -673,7 +645,7 @@
           "phone": "+842363821480",
           "lat": 16.072986375,
           "lng": 108.21688540000001,
-          "rank": 6,
+          "rank": 5,
           "sources": [
             "https://www.openstreetmap.org/way/372433951",
             "https://bvcdn.org.vn/lien-he/"

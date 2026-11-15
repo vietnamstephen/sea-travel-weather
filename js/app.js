@@ -858,8 +858,7 @@
           '<div class="hosp-address" title="' + esc(h.address) + '">' + esc(h.address) + "</div>" +
           '<div class="hosp-actions">' +
             '<a class="hosp-call" href="tel:' + esc(h.phone) + '" aria-label="' +
-              esc(t("hosp.callAria").replace("{name}", name).replace("{phone}", h.phone)) + '">📞 ' + esc(t("hosp.call")) + "</a>" +
-            '<span class="hosp-phone">' + esc(hospitalLocalPhone(h.phone, CID)) + "</span>" +
+              esc(t("hosp.callAria").replace("{name}", name).replace("{phone}", h.phone)) + '">📞 ' + esc(hospitalLocalPhone(h.phone, CID)) + "</a>" +
             '<a class="hosp-map" target="_blank" rel="noopener" aria-label="' +
               esc(t("hosp.mapAria").replace("{name}", name)) + '" href="https://www.google.com/maps/search/?api=1&amp;query=' +
               esc(h.lat) + "," + esc(h.lng) + '">📍 ' + esc(t("hosp.map")) + "</a>" +
