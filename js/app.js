@@ -734,6 +734,98 @@
     });
   }
 
+
+  var hospitalsRequest, hospitalPosition, hospitalPending = false, hospitalError = "";
+  try {
+    hospitalPosition = JSON.parse(sessionStorage.getItem("hospitalPosition") || "null");
+  } catch (e) {
+  }
+  function hospitalDistance(a, b) {
+    var rad = Math.PI / 180, x = (b.lat - a.lat) * rad, y = (b.lng - a.lng) * rad;
+    return 6371 * 2 * Math.asin(Math.sqrt(Math.sin(x / 2) ** 2 + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(y / 2) ** 2));
+  }
+  function hospitalToggle(row, jump) {
+    if (!["vn", "th"].includes(CID)) return;
+    var old = row.querySelector(".hospitals");
+    if (!row.open) {
+      if (old) old.remove();
+      return;
+    }
+    if (old) {
+      if (jump) old.scrollIntoView({ block: "start" });
+      return;
+    }
+    if (!hospitalsRequest) hospitalsRequest = fetch("data/hospitals.json").then(function(r) {
+      if (!r.ok) throw Error();
+      return r.json();
+    }).catch(function() {
+      return { meta: { updatedAt: "—" }, countries: {} };
+    });
+    hospitalsRequest.then(function(data) {
+      if (!row.open || !row.isConnected) return;
+      var section = row.querySelector(".hospitals");
+      if (!section) {
+        section = document.createElement("section");
+        section.className = "hospitals";
+        row.querySelector(".city-card").insertBefore(section, row.querySelector(".attractions"));
+      }
+      section.hospitalData = data;
+      section.hospitalCity = row.dataset.city;
+      renderHospitals(section);
+      if (jump) section.scrollIntoView({ block: "start" });
+    });
+  }
+  function renderHospitals(section) {
+    var data = section.hospitalData, city = section.hospitalCity, meta = data.meta;
+    var items = (((data.countries || {})[CID] || {})[city] || []).slice();
+    items.sort(function(a, b2) {
+      return hospitalPosition ? hospitalDistance(hospitalPosition, a) - hospitalDistance(hospitalPosition, b2) : a.rank - b2.rank;
+    });
+    items = items.slice(0, 6);
+    var more = section.dataset.more === "true", c = R.countryById(CID), num = c.emergency.ambulance;
+    var supported = window.isSecureContext && navigator.geolocation;
+    var far = hospitalPosition && meta.origins && meta.origins[city] && hospitalDistance(hospitalPosition, { lat: meta.origins[city].lat, lng: meta.origins[city].lon }) > 50;
+    section.innerHTML = '<div class="hosp-heading"><h3>' + esc(t("hosp.title")) + "</h3>" + (supported ? '<div><button class="hosp-locate" ' + (hospitalPending ? "disabled" : "") + ">" + esc(t(hospitalPending ? "hosp.loading" : hospitalPosition ? "hosp.sorted" : "hosp.locate")) + "</button>" + (hospitalPosition ? '<button class="hosp-relocate">' + esc(t("hosp.relocate")) + "</button>" : "") + "</div>" : "") + '</div><div class="hosp-status" aria-live="polite">' + esc(hospitalError ? t(hospitalError) : far ? t("hosp.far") : hospitalPosition ? t("hosp.sorted") : "") + '</div><a class="hosp-emergency" href="tel:' + num + '">' + esc(t("hosp.emergency")) + " " + num + '</a><ul role="list">' + items.slice(0, more ? 6 : 3).map(function(h) {
+      var name = h.name[LANG] || h.name[CID === "vn" ? "vi" : "th"] || h.name.en, d = hospitalPosition ? hospitalDistance(hospitalPosition, h) : null;
+      return '<li><div class="hosp-name"><strong>' + esc(name) + '</strong><span class="hosp-badges"><span>' + esc(t("hosp.badge." + h.ownership)) + "</span>" + (h.intl ? '<span class="intl">' + esc(t("hosp.badge.intl")) + "</span>" : "") + (h.pti ? '<span class="pti" title="' + esc(t("hosp.ptiTip")) + '">' + esc(t("hosp.badge.pti")) + "</span>" : "") + '</span></div><div class="hosp-address" title="' + esc(h.address) + '">' + esc(h.address) + '</div><div class="hosp-actions"><a class="hosp-call" href="tel:' + esc(h.phone) + '" aria-label="' + esc(t("hosp.callAria").replace("{name}", name).replace("{phone}", h.phone)) + '">📞 ' + esc(t("hosp.call")) + '</a><span class="hosp-phone">' + esc(h.phone.replace(CID === "vn" ? /^\+84/ : /^\+66/, "0")) + '</span><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=' + h.lat + "," + h.lng + '">📍 ' + esc(t("hosp.map")) + "</a>" + (d !== null ? '<span class="hosp-distance">' + (d < 1 ? Math.round(d * 1e3) + " m" : d.toFixed(1) + " km") + "</span>" : "") + "</div></li>";
+    }).join("") + "</ul>" + (!items.length ? "<p>" + esc(t("hosp.empty")) + "</p>" : "") + (items.length > 3 && !more ? '<button class="hosp-more" aria-expanded="false">' + esc(t("hosp.more").replace("{n}", items.length - 3)) + "</button>" : "") + '<div class="hosp-note">' + esc(t("hosp.note")) + ' <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OSM · ODbL</a> · ' + esc(meta.updatedAt) + "</div>";
+    var b = section.querySelector(".hosp-more");
+    if (b) b.onclick = function() {
+      section.dataset.more = "true";
+      renderHospitals(section);
+    };
+    section.querySelectorAll(".hosp-locate,.hosp-relocate").forEach(function(b2) {
+      b2.onclick = locateHospitals;
+    });
+  }
+  function locateHospitals() {
+    if (hospitalPending) return;
+    hospitalPending = true;
+    hospitalError = "";
+    function refresh() {
+      document.querySelectorAll(".hospitals").forEach(renderHospitals);
+    }
+    refresh();
+    navigator.geolocation.getCurrentPosition(function(p) {
+      hospitalPending = false;
+      hospitalPosition = { lat: p.coords.latitude, lng: p.coords.longitude };
+      try {
+        sessionStorage.setItem("hospitalPosition", JSON.stringify(hospitalPosition));
+      } catch (e) {
+      }
+      refresh();
+    }, function(e) {
+      hospitalPending = false;
+      hospitalPosition = null;
+      try {
+        sessionStorage.removeItem("hospitalPosition");
+      } catch (ignore) {
+      }
+      hospitalError = e.code === 1 ? "hosp.denied" : "hosp.failed";
+      refresh();
+    }, { timeout: 1e4, maximumAge: 6e4 });
+  }
+  
   function cityCard(c, city) {
     var wc = weatherCity(c.id, city.id);
     var cr = R.cityRisk(wc, city, hourKey(c.tz));
@@ -824,7 +916,7 @@
     html += '</div></div><section class="section country-cities">' + sectionHead('country.citiesTitle', 'country.citiesHint').replace('</h2>', '</h2>' + SEA_OUTFIT.switcher());
     c.cities.slice().sort(function (a, b) { return R.cityRisk(weatherCity(c.id, b.id), b, hourKey(c.tz)).level - R.cityRisk(weatherCity(c.id, a.id), a, hourKey(c.tz)).level; }).forEach(function (city, i) {
       var risk = R.cityRisk(weatherCity(c.id, city.id), city, hourKey(c.tz));
-      html += '<details data-city="' + esc(city.id) + '" class="city-row' + (i >= 5 ? ' city-extra' : '') + '"><summary>' + '<span class="city-name">' + esc(loc(city.name)) + '</span> ' + badge(risk.level) + '<span class="city-metrics">' + esc(cityMetrics(c, city)) + '</span></summary>' + cityCard(c, city) + '</details>';
+      html += '<details data-city="' + esc(city.id) + '" class="city-row' + (i >= 5 ? ' city-extra' : '') + '"><summary>' + '<span class="city-name">' + esc(loc(city.name)) + '</span> ' + badge(risk.level) + (['vn','th'].includes(CID) ? '<button type="button" class="hosp-jump">🏥 '+esc(t('hosp.short'))+'</button>' : '') + '<span class="city-metrics">' + esc(cityMetrics(c, city)) + '</span></summary>' + cityCard(c, city) + '</details>';
     });
     html += '<button type="button" class="pill city-more" aria-expanded="false">' + esc(t('country.showAll')) + '</button></section>';
 
@@ -1041,7 +1133,8 @@
     var footer = document.querySelector('.footer > .panel');
     var old = footer.querySelector('#defs'); if (old) old.closest('.section').remove();
     footer.prepend(sections[7]);
-    document.querySelectorAll('.city-row').forEach(function (row) { row.addEventListener('toggle',function () { attractionToggle(row, R.countryById(CID).cities.find(function(city) { return city.id === row.dataset.city; })); if (row.open) document.querySelectorAll('.city-row').forEach(function (other) { if (other !== row) other.open = false; }); }); });
+    document.querySelectorAll('.city-row').forEach(function (row) { row.addEventListener('toggle',function () { hospitalToggle(row); attractionToggle(row, R.countryById(CID).cities.find(function(city) { return city.id === row.dataset.city; })); if (row.open) document.querySelectorAll('.city-row').forEach(function (other) { if (other !== row) other.open = false; }); }); });
+    main.querySelectorAll('.hosp-jump').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();var row=b.closest('details');row.open=true;hospitalToggle(row,true);});});
     var more = main.querySelector('.city-more'); more.addEventListener('click',function () { var open = more.getAttribute('aria-expanded') !== 'true'; more.setAttribute('aria-expanded',String(open)); main.querySelector('.country-cities').classList.toggle('show-all',open); more.textContent = t(open ? 'country.showLess' : 'country.showAll'); });
     select(selected,false);
     if (location.hash && !hashTab()) window.onhashchange();
