@@ -1,0 +1,2080 @@
+{
+  "checkedAt": "2026-11-15",
+  "cities": {
+    "bangkok": {
+      "elements": [
+        {
+          "type": "node",
+          "id": 9729267417,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Huachiew TCM",
+            "opening_hours": "Mo-Su 08:00-16:00",
+            "phone": "02-223-1111",
+            "website": "http://huachiewtcm.com"
+          },
+          "center": {
+            "lat": 13.7501618,
+            "lon": 100.5165921
+          }
+        },
+        {
+          "type": "node",
+          "id": 14087349801,
+          "tags": {
+            "amenity": "hospital"
+          },
+          "center": {
+            "lat": 13.7493471,
+            "lon": 100.5155366
+          }
+        },
+        {
+          "type": "way",
+          "id": 164007674,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "โรงพยาบาลธนบุรีบำรุงเมือง",
+            "name:en": "Thonburi Bumrungmuang Hospital",
+            "name:th": "โรงพยาบาลธนบุรีบำรุงเมือง"
+          },
+          "center": {
+            "lat": 13.750425612499999,
+            "lon": 100.514475425
+          }
+        },
+        {
+          "type": "way",
+          "id": 164007675,
+          "tags": {
+            "amenity": "hospital",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "name": "โรงพยาบาลหัวเฉียว",
+            "name:en": "Hua Chiew Hospital",
+            "name:th": "โรงพยาบาลหัวเฉียว",
+            "short_name:th": "หัวเฉียว",
+            "website": "https://www.huachiewhospital.com/",
+            "wikidata": "Q13026869"
+          },
+          "center": {
+            "lat": 13.75009556,
+            "lon": 100.51546486
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=100.510667,13.744000,100.522667,13.756000",
+      "bboxDelta": 0.006
+    },
+    "phuket": {
+      "elements": [
+        {
+          "type": "way",
+          "id": 487935968,
+          "tags": {
+            "amenity": "hospital",
+            "building": "yes",
+            "building:levels": "8",
+            "healthcare": "hospital",
+            "name": "Phuket Provincial Hospital",
+            "roof:colour": "#008000",
+            "website": "https://phuketcityhospital.org"
+          },
+          "center": {
+            "lat": 7.881085677777778,
+            "lon": 98.40491151666667
+          }
+        },
+        {
+          "type": "way",
+          "id": 1547798607,
+          "tags": {
+            "addr:country": "Thailand",
+            "addr:district": "เมืองภูเก็ต",
+            "addr:postcode": "83000",
+            "addr:province": "ภูเก็ต",
+            "addr:province:en": "Phuket",
+            "addr:street": "อนุภาษภูเก็ตการ",
+            "addr:subdistrict": "ตลาดใหญ่",
+            "alt_name": "โรงพยาบาลอบจ.ภูเก็ต",
+            "alt_name:th": "โรงพยาบาลอบจ.ภูเก็ต",
+            "amenity": "hospital",
+            "country": "ไทย",
+            "healthcare": "hospital",
+            "name": "โรงพยาบาลองค์การบริหารส่วนจังหวัดภูเก็ต",
+            "name:en": "Phuket PAO Hospital",
+            "name:th": "โรงพยาบาลองค์การบริหารส่วนจังหวัดภูเก็ต",
+            "official_name": "โรงพยาบาลองค์การบริหารส่วนจังหวัดภูเก็ต",
+            "official_name:en": "Phuket Provincial Administrative Organization Hospital",
+            "official_name:th": "โรงพยาบาลองค์การบริหารส่วนจังหวัดภูเก็ต",
+            "operator": "Ministry of Public Health",
+            "operator:short": "MOPH",
+            "operator:type": "government",
+            "operator:wikidata": "Q5970641",
+            "province": "ภูเก็ต",
+            "short_name": "โรงพยาบาลอบจ.ภูเก็ต",
+            "website": "https://www.phuketcityhospital.org/"
+          },
+          "center": {
+            "lat": 7.881501304545455,
+            "lon": 98.40474994545455
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=98.385500,7.876056,98.409500,7.900056",
+      "bboxDelta": 0.012
+    },
+    "chonburi": {
+      "elements": [
+        {
+          "type": "node",
+          "id": 5646661721,
+          "tags": {
+            "addr:city": "เสม็ด",
+            "addr:housenumber": "300",
+            "addr:postcode": "20000",
+            "addr:street": "ซอยนารถมนตเสวี 13",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "healthcare:speciality": "oncology",
+            "name": "ศูนย์มะเร็งชลบุรี",
+            "name:en": "Chonburi Cancer Center",
+            "operator": "สถาบันมะเร็งแห่งชาติ",
+            "operator:type": "public"
+          },
+          "center": {
+            "lat": 13.3442803,
+            "lon": 100.9529983
+          }
+        },
+        {
+          "type": "node",
+          "id": 7856667469,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "โรงพยาบาลชลเวช",
+            "name:en": "Chonlawet Hospital",
+            "name:th": "โรงพยาบาลชลเวช"
+          },
+          "center": {
+            "lat": 13.3628467,
+            "lon": 100.9860921
+          }
+        },
+        {
+          "type": "node",
+          "id": 7856667470,
+          "tags": {
+            "amenity": "hospital",
+            "name": "โรงพยาบาลค่ายนวมินทราชินี",
+            "name:en": "Khai Nawamintharachini Hospital"
+          },
+          "center": {
+            "lat": 13.3869216,
+            "lon": 100.9909254
+          }
+        },
+        {
+          "type": "node",
+          "id": 13441717126,
+          "tags": {
+            "addr:district": "เมือง",
+            "addr:housenumber": "239/21",
+            "addr:place": "3",
+            "addr:postcode": "20000",
+            "addr:province": "ชลบุรี",
+            "addr:street": "ถนนพระยาสัจจา",
+            "addr:subdistrict": "บ้านสวน",
+            "amenity": "hospital",
+            "contact:facebook": "https://www.facebook.com/profile.php?id=61583553064849",
+            "healthcare": "hospital",
+            "healthcare:speciality": "gynaecology;urology;fertility",
+            "internet_access:ssid": "มี",
+            "level": "3",
+            "mobile": "+66 81 160 1680",
+            "name": "คลินิกสูตินรีเวชหมอพรทิพย์",
+            "name:en": "Dr.Pornthip",
+            "name:th": "คลินิกสูตินรีเวชหมอพรทิพย์",
+            "operator": "หมอพรทิพย์",
+            "operator:type": "private",
+            "wheelchair": "yes"
+          },
+          "center": {
+            "lat": 13.3450348,
+            "lon": 100.9675076
+          }
+        },
+        {
+          "type": "way",
+          "id": 115844597,
+          "tags": {
+            "amenity": "hospital",
+            "building": "hospital",
+            "name": "โรงพยาบาลเอกชล",
+            "name:en": "Aikchol Hospital",
+            "source": "Bing Sat"
+          },
+          "center": {
+            "lat": 13.354876856,
+            "lon": 100.97611807199999
+          }
+        },
+        {
+          "type": "way",
+          "id": 525523960,
+          "tags": {
+            "amenity": "hospital",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "name": "โรงพยาบาลชลบุรี",
+            "name:en": "Chonburi Hospital",
+            "opening_hours": "24/7",
+            "website": "http://www.cbh.moph.go.th/"
+          },
+          "center": {
+            "lat": 13.351467628571429,
+            "lon": 100.98198877142856
+          }
+        },
+        {
+          "type": "way",
+          "id": 565018836,
+          "tags": {
+            "addr:country": "TH",
+            "addr:district": "เมืองชลบุรี",
+            "addr:housenumber": "888/88 Village No.3",
+            "addr:postcode": "20000",
+            "addr:province": "ชลบุรี",
+            "addr:street": "ถนนสุขุมวิท",
+            "addr:subdistrict": "บางปลาสร้อย",
+            "amenity": "hospital",
+            "building": "hospital",
+            "healthcare": "hospital",
+            "layer": "1",
+            "name": "Samitivej Chonburi",
+            "name:th": "โรงพยาบาลสมิติเวช ชลบุรี"
+          },
+          "center": {
+            "lat": 13.34498165,
+            "lon": 100.97624919285714
+          }
+        },
+        {
+          "type": "way",
+          "id": 1378308437,
+          "tags": {
+            "addr:district": "เมือง",
+            "addr:housenumber": "103/78",
+            "addr:place": "2",
+            "addr:postcode": "20000",
+            "addr:province": "ชลบุรี",
+            "addr:subdistrict": "เสม็ด",
+            "amenity": "hospital",
+            "contact:facebook": "https://web.facebook.com/profile.php?id=61575520824877",
+            "healthcare": "hospital",
+            "healthcare:speciality": "acupuncture;traditional_chinese_medicine",
+            "name": "ณัฐณิชา คลินิกฝังเข็ม",
+            "opening_hours": "จันทร์ - ศุกร์ 17.00 - 20.00 น. : เสาร์ - อาทิตย์ 09.00 - 15.00 น. หยุดทุกวันพุธ",
+            "wheelchair": "yes"
+          },
+          "center": {
+            "lat": 13.33893062,
+            "lon": 100.95102564
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=100.95,13.326111111111,101.02,13.396111111111",
+      "bboxDelta": 0.035
+    },
+    "hcm": {
+      "elements": [
+        {
+          "type": "node",
+          "id": 947763632,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Trung Tâm Y Tế Dự Phòng - Phòng Khám Tiêm Phòng"
+          },
+          "center": {
+            "lat": 10.764268,
+            "lon": 106.707021
+          }
+        },
+        {
+          "type": "node",
+          "id": 2930719503,
+          "tags": {
+            "addr:housenumber": "8",
+            "addr:street": "Alexandre de Rhodes",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Columbia Asia Saigon",
+            "operator": "Columbia Asia",
+            "operator:type": "private",
+            "operator:wikidata": "Q5149612"
+          },
+          "center": {
+            "lat": 10.7795758,
+            "lon": 106.6965213
+          }
+        },
+        {
+          "type": "node",
+          "id": 4265539889,
+          "tags": {
+            "addr:housenumber": "100",
+            "addr:street": "Lê Thị Riêng",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh Viện Mắt Sài Gòn"
+          },
+          "center": {
+            "lat": 10.7713711,
+            "lon": 106.6909391
+          }
+        },
+        {
+          "type": "node",
+          "id": 9965185460,
+          "tags": {
+            "addr:housenumber": "235-237",
+            "addr:street": "Trần Hưng Ðạo",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Đa khoa Tân Định - Cơ sở 2"
+          },
+          "center": {
+            "lat": 10.7651115,
+            "lon": 106.6932273
+          }
+        },
+        {
+          "type": "way",
+          "id": 187895176,
+          "tags": {
+            "addr:city": "Ho Chi Minh City",
+            "addr:housenumber": "14",
+            "addr:street": "Lý Tự Trọng",
+            "addr:subdistrict": "Sài Gòn",
+            "amenity": "hospital",
+            "description": "One of the main hospital in HCMC specialized in treating children from 0-16",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "healthcare:speciality": "general",
+            "heritage": "4",
+            "name": "Bệnh viện Nhi đồng 2",
+            "name:en": "Children's Hospital No 2",
+            "name:vi": "Bệnh viện Nhi đồng 2",
+            "name:zh": "二号儿童医院",
+            "old_name": "Hôpital Grall;Bệnh viện Đồn Đất",
+            "old_name:en": "Grall Hospital",
+            "old_name:fr": "Hôpital Grall",
+            "old_name:vi": "Bệnh viện Grall",
+            "operator": "Sở Y tế Thành phố Hồ Chí Minh",
+            "phone": "+84 28 3829 5723",
+            "start_date": "1870s",
+            "website": "http://www.benhviennhi.org.vn",
+            "wheelchair": "yes",
+            "wikidata": "Q30293454",
+            "wikimedia_commons": "Category:Children's Hospital 2",
+            "wikipedia": "vi:Bệnh viện Nhi đồng 2"
+          },
+          "center": {
+            "lat": 10.782152368421052,
+            "lon": 106.70283962105263
+          }
+        },
+        {
+          "type": "way",
+          "id": 187949834,
+          "tags": {
+            "addr:housenumber": "125",
+            "addr:postcode": "71006",
+            "addr:street": "Lê Lợi",
+            "amenity": "hospital",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Nhân dân Gia Định - Cơ sở 2",
+            "old_name": "Bệnh viện Đa khoa Sài Gòn",
+            "old_name:cja-Latn": "Sang ruak Baigaon",
+            "old_name:cjm-Latn": "Sang ruak Baigaon",
+            "old_name:de": "Krankenhausgelände",
+            "old_name:en": "Saigon General Hospital",
+            "old_name:id": "Rumah Sakit Umum Saigon",
+            "old_name:zh": "西贡多科医院",
+            "wikidata": "Q10743499",
+            "wikimedia_commons": "Category:Saigon General Hospital",
+            "wikipedia": "vi:Bệnh viện Đa khoa Sài Gòn"
+          },
+          "center": {
+            "lat": 10.771943142857143,
+            "lon": 106.69955902857143
+          }
+        },
+        {
+          "type": "way",
+          "id": 187949844,
+          "tags": {
+            "amenity": "hospital",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Đa khoa Khánh Hội",
+            "name:en": "Khanh Hoi General Hospital",
+            "old_name": "Bệnh viện Quận 4"
+          },
+          "center": {
+            "lat": 10.765309980000001,
+            "lon": 106.70223852
+          }
+        },
+        {
+          "type": "way",
+          "id": 464313918,
+          "tags": {
+            "addr:housenumber": "263 - 265",
+            "addr:street": "Đường Trần Hưng Ðạo",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Răng Hàm Mặt",
+            "operator": "Sở Y tế Thành phố Hồ Chí Minh",
+            "phone": "02838360191"
+          },
+          "center": {
+            "lat": 10.76343848,
+            "lon": 106.69180968
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=106.689944,10.763556,106.713944,10.787556",
+      "bboxDelta": 0.012
+    },
+    "chachoengsao": {
+      "elements": [
+        {
+          "type": "node",
+          "id": 1597544742,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital"
+          },
+          "center": {
+            "lat": 13.6844421,
+            "lon": 101.0732375
+          }
+        },
+        {
+          "type": "node",
+          "id": 6275678385,
+          "tags": {
+            "amenity": "hospital"
+          },
+          "center": {
+            "lat": 13.6629934,
+            "lon": 101.1048556
+          }
+        },
+        {
+          "type": "way",
+          "id": 951328140,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "โรงพยาบาลเกษมราช"
+          },
+          "center": {
+            "lat": 13.695490793333333,
+            "lon": 101.05123245333334
+          }
+        },
+        {
+          "type": "way",
+          "id": 951490452,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "โรงพยาบาลพุทธโสธร",
+            "name:th": "โรงพยาบาลพุทธโสธร"
+          },
+          "center": {
+            "lat": 13.686464554545454,
+            "lon": 101.07299571818182
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=101.03527777777778,13.655277777777778,101.10527777777777,13.725277777777778",
+      "bboxDelta": 0.035
+    },
+    "quynhon": {
+      "elements": [
+        {
+          "type": "node",
+          "id": 4655280590,
+          "tags": {
+            "addr:street": "Điện Biên Phủ",
+            "amenity": "hospital",
+            "name": "Trung Tam y te du phong tinh binh dinh (Vaccination center)",
+            "name:en": "Preventive medical center of binh dinh province (Vaccination center )",
+            "name:vi": "Trung Tam y te du phong tinh binh dinh (Vaccination center)"
+          },
+          "center": {
+            "lat": 13.7927447,
+            "lon": 109.2045626
+          }
+        },
+        {
+          "type": "way",
+          "id": 966205254,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Quân y 13"
+          },
+          "center": {
+            "lat": 13.751169107142857,
+            "lon": 109.21415182142857
+          }
+        },
+        {
+          "type": "way",
+          "id": 1182641282,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Chỉnh hình và Phục hồi chức năng Quy Nhơn"
+          },
+          "center": {
+            "lat": 13.758152088888888,
+            "lon": 109.20926093333334
+          }
+        },
+        {
+          "type": "way",
+          "id": 1236021585,
+          "tags": {
+            "addr:housenumber": "114",
+            "addr:street": "Trần Hưng Đạo",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Trung tâm Y tế Quy Nhơn"
+          },
+          "center": {
+            "lat": 13.774655899999999,
+            "lon": 109.23737602000001
+          }
+        },
+        {
+          "type": "way",
+          "id": 1236021589,
+          "tags": {
+            "addr:housenumber": "78",
+            "addr:street": "Trần Hưng Đạo",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Mắt tỉnh Gia Lai",
+            "old_name": "Bệnh viện Mắt Bình Định"
+          },
+          "center": {
+            "lat": 13.773687449999999,
+            "lon": 109.24024791666666
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=109.19637222222222,13.734580555555555,109.26637222222222,13.804580555555555",
+      "bboxDelta": 0.035
+    },
+    "bacgiang": {
+      "elements": [
+        {
+          "type": "way",
+          "id": 955565413,
+          "tags": {
+            "addr:city": "Thành phố Bắc Ninh",
+            "addr:province": "Bac Ninh",
+            "addr:street": "Đường Lê Lợi",
+            "addr:subdistrict": "Phường Bắc Giang",
+            "amenity": "hospital",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "healthcare:speciality": "general",
+            "name": "Bệnh viện Đa khoa Bắc Ninh số 1",
+            "name:en": "Bac Ninh General Hospital No.1",
+            "operator": "Sở Y tế Thành phố Bắc Ninh",
+            "operator:type": "public/government"
+          },
+          "center": {
+            "lat": 21.27467838333333,
+            "lon": 106.19793817222222
+          }
+        },
+        {
+          "type": "way",
+          "id": 994843874,
+          "tags": {
+            "addr:city": "Thành phố Bắc Ninh",
+            "addr:province": "Bac Ninh",
+            "addr:street": "Giáp Hải",
+            "addr:subdistrict": "Phường Bắc Giang",
+            "amenity": "hospital",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "healthcare:speciality": "gynaecology;paediatrics",
+            "name": "Bệnh viện Sản - Nhi Bắc Ninh số 1",
+            "name:en": "Bac Ninh Women’s and Children’s Hospital No.1",
+            "name:fr": "L’hôpital Femme – Mère – Enfant n° 1 de Bac Ninh"
+          },
+          "center": {
+            "lat": 21.280532022727275,
+            "lon": 106.21307539090908
+          }
+        },
+        {
+          "type": "way",
+          "id": 994843906,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "healthcare:speciality": "psychiatry",
+            "name": "Bệnh viện Sức khỏe tâm thần Bắc Ninh số 1",
+            "name:en": "Bac Ninh Psychiatric Hospital No.1"
+          },
+          "center": {
+            "lat": 21.30359626875,
+            "lon": 106.17096575
+          }
+        },
+        {
+          "type": "way",
+          "id": 994843911,
+          "tags": {
+            "addr:city": "Thành phố Bắc Ninh",
+            "addr:province": "Bac Ninh",
+            "addr:subdistrict": "Phường Đa Mai",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Nội tiết Bắc Ninh",
+            "operator": "Sở Y tế Thành phố Bắc Ninh"
+          },
+          "center": {
+            "lat": 21.27113675714286,
+            "lon": 106.17142527142857
+          }
+        },
+        {
+          "type": "way",
+          "id": 994843912,
+          "tags": {
+            "addr:city": "Thành phố Bắc Ninh",
+            "addr:province": "Bac Ninh",
+            "addr:subdistrict": "Phường Đa Mai",
+            "amenity": "hospital",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "healthcare:speciality": "oncology",
+            "name": "Bệnh viện Ung bướu Bắc Ninh",
+            "name:en": "Bac Ninh Oncology Hospital",
+            "operator": "Sở Y tế Thành phố Bắc Ninh"
+          },
+          "center": {
+            "lat": 21.27269303,
+            "lon": 106.17151200999999
+          }
+        },
+        {
+          "type": "way",
+          "id": 1072489185,
+          "tags": {
+            "addr:city": "Thành phố Bắc Ninh",
+            "addr:province": "Bac Ninh",
+            "addr:street": "Đường Trần Quang Khải",
+            "addr:subdistrict": "Phường Bắc Giang",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Y học cổ truyền Thành phố Bắc Ninh"
+          },
+          "center": {
+            "lat": 21.2909016,
+            "lon": 106.19987823333334
+          }
+        },
+        {
+          "type": "way",
+          "id": 1072489188,
+          "tags": {
+            "addr:city": "Thành phố Bắc Ninh",
+            "addr:province": "Bac Ninh",
+            "addr:street": "Đường Nguyễn Danh Vọng",
+            "addr:subdistrict": "Phường Bắc Giang",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Y học cổ truyền Thành phố Bắc Ninh"
+          },
+          "center": {
+            "lat": 21.28950988571429,
+            "lon": 106.19928487142856
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=106.15720900000001,21.23856,106.227209,21.30856",
+      "bboxDelta": 0.035
+    },
+    "dalat": {
+      "elements": [
+        {
+          "type": "node",
+          "id": 1150943082,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Phòng Khám Đa Khoa Trung Tâm Y Tế Đà Lạt"
+          },
+          "center": {
+            "lat": 11.9398477,
+            "lon": 108.4329545
+          }
+        },
+        {
+          "type": "way",
+          "id": 473556887,
+          "tags": {
+            "addr:housenumber": "1",
+            "addr:street": "Phạm Ngọc Thạch",
+            "amenity": "hospital",
+            "barrier": "wall",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "healthcare:speciality": "general",
+            "name": "Bệnh viện Đa khoa tỉnh Lâm Đồng",
+            "name:en": "Lam Dong Provincial General Hospital",
+            "name:es": "Hospital General Provincial de Lam Dong"
+          },
+          "center": {
+            "lat": 11.946416542372882,
+            "lon": 108.43083368644068
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=108.425500,11.928000,108.449500,11.952000",
+      "bboxDelta": 0.012
+    },
+    "chiangmai": {
+      "elements": [
+        {
+          "type": "way",
+          "id": 189618479,
+          "tags": {
+            "addr:city": "Chiang Mai",
+            "addr:district": "เมืองเชียงใหม่",
+            "addr:district:en": "Mueang Chiang Mai",
+            "addr:housenumber": "110",
+            "addr:postcode": "50200",
+            "addr:province": "เชียงใหม่",
+            "addr:province:en": "Chiang Mai",
+            "addr:street": "ถนนสุเทพ",
+            "addr:street:en": "Suthep Road",
+            "addr:subdistrict": "ศรีภูมิ",
+            "addr:subdistrict:en": "Si Phum",
+            "alt_name": "Maharaj Nakorn Chiang Mai Hospital",
+            "alt_name:en": "Suandok Hospital",
+            "alt_name:th": "โรงพยาบาลสวนดอก",
+            "amenity": "hospital",
+            "contact:facebook": "https://www.facebook.com/medcmuth",
+            "contact:instagram": "https://www.instagram.com/medcmuth/",
+            "contact:youtube": "https://www.youtube.com/channel/UCfTy3lgVupz8SJpw4Cc-EQw",
+            "description": "ระบบลงทะเบียนผู้ป่วยผ่านเครือข่ายอินเตอร์เน็ต โรงพยาบาลมหาราชนครเชียงใหม่ Online Patient Registration System Maharaj Nakorn Chiang Mai Hospital\nhttps://webgateway.med.cmu.ac.th/opr/#/",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "name": "โรงพยาบาลมหาราชนครเชียงใหม่",
+            "name:en": "Maharaj Nakorn Chiang Mai Hospital",
+            "name:th": "โรงพยาบาลมหาราชนครเชียงใหม่",
+            "nickname": "โรงพยาบาลสวนดอก",
+            "operator": "Ministry of Public Health",
+            "operator:short": "MOPH",
+            "operator:type": "government",
+            "operator:wikidata": "Q5970641",
+            "phone": "053936150",
+            "reg_name": "โรงพยาบาลสวนดอก",
+            "reg_name:en": "Suandok Hospital",
+            "reg_name:th": "โรงพยาบาลสวนดอก",
+            "website": "https://www.med.cmu.ac.th",
+            "wikidata": "Q13026862",
+            "wikipedia": "th:โรงพยาบาลมหาราชนครเชียงใหม่"
+          },
+          "center": {
+            "lat": 18.790839974137928,
+            "lon": 98.97490250172415
+          }
+        },
+        {
+          "type": "way",
+          "id": 257214959,
+          "tags": {
+            "addr:country": "Thailand",
+            "addr:district": "Mueang Chiang Mai",
+            "addr:postcode": "50200",
+            "addr:province": "Chiang Mai",
+            "addr:street": "ถนนบุญเรืองฤทธิ์",
+            "addr:subdistrict": "Si Phum",
+            "alt_name": "Chiang Mai Ram Hospital",
+            "amenity": "hospital",
+            "check_date": "2026-07-03",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "name": "โรงพยาบาลเชียงใหม่ราม",
+            "name:en": "Chiang Mai Ram Hospital",
+            "name:fr": "hopital Ram",
+            "name:ja": "チェンマイラーム病院(私立)",
+            "name:th": "โรงพยาบาลเชียงใหม่ราม",
+            "payment:cash": "yes",
+            "payment:credit_cards": "yes",
+            "phone": "+6653920300",
+            "province": "เชียงใหม่",
+            "website": "https://www.chiangmairam.com/",
+            "wheelchair": "yes"
+          },
+          "center": {
+            "lat": 18.794827911111113,
+            "lon": 98.97748202222222
+          }
+        },
+        {
+          "type": "way",
+          "id": 1111972742,
+          "tags": {
+            "amenity": "hospital",
+            "check_date": "2026-07-03",
+            "health_facility:type": "health_centre",
+            "name": "Chiangmai Ram Health Centre",
+            "wheelchair": "yes"
+          },
+          "center": {
+            "lat": 18.793095015384615,
+            "lon": 98.97707792307693
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=98.977333,18.782889,98.989333,18.794889",
+      "bboxDelta": 0.006
+    },
+    "bacninh": {
+      "elements": [
+        {
+          "type": "node",
+          "id": 12898560075,
+          "tags": {
+            "addr:city": "Bắc Ninh",
+            "addr:district": "Thành phố Bắc Ninh",
+            "addr:housenumber": "86",
+            "addr:province": "Bac Ninh",
+            "addr:street": "Đường Hai Bà Trưng",
+            "addr:subdistrict": "Phường Suối Hoa",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Trung Tâm Y Tế Dự Phòng Bắc Ninh"
+          },
+          "center": {
+            "lat": 21.1829087,
+            "lon": 106.0725524
+          }
+        },
+        {
+          "type": "way",
+          "id": 951385079,
+          "tags": {
+            "addr:city": "Thành phố Bắc Ninh",
+            "addr:housenumber": "7",
+            "addr:province": "Bac Ninh",
+            "addr:street": "Đường Trần Lựu",
+            "addr:subdistrict": "Phường Vũ Ninh",
+            "amenity": "hospital",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "healthcare:speciality": "general",
+            "name": "Bệnh viện Quân y 110",
+            "name:en": "110 Military Hospital",
+            "operator": "Cục Hầu cần, Quân khu 1",
+            "operator:type": "military"
+          },
+          "center": {
+            "lat": 21.197792170940172,
+            "lon": 106.09128746752137
+          }
+        },
+        {
+          "type": "way",
+          "id": 986605054,
+          "tags": {
+            "addr:city": "Thành phố Bắc Ninh",
+            "addr:province": "Bac Ninh",
+            "addr:street": "Đường Vũ Ninh",
+            "addr:subdistrict": "Phường Vũ Ninh",
+            "amenity": "hospital",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Y học cổ truyền và Phục hồi chức năng - Bệnh viện Phổi Thành phố Bắc Ninh số 2",
+            "name:en": "Bac Ninh Hospital of Traditional Medicine and Rehabilitation - Bac Ninh City Lung Hospital No. 2",
+            "note": "The \"City Hospital of Traditional Medicine and Rehabilitation\" and \"City Lung Hospital\" are all located in this place.",
+            "operator": "Sở Y tế Thành phố Bắc Ninh"
+          },
+          "center": {
+            "lat": 21.190404668,
+            "lon": 106.081224236
+          }
+        },
+        {
+          "type": "way",
+          "id": 986605073,
+          "tags": {
+            "addr:city": "Thành phố Bắc Ninh",
+            "addr:province": "Bac Ninh",
+            "addr:street": "Đường Trần Bá Linh",
+            "addr:subdistrict": "Phường Vũ Ninh",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "healthcare:speciality": "psychiatry",
+            "name": "Bệnh viện Sức khoẻ Tâm thần Thành phố Bắc Ninh - Khu điều trị Nội trú",
+            "name:en": "Bac Ninh Mental Health Hospital",
+            "operator": "Sở Y tế Thành phố Bắc Ninh"
+          },
+          "center": {
+            "lat": 21.189208453333332,
+            "lon": 106.08897733333333
+          }
+        },
+        {
+          "type": "way",
+          "id": 1333228917,
+          "tags": {
+            "addr:city": "Bắc Ninh",
+            "addr:district": "Thành phố Bắc Ninh",
+            "addr:province": "Bac Ninh",
+            "addr:subdistrict": "Phường Vũ Ninh",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Trạm Y tế phường Vũ Ninh"
+          },
+          "center": {
+            "lat": 21.189174830769232,
+            "lon": 106.08070626923077
+          }
+        },
+        {
+          "type": "way",
+          "id": 1348010211,
+          "tags": {
+            "addr:city": "Bắc Ninh",
+            "addr:district": "Thành phố Bắc Ninh",
+            "addr:housenumber": "117",
+            "addr:province": "Bac Ninh",
+            "addr:street": "Đường Trần Hưng Đạo",
+            "addr:subdistrict": "Phường Tiền Ninh Vệ",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Trạm Y tế phường Tiền Ninh Vệ"
+          },
+          "center": {
+            "lat": 21.18047508,
+            "lon": 106.06570701999999
+          }
+        },
+        {
+          "type": "way",
+          "id": 1348010212,
+          "tags": {
+            "addr:city": "Bắc Ninh",
+            "addr:district": "Thành phố Bắc Ninh",
+            "addr:housenumber": "112",
+            "addr:province": "Bac Ninh",
+            "addr:street": "Phố Lý Chiêu Hoàng",
+            "addr:subdistrict": "Phường Suối Hoa",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Trạm Y tế phường Suối Hoa"
+          },
+          "center": {
+            "lat": 21.18203926,
+            "lon": 106.07125452
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=106.064310,21.174080,106.088310,21.198080",
+      "bboxDelta": 0.012
+    },
+    "samutprakan": {
+      "elements": [
+        {
+          "type": "node",
+          "id": 7856667480,
+          "tags": {
+            "amenity": "hospital",
+            "name": "โรงพยาบาลเมืองสมุทร",
+            "name:en": "Mueang Samut Hospital"
+          },
+          "center": {
+            "lat": 13.5950504,
+            "lon": 100.601128
+          }
+        },
+        {
+          "type": "way",
+          "id": 1229701250,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "รพ.เมืองสมุทรปากน้ำ"
+          },
+          "center": {
+            "lat": 13.594966806666665,
+            "lon": 100.60135308666666
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=100.584400,13.588400,100.608400,13.612400",
+      "bboxDelta": 0.012
+    },
+    "hanoi": {
+      "elements": [
+        {
+          "type": "way",
+          "id": 702456216,
+          "tags": {
+            "addr:city": "Ha Noi",
+            "addr:country": "VN",
+            "addr:district": "Đống Đa",
+            "addr:housenumber": "79B",
+            "addr:street": "Phố Nguyễn Khuyến",
+            "addr:subdistrict": "Văn Miếu",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Da liễu Hà Nội"
+          },
+          "center": {
+            "lat": 21.02811704285714,
+            "lon": 105.83860907142856
+          }
+        },
+        {
+          "type": "way",
+          "id": 702456223,
+          "tags": {
+            "addr:housenumber": "16",
+            "addr:street": "Phố Nguyễn Như Đổ",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Đa khoa Hồng Hà"
+          },
+          "center": {
+            "lat": 21.026825125000002,
+            "lon": 105.83906915
+          }
+        },
+        {
+          "type": "way",
+          "id": 703386640,
+          "tags": {
+            "addr:city": "Hà Nội",
+            "addr:district": "Hoàn Kiếm",
+            "addr:housenumber": "43",
+            "addr:province": "Hà Nội",
+            "addr:street": "Phố Tràng Thi",
+            "addr:subdistrict": "Hàng Bông",
+            "amenity": "hospital",
+            "contact:website": "http://benhvienphusantrunguong.org.vn/",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Phụ sản Trung ương",
+            "name:en": "National Hospital of Obstetrics and Gynecology",
+            "name:fr": "Hôpital National de Gynécologie Obstétrique",
+            "name:tr": "Ulusal Obstetri ve Jinekoloji Hastanesi",
+            "wikidata": "Q10743502",
+            "wikipedia": "vi:Bệnh viện Phụ sản Trung ương"
+          },
+          "center": {
+            "lat": 21.02665855714286,
+            "lon": 105.84717224285714
+          }
+        },
+        {
+          "type": "way",
+          "id": 703386650,
+          "tags": {
+            "addr:city": "Hà Nội",
+            "addr:district": "Hoàn Kiếm",
+            "addr:housenumber": "43",
+            "addr:province": "Hà Nội",
+            "addr:street": "Phố Quán Sứ",
+            "addr:subdistrict": "Hàng Bông",
+            "amenity": "hospital",
+            "contact:website": "https://benhvienk.vn/",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "name": "Bệnh viện K",
+            "name:en": "Vietnam National Cancer Hospital",
+            "name:tr": "Viyetnam Ulusal Kanser Hastanesi",
+            "wikidata": "Q49055374",
+            "wikipedia": "vi:Bệnh viện K"
+          },
+          "center": {
+            "lat": 21.02700938,
+            "lon": 105.84612111999999
+          }
+        },
+        {
+          "type": "way",
+          "id": 703386657,
+          "tags": {
+            "addr:housenumber": "40",
+            "addr:street": "Phố Phủ Doãn",
+            "amenity": "hospital",
+            "contact:facebook": "https://www.facebook.com/bvvietducninhbinh",
+            "contact:website": "https://benhvienvietduc.org/",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Hữu nghị Việt Đức",
+            "name:en": "Vietnam - Germany Hospital",
+            "name:id": "Rumah Sakit Vietnam - Jerman",
+            "name:tr": "Viyetnam - Almanya Hastanesi",
+            "name:zh": "越德医院",
+            "old_name:vi": "Nhà thương Phủ Doãn",
+            "wikidata": "Q4456887",
+            "wikipedia": "vi:Bệnh viện Việt Đức"
+          },
+          "center": {
+            "lat": 21.028819810416667,
+            "lon": 105.84701369583333
+          }
+        },
+        {
+          "type": "way",
+          "id": 703386658,
+          "tags": {
+            "addr:city": "Hà Nội",
+            "addr:country": "VN",
+            "addr:district": "Hoàn Kiếm",
+            "addr:housenumber": "40B",
+            "addr:province": "Hà Nội",
+            "addr:street": "Phố Tràng Thi",
+            "addr:subdistrict": "Hàng Bông",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Răng Hàm Mặt Trung ương Hà Nội",
+            "name:en": "National Hospital of Odonto-Stomatology",
+            "name:tr": "Ulusal Odonto-Stomatoloji Hastanesi",
+            "wikidata": "Q10743507",
+            "wikipedia": "vi:Bệnh viện Răng Hàm Mặt Trung ương Hà Nội"
+          },
+          "center": {
+            "lat": 21.0277644375,
+            "lon": 105.8464618875
+          }
+        },
+        {
+          "type": "way",
+          "id": 871151846,
+          "tags": {
+            "addr:city": "Hà Nội",
+            "addr:district": "Hoàn Kiếm",
+            "addr:housenumber": "92",
+            "addr:province": "Hà Nội",
+            "addr:street": "Phố Trần Hưng Đạo",
+            "addr:subdistrict": "Cửa Nam",
+            "amenity": "hospital",
+            "building": "hospital",
+            "building:levels": "4",
+            "contact:website": "http://benhvientimhanoi.vn/",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Tim Hà Nội",
+            "name:en": "Hanoi Heart Hospital",
+            "name:tr": "Hanoi Kalp Hastanesi"
+          },
+          "center": {
+            "lat": 21.0240986,
+            "lon": 105.84396497777777
+          }
+        },
+        {
+          "type": "way",
+          "id": 1421773641,
+          "tags": {
+            "addr:street": "Ngõ Thông Phong",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Đa khoa Tràng An"
+          },
+          "center": {
+            "lat": 21.0257042,
+            "lon": 105.83532964000001
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=105.835170,21.018500,105.847170,21.030500",
+      "bboxDelta": 0.006
+    },
+    "nhatrang": {
+      "elements": [
+        {
+          "type": "node",
+          "id": 5129911021,
+          "tags": {
+            "amenity": "hospital"
+          },
+          "center": {
+            "lat": 12.2530712,
+            "lon": 109.1776875
+          }
+        },
+        {
+          "type": "node",
+          "id": 11252184737,
+          "tags": {
+            "addr:housenumber": "69",
+            "addr:street": "Trần Quý Cáp",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "healthcare:speciality": "paediatrics;general",
+            "name": "Prestige international polyclinic",
+            "name:en": "Prestige international polyclinic",
+            "name:ru": "Поликлиника Престиж (+ Детский врач)",
+            "opening_hours": "Mo-Su 07:00-19:00",
+            "website": "http://medictinduc.vn"
+          },
+          "center": {
+            "lat": 12.2522561,
+            "lon": 109.1883141
+          }
+        },
+        {
+          "type": "way",
+          "id": 951335139,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "healthcare:speciality": "general",
+            "landuse": "military",
+            "name": "Bệnh viện Quân y 87",
+            "name:en": "Military Hospital 87",
+            "operator": "Tổng cục Hậu cần",
+            "operator:type": "military"
+          },
+          "center": {
+            "lat": 12.23082723,
+            "lon": 109.19479693999999
+          }
+        },
+        {
+          "type": "way",
+          "id": 1167738442,
+          "tags": {
+            "alt_name": "Bệnh viện Đa khoa Khánh Hoà",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Đa khoa Khánh Hòa",
+            "name:en": "Khanh Hoa General Hospital"
+          },
+          "center": {
+            "lat": 12.248623966666665,
+            "lon": 109.19198637777778
+          }
+        },
+        {
+          "type": "way",
+          "id": 1173358240,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Ung bướu tỉnh Khánh Hoà",
+            "name:en": "Khanh Hoa Provincial Oncology Hospital",
+            "name:ru": "Провинциальная онкологическая больница провинции Кханьхоа"
+          },
+          "center": {
+            "lat": 12.27823381,
+            "lon": 109.18159251
+          }
+        },
+        {
+          "type": "way",
+          "id": 1173358242,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Da liễu tỉnh Khánh Hoà",
+            "name:en": "Khanh Hoa Provincial Dermatology Hospital"
+          },
+          "center": {
+            "lat": 12.2784512,
+            "lon": 109.1835804625
+          }
+        },
+        {
+          "type": "way",
+          "id": 1173358243,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Lao và Bệnh phổi tỉnh Khánh Hoà",
+            "name:en": "Khanh Hoa Provincial Tuberculosis and Lung Hospital"
+          },
+          "center": {
+            "lat": 12.277722908333333,
+            "lon": 109.18774085
+          }
+        },
+        {
+          "type": "way",
+          "id": 1241370724,
+          "tags": {
+            "amenity": "hospital",
+            "building": "yes",
+            "healthcare": "hospital",
+            "name": "Tam Tri Nha Trang",
+            "opening_hours": "Mo-Su 07:00-11:30, 13:00-16:30"
+          },
+          "center": {
+            "lat": 12.212690973913045,
+            "lon": 109.19486439130435
+          }
+        },
+        {
+          "type": "way",
+          "id": 1396494237,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện đa khoa Sài Gòn Nha Trang",
+            "name:en": "Sai Gon Nha Trang General Hospital"
+          },
+          "center": {
+            "lat": 12.258195422222222,
+            "lon": 109.16935827777777
+          }
+        },
+        {
+          "type": "way",
+          "id": 1427024979,
+          "tags": {
+            "addr:city": "Nha Trang",
+            "addr:district": "Vĩnh Thái",
+            "addr:province": "Khánh Hoà",
+            "addr:street": "Đường số 20",
+            "addr:subdistrict": "Tây Nha Trang",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "healthcare:speciality": "general;surgery",
+            "name": "Bệnh viện đa khoa Yersin Nha Trang",
+            "operator": "Sở Y tế Khánh Hoà",
+            "operator:type": "government"
+          },
+          "center": {
+            "lat": 12.238340216666666,
+            "lon": 109.16506023333334
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=109.15666666666667,12.209999999999999,109.22666666666666,12.28",
+      "bboxDelta": 0.035
+    },
+    "ayutthaya": {
+      "elements": [
+        {
+          "type": "way",
+          "id": 712600876,
+          "tags": {
+            "addr:housenumber": "46/1",
+            "addr:place": "หมู่ที่ 4",
+            "amenity": "hospital",
+            "barrier": "wall",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "name": "โรงพยาบาลพระนครศรีอยุธยา",
+            "name:en": "Phra Nakhon Si Ayutthaya Hospital",
+            "name:ja": "アユタヤ病院",
+            "name:zh": "大城医院",
+            "name:zh-Hant": "大城醫院",
+            "website": "https://www.facebook.com/ADMIN.AYHOSP",
+            "wikidata": "Q85846925"
+          },
+          "center": {
+            "lat": 14.343473566666667,
+            "lon": 100.55946247222222
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=100.547444,14.337444,100.571444,14.361444",
+      "bboxDelta": 0.012
+    },
+    "dongnai": {
+      "elements": [
+        {
+          "type": "way",
+          "id": 985670827,
+          "tags": {
+            "amenity": "hospital",
+            "building": "yes",
+            "healthcare": "hospital",
+            "name": "Trung tâm Chăm sóc Sức khỏe sinh sản Thành phố Đồng Nai"
+          },
+          "center": {
+            "lat": 10.94883635,
+            "lon": 106.8175826111111
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=106.810136,10.938764,106.834136,10.962764",
+      "bboxDelta": 0.012
+    },
+    "binhduong": {
+      "elements": [
+        {
+          "type": "way",
+          "id": 494806820,
+          "tags": {
+            "addr:housenumber": "5",
+            "addr:street": "Phạm Ngọc Thạch",
+            "amenity": "hospital",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "healthcare:speciality": "general",
+            "name": "Bệnh viện Đa khoa Bình Dương",
+            "name:en": "Binh Duong General Hospital"
+          },
+          "center": {
+            "lat": 10.997865664285714,
+            "lon": 106.65548577142856
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=106.646333,10.992167,106.670333,11.016167",
+      "bboxDelta": 0.012
+    },
+    "pattaya": {
+      "elements": [
+        {
+          "type": "way",
+          "id": 226823896,
+          "tags": {
+            "addr:city": "Pattaya",
+            "addr:country": "TH",
+            "addr:district": "บางละมุง",
+            "addr:housenumber": "301",
+            "addr:postcode": "20150",
+            "addr:province": "ชลบุรี",
+            "addr:street": "ถนนสุขุมวิท",
+            "addr:subdistrict": "เมืองพัทยา",
+            "alt_name": "Bangkok Hospital Pattaya",
+            "amenity": "hospital",
+            "brand": "Bangkok Hospital",
+            "brand:en": "Bangkok Hospital",
+            "brand:th": "โรงพยาบาลกรุงเทพ",
+            "brand:wikidata": "Q125869165",
+            "country": "Thailand",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "name": "โรงพยาบาลกรุงเทพพัทยา",
+            "name:en": "Bangkok Hospital Pattaya",
+            "name:th": "โรงพยาบาลกรุงเทพ",
+            "operator": "Bangkok Dusit Medical Services",
+            "operator:type": "private",
+            "operator:wikidata": "Q13012598",
+            "phone": "+6638259999",
+            "province": "ชลบุรี",
+            "website": "https://www.bangkokhospital.com/en/pattaya"
+          },
+          "center": {
+            "lat": 12.954112183333333,
+            "lon": 100.9053987111111
+          }
+        },
+        {
+          "type": "way",
+          "id": 1212165124,
+          "tags": {
+            "addr:housenumber": "255/4",
+            "addr:street": "พัทยา 4",
+            "amenity": "hospital",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "name": "Pattaya International Hospital",
+            "name:th": "โรงพยาบาล พัทยาอินเตอร์",
+            "website": "http://www.pih-inter.com"
+          },
+          "center": {
+            "lat": 12.944208722222221,
+            "lon": 100.88747613333334
+          }
+        },
+        {
+          "type": "way",
+          "id": 1567833436,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "healthcare:speciality": "orthopaedics",
+            "name": "EASE Orthopedic Hospital"
+          },
+          "center": {
+            "lat": 12.939143191666666,
+            "lon": 100.89894105833334
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=100.881004,12.937565,100.905004,12.961565",
+      "bboxDelta": 0.012
+    },
+    "samutsakhon": {
+      "elements": [
+        {
+          "type": "node",
+          "id": 4890988622,
+          "tags": {
+            "addr:district": "เมืองสมุทรสาคร",
+            "addr:housenumber": "1500",
+            "addr:postcode": "74000",
+            "addr:province": "สมุทรสาคร",
+            "addr:street": "ถนนเอกชัย",
+            "addr:subdistrict": "มหาชัย",
+            "amenity": "hospital",
+            "contact:facebook": "https://www.facebook.com/p/%E0%B9%82%E0%B8%A3%E0%B8%87%E0%B8%9E%E0%B8%A2%E0%B8%B2%E0%B8%9A%E0%B8%B2%E0%B8%A5%E0%B8%AA%E0%B8%A1%E0%B8%B8%E0%B8%97%E0%B8%A3%E0%B8%AA%E0%B8%B2%E0%B8%84%E0%B8%A3-Samutsakhon-Hospital-61560955149948",
+            "emergency": "yes",
+            "internet_access": "wlan",
+            "name": "โรงพยาบาลสมุทรสาคร",
+            "name:en": "Samutsakhon Hospital",
+            "official_name": "โรงพยาบาลสมุทรสาคร",
+            "opening_hours": "24/7",
+            "website": "https://smkh.moph.go.th",
+            "wikidata": "Q108704116",
+            "wikipedia": "th:โรงพยาบาลสมุทรสาคร"
+          },
+          "center": {
+            "lat": 13.5510326,
+            "lon": 100.2792635
+          }
+        },
+        {
+          "type": "node",
+          "id": 7856667677,
+          "tags": {
+            "amenity": "hospital",
+            "name": "โรงพยาบาลมหาชัย",
+            "name:en": "Maha Chai Hospital"
+          },
+          "center": {
+            "lat": 13.5568018,
+            "lon": 100.2719754
+          }
+        },
+        {
+          "type": "node",
+          "id": 7856667679,
+          "tags": {
+            "addr:district": "เมืองสมุทรสาคร",
+            "addr:postcode": "74000",
+            "addr:province": "สมุทรสาคร",
+            "addr:street": "ถนนเศรษฐกิจ 1",
+            "addr:subdistrict": "ท่าทราย",
+            "amenity": "hospital",
+            "name": "โรงพยาบาลวิชัยเวช อินเตอร์เนชั่นแนล สมุทรสาคร",
+            "name:en": "Vichaivej International Hospital",
+            "website": "https://www.vichaivej.com/samutsakhon"
+          },
+          "center": {
+            "lat": 13.5760859,
+            "lon": 100.2715355
+          }
+        },
+        {
+          "type": "node",
+          "id": 7907440564,
+          "tags": {
+            "addr:city": "สมุทรสาคร",
+            "addr:housenumber": "24/305",
+            "addr:postcode": "74000",
+            "addr:street": "กิจมณี",
+            "amenity": "hospital",
+            "emergency": "no",
+            "healthcare": "hospital",
+            "name": "Kasetmahachai animal hospital"
+          },
+          "center": {
+            "lat": 13.523729,
+            "lon": 100.2957559
+          }
+        },
+        {
+          "type": "node",
+          "id": 13866356238,
+          "tags": {
+            "addr:district": "เมืองสมุทรสาคร",
+            "addr:province": "สมุทรสาคร",
+            "addr:street": "ถนนเอกชัย",
+            "addr:subdistrict": "โคกขาม",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "โรงพยาบาลเอกชัย",
+            "name:en": "Ekachai hospital"
+          },
+          "center": {
+            "lat": 13.5591973,
+            "lon": 100.291391
+          }
+        },
+        {
+          "type": "way",
+          "id": 1528411615,
+          "tags": {
+            "addr:country": "ไทย",
+            "addr:district": "เมืองสมุทรสาคร",
+            "addr:postcode": "74000",
+            "addr:province": "สมุทรสาคร",
+            "addr:street": "ถนนสุทธิวาตวิถี",
+            "addr:subdistrict": "ท่าฉลอม",
+            "amenity": "hospital",
+            "country": "ไทย",
+            "healthcare": "hospital",
+            "name": "โรงพยาบาลท่าฉลอม",
+            "name:en": "Thachalom City Hospital",
+            "name:th": "โรงพยาบาลท่าฉลอม",
+            "province": "สมุทรสาคร"
+          },
+          "center": {
+            "lat": 13.53578722,
+            "lon": 100.26817484
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=100.2425,13.513611111111,100.3125,13.583611111111",
+      "bboxDelta": 0.035
+    },
+    "danang": {
+      "elements": [
+        {
+          "type": "node",
+          "id": 729405654,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Cong Ty CP Benh Vien Da Khoa Hoa Xuan"
+          },
+          "center": {
+            "lat": 16.0681938,
+            "lon": 108.2013645
+          }
+        },
+        {
+          "type": "node",
+          "id": 729405662,
+          "tags": {
+            "addr:housenumber": "291",
+            "addr:postcode": "550000",
+            "addr:street": "Nguyễn Văn Linh",
+            "amenity": "hospital",
+            "check_date": "2026-03-05",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Hoàn Mỹ Đà Nẵng",
+            "name:en": "Hoan My Da Nang Hospital",
+            "name:vi": "Bệnh viện Hoàn Mỹ Đà Nẵng",
+            "opening_hours": "Mo-Sa 07:00-11:30, 12:30-16:00; Su 07:00-11:30",
+            "website": "https://hoanmy.com/danang/"
+          },
+          "center": {
+            "lat": 16.059401,
+            "lon": 108.2098753
+          }
+        },
+        {
+          "type": "node",
+          "id": 729405667,
+          "tags": {
+            "addr:housenumber": "376",
+            "addr:street": "Đường Trần Cao Vân",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Benh Vien Da Khoa Binh Dan"
+          },
+          "center": {
+            "lat": 16.0713797,
+            "lon": 108.2001187
+          }
+        },
+        {
+          "type": "node",
+          "id": 729405671,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Benh Vien Tu Binh Dan"
+          },
+          "center": {
+            "lat": 16.0686754,
+            "lon": 108.2189349
+          }
+        },
+        {
+          "type": "node",
+          "id": 6539587371,
+          "tags": {
+            "addr:city": "Da Nang",
+            "addr:district": "Hai Chau",
+            "addr:housenumber": "129",
+            "addr:postcode": "550000",
+            "addr:street": "Đường Nguyễn Hoàng",
+            "addr:subdistrict": "Nam Duong",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "healthcare:speciality": "dentist;dental_oral_maxillo_facial_surgery;dentistry;orthodontics",
+            "name": "Dana Dental - Nha Khoa Đà Nẵng",
+            "operator": "Công ty TNHH Nha Khoa Dana",
+            "operator:type": "business"
+          },
+          "center": {
+            "lat": 16.0619222,
+            "lon": 108.2139467
+          }
+        },
+        {
+          "type": "node",
+          "id": 7541325568,
+          "tags": {
+            "addr:city": "Đà Nẵng",
+            "addr:district": "Hải Châu",
+            "addr:housenumber": "276 - 278",
+            "addr:postcode": "550000",
+            "addr:province": "Đà Nẵng",
+            "addr:street": "Đường Đống Đa",
+            "addr:subdistrict": "Thanh Bình",
+            "amenity": "hospital",
+            "email": "thiennhanhospital@gmail.com",
+            "emergency": "yes",
+            "healthcare": "hospital",
+            "healthcare:speciality": "chiropractic;general;gynaecology;ophthalmology;paediatrics;internal;orthopaedics;dentist;psychiatry;dermatology;biology;otolaryngology;osteopathy;radiology;orthodontics;urology;surgery;cardiology;plastic_surgery;physiotherapy;neurology;acupuncture",
+            "name": "Thien Nhan Hospital",
+            "operator": "Công Ty Cổ Phần Bệnh Viện Thiện Nhân",
+            "operator:type": "business",
+            "phone": "+84363568988",
+            "website": "https://thiennhanhospital.com/"
+          },
+          "center": {
+            "lat": 16.076597,
+            "lon": 108.2158614
+          }
+        },
+        {
+          "type": "way",
+          "id": 372433638,
+          "tags": {
+            "addr:housenumber": "124",
+            "addr:street": "Đường Hải Phòng",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Đà Nẵng",
+            "name:en": "Da Nang Hosptial"
+          },
+          "center": {
+            "lat": 16.072687716666668,
+            "lon": 108.21551498333334
+          }
+        },
+        {
+          "type": "way",
+          "id": 372433951,
+          "tags": {
+            "addr:city": "Đà Nẵng",
+            "addr:district": "Hải Châu",
+            "addr:housenumber": "122",
+            "addr:street": "Đường Hải Phòng",
+            "addr:subdistrict": "Thạch Thang",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện C Đà Nẵng"
+          },
+          "center": {
+            "lat": 16.072986375,
+            "lon": 108.21688540000001
+          }
+        },
+        {
+          "type": "way",
+          "id": 372434056,
+          "tags": {
+            "addr:city": "Đà Nẵng",
+            "addr:district": "Hải Châu",
+            "addr:housenumber": "95",
+            "addr:street": "Quang Trung",
+            "addr:subdistrict": "Thạch Thang",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Chỉnh hình & Phục hồi Chức năng Đà Nẵng"
+          },
+          "center": {
+            "lat": 16.073589214285715,
+            "lon": 108.21747618571429
+          }
+        },
+        {
+          "type": "way",
+          "id": 1226646134,
+          "tags": {
+            "addr:housenumber": "38",
+            "addr:street": "Đường Cao Thắng",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Trung tâm Y tế quận Hải Châu"
+          },
+          "center": {
+            "lat": 16.07644537142857,
+            "lon": 108.21427137142857
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=108.197722,16.057444,108.221722,16.081444",
+      "bboxDelta": 0.012
+    },
+    "phuquoc": {
+      "elements": [],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=103.945222,10.216889,103.969222,10.240889",
+      "bboxDelta": 0.012
+    },
+    "haiphong": {
+      "elements": [
+        {
+          "type": "node",
+          "id": 2496890014,
+          "tags": {
+            "addr:housenumber": "187",
+            "addr:street": "Nguyễn Đức Cảnh",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bênh viện Y học Cổ truyền"
+          },
+          "center": {
+            "lat": 20.8543991,
+            "lon": 106.6741672
+          }
+        },
+        {
+          "type": "node",
+          "id": 2497017036,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Nha khoa quốc tế"
+          },
+          "center": {
+            "lat": 20.8478209,
+            "lon": 106.6716269
+          }
+        },
+        {
+          "type": "node",
+          "id": 9680496673,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital"
+          },
+          "center": {
+            "lat": 20.8559832,
+            "lon": 106.682623
+          }
+        },
+        {
+          "type": "way",
+          "id": 240457737,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Hữu nghị Việt Tiệp"
+          },
+          "center": {
+            "lat": 20.852896039130435,
+            "lon": 106.67158260434782
+          }
+        },
+        {
+          "type": "way",
+          "id": 240457738,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bệnh viện Đa khoa Quốc tế Hải Phòng"
+          },
+          "center": {
+            "lat": 20.853209047058822,
+            "lon": 106.67275094705883
+          }
+        },
+        {
+          "type": "way",
+          "id": 240890017,
+          "tags": {
+            "amenity": "hospital",
+            "building": "yes",
+            "healthcare": "hospital",
+            "name": "Viện quân y 7"
+          },
+          "center": {
+            "lat": 20.865043442857143,
+            "lon": 106.68009485714286
+          }
+        },
+        {
+          "type": "way",
+          "id": 241801954,
+          "tags": {
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Bênh viện Phụ sản Hải Phòng"
+          },
+          "center": {
+            "lat": 20.859582527272728,
+            "lon": 106.68288146363635
+          }
+        },
+        {
+          "type": "way",
+          "id": 1088053850,
+          "tags": {
+            "addr:housenumber": "169",
+            "addr:street": "Tô Hiệu",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Trung tâm Y tế Lê Chân"
+          },
+          "center": {
+            "lat": 20.85081971,
+            "lon": 106.6804335
+          }
+        },
+        {
+          "type": "way",
+          "id": 1088053865,
+          "tags": {
+            "addr:housenumber": "34",
+            "addr:street": "Phố Kỳ Đồng",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "Trung tâm Y tế Hồng Bàng"
+          },
+          "center": {
+            "lat": 20.858657666666666,
+            "lon": 106.68023338333334
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=106.669800,20.845410,106.693800,20.869410",
+      "bboxDelta": 0.012
+    },
+    "rayong": {
+      "elements": [
+        {
+          "type": "node",
+          "id": 1800559122,
+          "tags": {
+            "amenity": "hospital",
+            "emergency": "yes",
+            "name": "คลินิกชุมชนอบอุ่น",
+            "name:en": "Chumchon Op-Un Clinic"
+          },
+          "center": {
+            "lat": 12.6742578,
+            "lon": 101.2787691
+          }
+        },
+        {
+          "type": "node",
+          "id": 2737036678,
+          "tags": {
+            "amenity": "hospital",
+            "name": "ศูนย์บริการสาธารณสุข ปากน้ำ",
+            "name:en": "Paknam Health Service Center",
+            "name:th": "ศูนย์บริการสาธารณสุข ปากน้ำ"
+          },
+          "center": {
+            "lat": 12.6610428,
+            "lon": 101.2606406
+          }
+        },
+        {
+          "type": "node",
+          "id": 14178733874,
+          "tags": {
+            "addr:country": "Thailand",
+            "addr:district": "เมืองระยอง",
+            "addr:housenumber": "65/28",
+            "addr:postcode": "21000",
+            "addr:province": "ระยอง",
+            "addr:province:en": "Rayong",
+            "addr:subdistrict": "ท่าประดุ่",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "โรงพยาบาลจุฬารัตน์ระยอง",
+            "name:en": "Chularat Rayong Hospital",
+            "name:th": "โรงพยาบาลจุฬารัตน์ระยอง",
+            "website": "https://www.chularatrayong.com"
+          },
+          "center": {
+            "lat": 12.6852475,
+            "lon": 101.2745418
+          }
+        },
+        {
+          "type": "way",
+          "id": 1215983984,
+          "tags": {
+            "addr:country": "ไทย",
+            "addr:district": "เมืองระยอง",
+            "addr:district:en": "Mueang Rayong",
+            "addr:postcode": "21000",
+            "addr:province": "ระยอง",
+            "addr:province:en": "Rayong",
+            "addr:street": "ถนนสุขุมวิท",
+            "addr:subdistrict": "ท่าประดู่",
+            "amenity": "hospital",
+            "healthcare": "hospital",
+            "name": "โรงพยาบาลระยอง",
+            "name:en": "Rayong Hospital",
+            "name:th": "โรงพยาบาลระยอง",
+            "operator": "Ministry of Public Health",
+            "operator:short": "MOPH",
+            "operator:type": "government",
+            "operator:wikidata": "Q5970641",
+            "website": "https://www.rayonghospital.go.th"
+          },
+          "center": {
+            "lat": 12.683043434615383,
+            "lon": 101.27687981153846
+          }
+        },
+        {
+          "type": "way",
+          "id": 1411778702,
+          "tags": {
+            "addr:country": "Thailand",
+            "addr:district": "เมืองระยอง",
+            "addr:housenumber": "333/3",
+            "addr:place": "4",
+            "addr:postcode": "21000",
+            "addr:province": "ระยอง",
+            "addr:province:en": "Rayong",
+            "addr:subdistrict": "เชิงเนิน",
+            "amenity": "hospital",
+            "country": "Thailand",
+            "healthcare": "hospital",
+            "name": "โรงพยาบาลศรีระยอง",
+            "name:en": "Ekkachon Rayong Hospital",
+            "name:th": "โรงพยาบาลศรีระยอง",
+            "province": "Rayong"
+          },
+          "center": {
+            "lat": 12.695651166666666,
+            "lon": 101.29241445000001
+          }
+        }
+      ],
+      "source": "https://api.openstreetmap.org/api/0.6/map?bbox=101.24388888889,12.639166666667,101.31388888888999,12.709166666667",
+      "bboxDelta": 0.035
+    }
+  }
+}

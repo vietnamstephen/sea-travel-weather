@@ -42,6 +42,18 @@ test('Chinese source selection prefers Simplified variants and converts Traditio
  execFileSync('python3',['-B','-c',py]);
 });
 
+test('no previously available Chinese attraction name is lost since d96937c',()=>{
+ const old=JSON.parse(execFileSync('git',['show','d96937c:data/attractions.json'],{encoding:'utf8'}));
+ const current=JSON.parse(fs.readFileSync('data/attractions.json','utf8'));
+ const lost=[];
+ for(const [country,cities] of Object.entries(old.countries))for(const [city,items] of Object.entries(cities))for(const a of items){
+  if(!a.name?.zh||a.name.zh===a.name.en)continue;
+  const next=(current.countries[country]?.[city]||[]).find(x=>x.qid===a.qid);
+  if(!next?.name?.zh||next.name.zh===next.name.en)lost.push(`${country}/${city}/${a.qid}`);
+ }
+ assert.equal(lost.length,0,`lost Chinese names: ${lost.join(', ')}`);
+});
+
 test('pilot cleanup preserves inland gap, commercial exclusions and licensed source-only supplements',()=>{
  const d=JSON.parse(fs.readFileSync('data/attractions.json'));
  assert.equal(d.countries.vn.bacgiang.length,0);
@@ -114,4 +126,17 @@ with patch.object(b,'fetch',side_effect=fetch),patch.object(b,'CACHE',b.ROOT/'no
  execFileSync('python3',['-B','-c',py]);
  const d=JSON.parse(fs.readFileSync('data/attractions.json'));
  assert(d.countries.th.phuket.some(a=>a.qid==='Q16678462'));
+});
+
+test('hospital-5 Chinese attraction overrides and Da Nang park photo have sourced fallback data',()=>{
+ const overrides=JSON.parse(fs.readFileSync('data/attractions_overrides.json','utf8'));
+ assert.equal(overrides.Q18164670.zh,'第五军区博物馆');
+ assert.equal(overrides.Q60853845.zh,'山茶半岛灵应寺观音像');
+ const park=JSON.parse(fs.readFileSync('data/attractions.json','utf8')).countries.vn.danang.find(a=>a.qid==='Q32176308');
+ assert.equal(park.name.vi,'Công viên 29 tháng 3');
+ assert.equal(park.photo.author,'Martin Lewison');
+ assert.equal(park.photo.license,'CC BY 2.0');
+ assert.match(park.photo.filePage,/commons\.wikimedia\.org/);
+ assert.match(source,/manual\.zh \|\| \(v\.zh && v\.zh!==v\.en \? v\.zh : ''\)/);
+ assert.doesNotMatch(source,/LANG==='zh' \? \(manual\.zh \|\| v\.en/);
 });
