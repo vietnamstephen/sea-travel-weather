@@ -32,6 +32,7 @@ test('all five localized brand strings follow the approved spelling', () => {
   assert.match(i18n, /'app\.title': \['椰途', '椰途 Yetu', '椰途 Yetu', '椰途 Yetu', '椰途 Yetu'\]/);
   for (const file of ['index.html', 'vn.html', 'th.html']) {
     assert.match(read(file), /google-site-verification/);
+    if (file === "index.html") assert.ok(read(file).includes('<meta name="google-site-verification" content="MmMrQ4WDsXaVg9U3XOjLqo5lxE4pIyLBxzjMxAqQT-M" />'));
     if (file === "index.html") assert.ok(read(file).includes('<meta name="google-site-verification" content="oY_OEjgf2vxLNr432av0qf_ePJnYVgWMDlOcG9QbMMs" />'));
     else assert.match(read(file), /<meta name="google-site-verification" content="">/);
     assert.match(read(file), /rel="canonical"/);
