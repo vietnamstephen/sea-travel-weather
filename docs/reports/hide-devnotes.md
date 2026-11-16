@@ -35,8 +35,7 @@
 - `flight.providerOffText` 与 `flight.keyHint` 现不参与普通用户关闭状态渲染；页面直接使用单行 `flight.officialHint`。
 - `pricing.sandbox`、`pricing.adminStatus`：保留对应字典文案，分别由管理员/`payments_beta` UI 门控；未改支付流程、价格 ID、Supabase、Webhook 或联盟代码。
 - `trips.paymentHint`：按要求保留，未含环境变量或密钥说明。
-- `privacy.html` 中的 `Draft privacy policy / 隐私政策草稿`：保留（待 Stephen 决定）；按要求未改隐私法律文本。
-- `legal.draft` / `legal.refund` 及条款页法律草稿标记：保留为法律审阅状态，不属于集成配置说明。
+- 法律页「草稿 / Draft」字样（隐私、条款、退款，5 种语言）：已改写，见文末补充表（Stephen 决定）。
 - `scripts/` 中的数据更新、支付配置开发说明，以及 `js/config.js`、`js/payments.js` 的运行配置/支付环境逻辑：属于维护代码或支付配置，不是普通页面文案；未改支付逻辑或配置。
 - `data/*.json`：检查了所有数据文件；除航班数据 `note` 外，未发现含本次目标开发说明词的用户可见字段。
 
