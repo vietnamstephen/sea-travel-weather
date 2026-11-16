@@ -58,8 +58,7 @@
   async function login() {
     var db = await client(); if (!db) return;
     var redirect = new URL('pricing.html', location.href); redirect.searchParams.set('lang', (window.SEA_APP || {}).lang || 'zh');
-    var result = await db.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: redirect.href } });
-    if (result.error) throw result.error;
+    window.SEA_ACCOUNT.openLogin(db, async function () { var result=await db.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: redirect.href } }); if(result.error)throw result.error; }, function(){return refresh();});
   }
   async function openCheckout(planKey) {
     if (!C.PAYMENTS_ENABLED) return;

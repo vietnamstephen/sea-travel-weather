@@ -69,19 +69,20 @@
       }
     }
   }
-  async function login() {
-    var db = await client(), lang = (window.SEA_APP || {}).lang || 'zh', target = location.pathname.split('/').pop() || 'index.html'; target += location.search;
+  async function googleLogin(db) {
+    var lang = (window.SEA_APP || {}).lang || 'zh', target = location.pathname.split('/').pop() || 'index.html'; target += location.search;
     var redirect = new URL('trips.html',location.href); redirect.searchParams.set('lang',lang); redirect.searchParams.set('next',target);
     try { sessionStorage.setItem('sea-account-oauth',target); } catch (err) {}
     var result = await db.auth.signInWithOAuth({provider:'google',options:{redirectTo:redirect.href}}); if (result.error) throw result.error;
   }
+  async function login() { var db=await client(); window.SEA_INAPP.showLogin({client:db,lang:(window.SEA_APP||{}).lang||'zh',google:function(){return googleLogin(db);},success:function(){return refresh(db);}}); }
   var watching = false;
   async function start() {
     var db = await client();
     if (!watching) { watching = true; db.auth.onAuthStateChange(function () { setTimeout(function () { refresh(db).catch(function () {}); },0); }); }
     await refresh(db);
   }
-  window.SEA_ACCOUNT = {statusText:statusText,statusHtml:statusHtml,client:client,login:login};
+  window.SEA_ACCOUNT = {statusText:statusText,statusHtml:statusHtml,client:client,login:login,openLogin:function(db,google,success){window.SEA_INAPP.showLogin({client:db,lang:(window.SEA_APP||{}).lang||'zh',google:google,success:success});}};
   document.addEventListener('DOMContentLoaded',function () {
     var right = document.querySelector('.topbar-right'); if (!right) return;
     host = document.createElement('div'); host.className = 'account-wrap'; host.innerHTML = '<button type="button" class="account-button" aria-haspopup="true" aria-expanded="false" aria-controls="account-menu"></button><div id="account-menu" class="account-menu" hidden></div>'; right.appendChild(host); button = host.firstChild; menu = host.lastChild; render();
