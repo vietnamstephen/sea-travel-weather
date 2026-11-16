@@ -4,6 +4,14 @@
 (function () {
   'use strict';
   var D = window.SEA_DATA, I = window.I18N, R = window.SEA_RISK;
+  var GA_MEASUREMENT_ID = 'G-GX775Z6J31';
+  if (GA_MEASUREMENT_ID && location.hostname === 'vietnamstephen.github.io') {
+    var ga = document.createElement('script'); ga.async = true;
+    ga.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GA_MEASUREMENT_ID);
+    document.head.appendChild(ga);
+    window.dataLayer = window.dataLayer || []; window.gtag = function () { window.dataLayer.push(arguments); };
+    window.gtag('js', new Date()); window.gtag('config', GA_MEASUREMENT_ID);
+  }
   var esc = R.esc, t = function (k) { return I.t(k, LANG); };
   var LANG = (function () {
     var q = null;
@@ -132,13 +140,29 @@
   }
   function applyI18n() {
     document.documentElement.lang = LANG === "zh" ? "zh-CN" : LANG;
-    document.querySelector('meta[name="description"]').content = t('app.description');
+    updateSeo();
     document.getElementById("langBtn").setAttribute("aria-label", t("lang.label"));
     document.querySelectorAll('[data-i18n]').forEach(function (el) {
       var k = el.getAttribute('data-i18n');
       if (k) el.textContent = t(k);
     });
-    document.title = t('app.title') + ' · ' + (PAGE === 'overview' ? t('nav.overview') : PAGE === 'trips' ? t('nav.trips') : PAGE === 'pricing' ? t('pricing.title') : PAGE === 'terms' || PAGE === 'privacy' ? t('legal.' + PAGE) : loc(R.countryById(CID).name));
+  }
+
+  function updateSeo() {
+    var cityId = PAGE === 'country' ? new URLSearchParams(location.search).get('city') : null;
+    var country = PAGE === 'country' ? R.countryById(CID) : null;
+    var city = country && cityId ? country.cities.find(function (item) { return item.id === cityId; }) : null;
+    var section = PAGE === 'overview' ? t('nav.overview') : country ? loc(country.name) + (city ? ' · ' + loc(city.name) : '') : t('app.title');
+    var title = t('app.title') + ' · ' + section;
+    var desc = city ? t('app.description') + ' ' + loc(city.name) + ', ' + loc(country.name) + '.' : country ? t('app.description') + ' ' + loc(country.name) + '.' : t('app.description');
+    document.title = title;
+    var meta = document.querySelector('meta[name="description"]'); if (meta) meta.content = desc;
+    var canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) { var params = new URLSearchParams(); if (city) params.set('city', city.id); params.set('lang', LANG); canonical.href = 'https://vietnamstephen.github.io/sea-travel-weather/' + (country ? CID + '.html' : 'index.html') + '?' + params.toString(); }
+    var socialTitle = LANG === 'en' ? 'Yetu – Southeast Asia Travel Weather' + (section === t('nav.overview') ? '' : ' · ' + section) : title;
+    var socialBrand = LANG === 'zh' ? '椰途' : '椰途 Yetu';
+    var tags = { 'og:title': socialTitle, 'og:description': desc, 'og:site_name': socialBrand, 'twitter:title': socialTitle, 'twitter:description': desc };
+    Object.keys(tags).forEach(function (property) { var tag = document.querySelector('meta[property="' + property + '"]') || document.querySelector('meta[name="' + property + '"]'); if (tag) tag.content = tags[property]; });
   }
 
   /* ---------------- 导航 ---------------- */
@@ -1107,6 +1131,7 @@
 
   /* ---------------- 主流程 ---------------- */
   function render() {
+    updateSeo();
     buildNav(); updateStamp();
     if (['trips', 'pricing', 'terms', 'privacy'].includes(PAGE)) { notifyTrips(); return; }
     var main = document.getElementById('main');
