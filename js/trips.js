@@ -306,7 +306,7 @@
     if (value && typeof value === 'object' && value.content) value = value.content[0] && value.content[0].text;
     if (typeof value !== 'string') return value;
     try { return JSON.parse(value); } catch (err) { /* Labelled or Python literal below. */ }
-    // MCP tool text is often "Flight details: {'code': 200, ...}" — strip a leading label only.
+    // Some providers prefix flight details with a label; strip it when present.
     var labelled = value.match(/^[\sA-Za-z][A-Za-z0-9 _.-]*:\s*([\[{][\s\S]*)$/);
     if (labelled) {
       try { return JSON.parse(labelled[1]); } catch (err) { value = labelled[1]; }

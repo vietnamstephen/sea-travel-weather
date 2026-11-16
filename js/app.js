@@ -1012,7 +1012,7 @@
       SEA_OUTFIT.row(R.outfitDay(wc, hourKey(c.tz).slice(0,10))) + '</div>';
   }
 
-  // 配置了 API Key 后，在这里展示第三方返回的航班状态（明确标注需以航司公告为准）
+  // 展示航班信息时提醒旅客以航司公告为准
   function flightProviderLine(iata) {
     if (!FLIGHTS || !FLIGHTS.airports || !FLIGHTS.airports[iata]) return '';
     var rec = FLIGHTS.airports[iata];
@@ -1073,8 +1073,7 @@
         '<p>' + esc(t('flight.providerLabel')) + colon() + esc(FLIGHTS.provider || '—') + ' · ' +
         esc(t('flight.dataTime')) + colon() + esc(String(FLIGHTS.generatedAt || '').slice(0, 16).replace('T', ' ')) + '</p>' +
         '<p>' + esc(t('flight.thirdPartyNote')) + '</p></div>'
-      : '<div class="notice warn" style="margin-bottom:12px"><b>' + esc(t('flight.providerOffTitle')) + '</b><p>' +
-        esc(t('flight.providerOffText')) + '</p><p>' + esc(t('flight.keyHint')) + '</p></div>';
+      : '<div class="notice info" style="margin-bottom:12px"><p>' + esc(t('flight.officialHint')) + '</p></div>';
     html += '<div class="section">' + sectionHead('country.airportTitle', 'country.airportHint') +
       flightNotice + '<div class="panel"><div class="list">';
     c.airports.forEach(function (ap) {
@@ -1354,7 +1353,7 @@
       var f = await fetch('data/flights.json?v=' + version);
       if (f.ok) FLIGHTS = await f.json();
     } catch (e) {
-      FLIGHTS = null;   // 缺文件时按「未接入」呈现，不影响天气功能
+      FLIGHTS = null;   // 缺少航班数据文件时仅显示官方核实提示，不影响天气功能
     }
     try {
       var a = await fetch('data/advisories.json?v=' + version);
