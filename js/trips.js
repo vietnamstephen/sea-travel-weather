@@ -287,6 +287,7 @@
   // custom OIDC, to be implemented. Keep disabled even if config is toggled.
   var AUTH_PROVIDERS = {
     google: async function () {
+      window.SEA_ACCOUNT.openLogin(client, async function () {
       // OAuth normally navigates before Supabase can report a disabled provider.
       // Check public provider settings first so the error stays on this page.
       var settingsResponse = await fetch(C.SUPABASE_URL.replace(/\/$/, '') + '/auth/v1/settings', { headers: { apikey: C.SUPABASE_ANON_KEY } });
@@ -298,6 +299,7 @@
       url.searchParams.set('lang', window.SEA_APP.lang);
       var result = await client.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: url.href } });
       if (result.error) { message = errorKey(result.error, true); throw result.error; }
+      }, async function () { await load(); render(); });
     },
     zalo: null
   };
