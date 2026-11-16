@@ -13,7 +13,7 @@
   };
 
   // 机场「航班动态」入口。official = 机场/航司官方页；public = 免登录第三方公开页。
-  // 两者都不需要 API Key，页面只做跳转，不声称拿到了实时航班数据。
+  // 页面仅提供官方信息入口，不展示实时航班状态。
   var link = function (kind, url, note) {
     return { kind: kind, url: url, note: note || '' };
   };
@@ -355,11 +355,11 @@
     languages: ['zh', 'en', 'vi', 'th', 'id'],
     countries: COUNTRIES,
     thresholds: THRESHOLDS,
-    // 航班数据提供方：默认关闭（免 Key 模式）；配置 Key 后由本机每日任务启用，前端永不接触密钥
+    // 航班状态请旅客通过机场与航司官方渠道核实。
     flightProvider: {
       mode: 'off',
-      supported: ['variflight-mcp', 'aviationstack'],
-      note: 'Real flight-status APIs require an account/key. Keys live only in the local updater environment, never in front-end files.'
+      supported: [],
+      note: 'Check official airport or airline information for flight status.'
     }
   };
 })(window);
