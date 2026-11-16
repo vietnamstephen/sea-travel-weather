@@ -154,7 +154,7 @@
     "trips.routeFlights": ["查询此航线航班", "Flights on this route", "Chuyến bay trên tuyến này", "เที่ยวบินในเส้นทางนี้", "Penerbangan di rute ini"],
     "trips.flightUnconfigured": ["航班数据尚未配置。", "Flight data not configured.", "Chưa cấu hình dữ liệu chuyến bay.", "ยังไม่ได้ตั้งค่าข้อมูลเที่ยวบิน", "Data penerbangan belum dikonfigurasi."],
     "trips.flightError": ["航班查询失败，请稍后重试。", "Flight lookup failed. Please retry later.", "Tra cứu chuyến bay thất bại. Vui lòng thử lại sau.", "ค้นหาเที่ยวบินไม่สำเร็จ กรุณาลองใหม่ภายหลัง", "Pencarian penerbangan gagal. Coba lagi nanti."],
-    'app.title': ['东南亚出行天气与交通预警', 'SEA Travel Weather & Transport Advisory', 'Thời tiết & Cảnh báo giao thông Đông Nam Á', 'สภาพอากาศและคำเตือนการเดินทางอาเซียน', 'Cuaca & Peringatan Perjalanan Asia Tenggara'],
+    'app.title': ['椰途', '椰途 Yetu', '椰途 Yetu', '椰途 Yetu', '椰途 Yetu'],
     'app.sub': ['给旅游与商务出行者的简易查询 · 天气事实与风险推断分开呈现', 'A simple check for leisure & business travellers · weather facts and inferred risks shown separately', 'Tra cứu đơn giản cho khách du lịch & công tác · tách bạch số liệu thời tiết và suy luận rủi ro', 'ตรวจสอบง่ายสำหรับท่องเที่ยวและธุรกิจ · แยกข้อมูลจริงกับการประเมินความเสี่ยง', 'Pemeriksaan sederhana untuk wisata & bisnis · fakta cuaca dan perkiraan risiko ditampilkan terpisah'],
     'app.updated': ['数据更新', 'Data updated', 'Cập nhật dữ liệu', 'อัปเดตข้อมูล', 'Data diperbarui'],
     'app.loading': ['正在载入天气数据…', 'Loading weather data…', 'Đang tải dữ liệu thời tiết…', 'กำลังโหลดข้อมูลอากาศ…', 'Memuat data cuaca…'],
