@@ -1,7 +1,7 @@
 {
   "mode": "off",
   "provider": null,
-  "generatedAt": "2026-11-15T22:37:30+00:00",
+  "generatedAt": "2026-11-17T01:44:33+00:00",
   "airports": {},
-  "note": "Check official airport or airline information for flight status."
+  "note": "No key configured. Official flight boards + weather inference only."
 }
