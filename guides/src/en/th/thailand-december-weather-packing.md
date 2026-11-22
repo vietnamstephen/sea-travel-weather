@@ -5,7 +5,7 @@ slug: thailand-december-weather-packing
 date: 2026-11-20
 city: bangkok
 lang: en
-cover: "cover-th-december-weather-packing.jpg"  # placeholder; licensed image from the visual team, with source, pending
+cover: "cover-th-december-weather-packing-r2.jpg"
 draft: true
 ---
 

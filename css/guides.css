@@ -12,7 +12,13 @@
 .guide-main p, .guide-main figure, .guide-main ol, .guide-main ul,
 .guide-table, .guide-main blockquote { margin-top: 1rem; }
 .guide-main ol, .guide-main ul { padding-inline-start: 1.5rem; }
-.guide-main img { display: block; width: 100%; height: auto; }
+.guide-main img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; }
+.guide-main p, .guide-main li, .guide-main td, .guide-main th { font-size: 1rem; }
+.guide-main .guide-swipe { display: none; }
+@media (max-width: 640px) {
+  .guide-main .guide-swipe { display: block; margin-top: 1rem; color: var(--sub); font-size: .875rem; text-align: center; }
+  .guide-main .guide-swipe + .guide-table { margin-top: .25rem; -webkit-mask-image: linear-gradient(to right, #000 85%, transparent); mask-image: linear-gradient(to right, #000 85%, transparent); }
+}
 .guide-main time, .guide-main figcaption { color: var(--sub); font-size: .875rem; }
 .guide-main figcaption { margin-top: .375rem; }
 .guide-table { max-width: 100%; overflow-x: auto; }

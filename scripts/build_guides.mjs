@@ -71,13 +71,13 @@ function render(page, articles, site, preview, visible) {
   const org = { '@type': 'Organization', name: '椰途' };
   const schema = { '@context': 'https://schema.org', '@type': 'Article', headline: title, description,
     datePublished: page.date, image, inLanguage: lang, author: org, publisher: org };
-  const figure = cover ? `<figure><img src="${href(cover)}" alt="${escape(artwork[lang])}"><figcaption>${locale.credit}${artwork.date}</figcaption></figure>` : '';
+  const figure = cover ? `<figure><img src="${href(cover)}" width="1200" height="630" alt="${escape(artwork[lang])}"><figcaption>${locale.credit}${artwork.date}</figcaption></figure>` : '';
   const entries = listed.map(other => `<li><time datetime="${other.date}">${other.date}</time>
   <h2><a href="${href(route(other))}">${escape(other.title)}</a></h2><p>${escape(other.description)}</p></li>`).join('\n');
   const content = slug ? `<article><a href="index.html">${locale.lists[country]}</a>
 <h1>${escape(title)}</h1><time datetime="${page.date}">${page.date}</time>
 ${figure}
-${markdown(page.body, title, resolveLink)}</article>` : `<h1>${escape(title)}</h1>
+${markdown(page.body, title, resolveLink).replaceAll('<div class="guide-table"', `<p class="guide-swipe">${locale.swipe}</p><div class="guide-table"`)}</article>` : `<h1>${escape(title)}</h1>
 ${entries ? '<ul class="guide-list">' + entries + '</ul>' : '<p>' + locale.empty + '</p>'}`;
   return `${marker}
 <html lang="${lang}">

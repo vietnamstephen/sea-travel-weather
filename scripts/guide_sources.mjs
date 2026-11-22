@@ -6,8 +6,8 @@ export const root = fileURLToPath(new URL('../', import.meta.url));
 export const base = 'https://vietnamstephen.github.io/sea-travel-weather/';
 export const countries = ['vn', 'th'];
 export const locales = {
-  zh: { name: '中文', lists: { vn: '越南旅行攻略', th: '泰国旅行攻略' }, empty: '攻略准备中。', credit: '封面插图：AI 生成（OpenAI image_gen），' },
-  en: { name: 'English', lists: { vn: 'Vietnam travel guides', th: 'Thailand travel guides' }, empty: 'Guides are coming soon.', credit: 'Cover illustration: AI-generated (OpenAI image_gen), ' }
+  zh: { name: '中文', lists: { vn: '越南旅行攻略', th: '泰国旅行攻略' }, empty: '攻略准备中。', credit: '封面插图：AI 生成（OpenAI image_gen），', swipe: '← 滑动查看完整表格 →' },
+  en: { name: 'English', lists: { vn: 'Vietnam travel guides', th: 'Thailand travel guides' }, empty: 'Guides are coming soon.', credit: 'Cover illustration: AI-generated (OpenAI image_gen), ', swipe: '← Swipe to see the full table →' }
 };
 
 export function route({ lang, country, slug = 'index' }) {

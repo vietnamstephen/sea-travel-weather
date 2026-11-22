@@ -5,7 +5,7 @@ slug: thailand-december-weather-packing
 date: 2026-11-20
 city: bangkok
 lang: zh
-cover: "cover-th-december-weather-packing.jpg"  # 占位，待视觉组提供授权图并注明来源
+cover: "cover-th-december-weather-packing-r2.jpg"
 draft: true
 ---
 

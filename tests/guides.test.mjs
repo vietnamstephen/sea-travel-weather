@@ -66,7 +66,7 @@ test('real bilingual previews render credited covers, fallback metadata, article
       assert.doesNotMatch(html, /<!-- (?:编辑备注|Editor note|付费引导位)/);
     }
     if (cover) {
-      const figures = [...html.matchAll(/<figure><img src="([^"]+)" alt="([^"]+)"><figcaption>([^<]+)<\/figcaption><\/figure>/g)];
+      const figures = [...html.matchAll(/<figure><img src="([^"]+)" width="1200" height="630" alt="([^"]+)"><figcaption>([^<]+)<\/figcaption><\/figure>/g)];
       assert.equal(figures.length, 1, route(guide));
       const [, src, alt, caption] = figures[0];
       assert.equal(path.resolve(out, path.dirname(route(guide)), src), path.join(out, cover));
@@ -149,4 +149,24 @@ test('guide branch adds no files under docs, including untracked files', () => {
   const baseCommit = git('merge-base', 'HEAD', 'origin/main');
   assert.equal(git('diff', '--name-only', '--no-renames', '--diff-filter=A', baseCommit, '--', 'docs/'), '');
   assert.equal(git('ls-files', '--others', '--exclude-standard', '--', 'docs/'), '');
+});
+
+test('guide covers declare intrinsic size and tables carry a localized swipe hint', t => {
+  const out = buildGuides(root, { preview: true });
+  t.after(() => fs.rmSync(out, { recursive: true, force: true }));
+  for (const guide of readGuides()) {
+    const html = read(out, route(guide));
+    const imgs = [...html.matchAll(/<img\b[^>]*>/g)].map(m => m[0]);
+    assert.ok(imgs.length >= 1, guide.slug + ' should have a cover');
+    for (const img of imgs) {
+      assert.match(img, /\bwidth="1200"/);
+      assert.match(img, /\bheight="630"/);
+    }
+    const tables = (html.match(/<div class="guide-table"/g) || []).length;
+    const hints = (html.match(/<p class="guide-swipe">[^<]+<\/p><div class="guide-table"/g) || []).length;
+    assert.equal(hints, tables, guide.slug + ' every table needs a swipe hint');
+  }
+  const css = fs.readFileSync(path.join(root, 'css/guides.css'), 'utf8');
+  assert.match(css, /aspect-ratio:\s*1200\s*\/\s*630/);
+  assert.match(css, /\.guide-main p, \.guide-main li, \.guide-main td, \.guide-main th \{ font-size: 1rem; \}/);
 });
