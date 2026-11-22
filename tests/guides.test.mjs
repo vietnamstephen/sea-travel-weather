@@ -34,7 +34,7 @@ const expectedCovers = {
   'vietnam-december-weather-packing': ['cover-vn-december-weather-packing.jpg', '2026-11-16'],
   'danang-hoian-late-year-rain': ['cover-vn-central-late-year-rain.jpg', '2026-07-22'],
   'sapa-chiangmai-winter-cold': ['cover-vn-th-sapa-chiangmai-winter.jpg', '2026-11-22'],
-  'thailand-december-weather-packing': null
+  'thailand-december-weather-packing': ['cover-th-december-weather-packing-r2.jpg', '2026-11-22']
 };
 
 test('real bilingual previews render credited covers, fallback metadata, articles and resolving alternates', t => {

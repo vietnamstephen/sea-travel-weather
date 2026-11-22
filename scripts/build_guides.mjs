@@ -26,6 +26,11 @@ const covers = new Map([
     file: 'cover-vn-th-sapa-chiangmai-winter.jpg', date: '2026-11-22',
     zh: '穿棉衣的旅人望向薄雾中的沙坝梯田，另一位旅人站在清迈黄昏的寺庙前。',
     en: 'A traveler in a padded jacket overlooks misty Sapa terraces beside a view of a traveler at a Chiang Mai temple at dusk.'
+  }],
+  ['thailand-december-weather-packing', {
+    file: 'cover-th-december-weather-packing-r2.jpg', date: '2026-11-22',
+    zh: '三位旅人分别站在曼谷老街、清迈夜市和普吉海滩，普吉远海上空有一片阵雨云。',
+    en: 'Three travelers on a Bangkok street, at a Chiang Mai night market and on a Phuket beach, with a passing shower cloud over the sea.'
   }]
 ]);
 
