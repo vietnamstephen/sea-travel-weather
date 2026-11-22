@@ -32,7 +32,7 @@ function alternateLinks(html) {
 
 const expectedCovers = {
   'vietnam-december-weather-packing': ['cover-vn-december-weather-packing.jpg', '2026-11-16'],
-  'danang-hoian-late-year-rain': ['cover-vn-central-late-year-rain.jpg', '2026-07-22'],
+  'danang-hoian-late-year-rain': ['cover-vn-central-late-year-rain.jpg', '2026-11-22'],
   'sapa-chiangmai-winter-cold': ['cover-vn-th-sapa-chiangmai-winter.jpg', '2026-11-22'],
   'thailand-december-weather-packing': ['cover-th-december-weather-packing-r2.jpg', '2026-11-22']
 };
@@ -119,7 +119,13 @@ test('production filters drafts, pairs by slug across countries, sorts lists and
   assert.equal(fs.existsSync(path.join(site, draft)), false);
   assert.doesNotMatch(read(site, 'guides/en/th/index.html'), /older\.html/);
   const xml = read(site, 'sitemap.xml');
-  for (const url of [...lists.map(route), older, recent, english]) assert.ok(xml.includes('<loc>' + base + url + '</loc>'));
+  for (const url of ['guides/vn/index.html', 'guides/en/th/index.html', older, recent, english]) assert.ok(xml.includes('<loc>' + base + url + '</loc>'), url);
+  // Lists with published articles are indexable; empty lists are noindex and stay out of the sitemap.
+  for (const list of ['guides/vn/index.html', 'guides/en/th/index.html']) assert.doesNotMatch(read(site, list), /name="robots"/, list);
+  for (const list of ['guides/th/index.html', 'guides/en/vn/index.html']) {
+    assert.match(read(site, list), /<meta name="robots" content="noindex">/, list);
+    assert.ok(!xml.includes(base + list), list);
+  }
   assert.ok(!xml.includes(base + draft));
   execFileSync('xmllint', ['--noout', path.join(site, 'sitemap.xml')]);
   add('zh', 'vn', 'winter', '2024-12-01', true);
@@ -133,7 +139,12 @@ test('production filters drafts, pairs by slug across countries, sorts lists and
 test('checked-in production lists and sitemap contain only published guides', () => {
   const xml = read(root, 'sitemap.xml');
   execFileSync('xmllint', ['--noout', path.join(root, 'sitemap.xml')]);
-  for (const list of lists) assert.ok(xml.includes(base + route(list)));
+  const published = readGuides().filter(article => !article.draft);
+  for (const list of lists) {
+    const filled = published.some(article => article.lang === list.lang && article.country === list.country);
+    assert.equal(xml.includes(base + route(list)), filled, route(list));
+    assert.equal(/<meta name="robots" content="noindex">/.test(read(root, route(list))), !filled, route(list));
+  }
   for (const article of readGuides()) {
     const url = route(article);
     assert.equal(fs.existsSync(path.join(root, url)), !article.draft, url);

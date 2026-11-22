@@ -11,7 +11,10 @@ export function writeSitemap(site = root) {
   for (const country of context.window.SEA_DATA.countries.filter(country => countries.includes(country.id))) {
     paths.push(`${country.id}.html`, ...country.cities.map(city => `${country.id}.html?city=${encodeURIComponent(city.id)}`));
   }
-  paths.push(...lists.map(route), ...readGuides(site).filter(article => !article.draft).map(route));
+  const published = readGuides(site).filter(article => !article.draft);
+  // A list page with no published article is noindex, so it stays out of the sitemap until launch.
+  const filled = lists.filter(list => published.some(article => article.lang === list.lang && article.country === list.country));
+  paths.push(...filled.map(route), ...published.map(route));
   const xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
     paths.map(url => `  <url><loc>${base}${url.replaceAll('&', '&amp;')}</loc></url>`).join('\n') +

@@ -18,7 +18,7 @@ const covers = new Map([
     en: 'A traveler in a knit hat by a misty Hanoi lake beside a traveler in short sleeves on a southern Vietnamese beach.'
   }],
   ['danang-hoian-late-year-rain', {
-    file: 'cover-vn-central-late-year-rain.jpg', date: '2026-07-22',
+    file: 'cover-vn-central-late-year-rain.jpg', date: '2026-11-22',
     zh: '穿雨衣的旅人走在会安古城的街上，灯笼倒映在湿漉漉的路面。',
     en: 'A traveler in a raincoat walks through Hoi An, where lanterns reflect on the wet street.'
   }],
@@ -98,7 +98,7 @@ ${tags.map(([code, target]) => `<link rel="alternate" hreflang="${code}" href="$
 <meta name="twitter:title" content="${branded}">
 <meta name="twitter:description" content="${escape(description)}">
 <meta name="twitter:image" content="${image}">
-${preview ? '<meta name="robots" content="noindex,nofollow">' : ''}
+${preview ? '<meta name="robots" content="noindex,nofollow">' : !slug && !listed.length ? '<meta name="robots" content="noindex">' : ''}
 ${slug ? '<script type="application/ld+json">' + JSON.stringify(schema).replaceAll('<', '\\u003c') + '</script>' : ''}
 <link rel="icon" href="${href('favicon.svg')}">
 <link rel="stylesheet" href="${href('css/style.css')}">
