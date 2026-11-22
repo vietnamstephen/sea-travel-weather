@@ -5,7 +5,7 @@ const context = { window: {} };
 vm.runInNewContext(fs.readFileSync(new URL('../js/data.js', import.meta.url), 'utf8'), context);
 const countries = context.window.SEA_DATA.countries.filter(country => ['vn', 'th'].includes(country.id));
 const base = 'https://vietnamstephen.github.io/sea-travel-weather/';
-const urls = [base, ...countries.flatMap(country => [
+const urls = [base, `${base}refund.html`, ...countries.flatMap(country => [
   `${base}${country.id}.html`,
   ...country.cities.map(city => `${base}${country.id}.html?city=${encodeURIComponent(city.id)}`)
 ])];

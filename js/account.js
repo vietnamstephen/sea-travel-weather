@@ -40,7 +40,7 @@
     var user = session && session.user, label = t(user ? 'account.in' : 'account.out') + (user && user.email ? ' · ' + user.email : '');
     button.title = label; button.setAttribute('aria-label',label);
     var avatar = user && (user.user_metadata || {}), url = avatar && (avatar.avatar_url || avatar.picture);
-    button.innerHTML = '<span class="account-avatar">' + (user ? esc((user.email || '?').charAt(0).toUpperCase()) : '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/></svg>') + '</span><span class="account-dot' + (user ? ' online' : '') + '"></span>' + (user ? '<span class="account-tag">' + esc(vip(value) ? 'VIP' : t('account.freeTag')) + '</span>' : '');
+    button.innerHTML = '<span class="account-avatar">' + (user ? esc((user.email || '?').charAt(0).toUpperCase()) : '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/></svg>') + '</span><span class="account-dot' + (user ? ' online' : '') + '"></span>' + (user ? '<span class="account-tag">' + esc(vip(value) ? t('pricing.tripPack') : t('account.freeTag')) + '</span>' : '');
     if (url && /^https?:\/\//i.test(url)) {
       var img = document.createElement('img'); img.alt = ''; img.referrerPolicy = 'no-referrer'; img.onerror = function () { img.remove(); }; img.src = url; button.querySelector('.account-avatar').appendChild(img);
     }

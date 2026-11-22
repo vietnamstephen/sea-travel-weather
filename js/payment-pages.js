@@ -7,7 +7,7 @@
   var selectedPlan = 'yearly';
   function t(key) { return window.I18N.t(key, (window.SEA_APP || {}).lang || 'zh'); }
   function e(value) { return window.SEA_RISK.esc(value == null ? '' : value); }
-  function links() { return '<div class="payment-links"><a href="terms.html">' + e(t('legal.terms')) + '</a><a href="privacy.html">' + e(t('legal.privacy')) + '</a><a href="terms.html#refund">' + e(t('legal.refund')) + '</a></div>'; }
+  function links() { return '<div class="payment-links"><a href="terms.html">' + e(t('legal.terms')) + '</a><a href="privacy.html">' + e(t('legal.privacy')) + '</a><a href="refund.html">' + e(t('legal.refund')) + '</a></div>'; }
   function render() {
     if (!main) return;
     // On pricing, reserve the current-plan label for the matching plan card.
@@ -18,9 +18,10 @@
     var html = '<div class="section-head"><h1>' + e(t(page === 'pricing' ? 'pricing.headline' : 'legal.' + page)) + '</h1></div>';
     if (page !== 'pricing') {
       html += '<article class="panel payment-legal">';
-      if (page === 'terms') html += '<p>Weather and travel risk information is advisory. Verify conditions and flight changes with official sources before travel. Availability and accuracy are not guaranteed. 天气与出行风险仅供参考，请以官方信息为准。</p><p>Paddle is the Merchant of Record for VIP purchases and handles checkout, taxes, billing and payment receipts. Recurring plans renew automatically unless canceled through the Paddle customer portal linked in your receipt. Access continues through the paid period. A 7-day pass does not renew. Paddle 为名义商户，负责结账、税费、账单与收据；订阅可在收据中的客户门户取消。</p>';
-      else html += '<p>We collect your Google login email and account identifier, saved trips (origin, destination, date, flight number and notes), and payment identifiers / subscription status. Supabase hosts account and trip data. Only enter information needed for your trip. 我们收集 Google 登录邮箱、用户标识、保存的行程和付款标识及会员状态；Supabase 托管这些数据。</p><p>Paddle handles payment details as Merchant of Record; this site does not receive or store full card details. Google handles login authentication. Weather and flight requests may be sent to data providers. Paddle 作为名义商户处理支付，本网站不接收或存储完整银行卡资料。Google 负责登录认证。</p><p>To request access, correction or deletion of your account data, contact vietnamstephen@gmail.com. Billing records may need to be retained for accounting or legal obligations. 数据查阅、更正、删除请联系 vietnamstephen@gmail.com；账务资料可能依法保留。</p>';
-      html += '<h2 id="refund">' + e(t('legal.refund')) + '</h2><p>A refund may be requested within 14 days of the first purchase via Paddle as Merchant of Record. The 7-day pass is non-refundable after first use, subject to applicable mandatory consumer rights. Contact support through your Paddle receipt or vietnamstephen@gmail.com with the transaction ID. Approved refunds revoke related VIP access immediately. 首次购买后 14 天内可通过名义商户 Paddle 申请退款；7 天通行证首次使用后原则上不退（强制消费者权利除外）。请通过 Paddle 收据或上述邮箱联系，提供交易号。批准退款后相关 VIP 权限立即终止。</p></article>';
+      if (page === 'terms') html += '<p>Weather and travel risk information is advisory. Verify conditions and flight changes with official sources before travel. Availability and accuracy are not guaranteed. 天气与出行风险仅供参考，请以官方信息为准。</p><p>Paddle is the Merchant of Record and handles checkout, taxes, billing and payment receipts. Recurring plans renew automatically unless canceled through the Paddle customer portal linked in your receipt. Access continues through the paid period. 7-day Trip Pack access does not renew. Paddle 为名义商户，负责结账、税费、账单与收据；定期方案可在收据中的客户门户取消。</p>';
+      else if (page === 'privacy') html += '<p>We collect your Google login email and account identifier, saved trips (origin, destination, date, flight number and notes), and payment identifiers / recurring plan status. Supabase hosts account and trip data. Only enter information needed for your trip. 我们收集 Google 登录邮箱、用户标识、保存的行程和付款标识及访问状态；Supabase 托管这些数据。</p><p>Paddle handles payment details as Merchant of Record; this site does not receive or store full card details. Google handles login authentication. Weather and flight requests may be sent to data providers. Paddle 作为名义商户处理支付，本网站不接收或存储完整银行卡资料。Google 负责登录认证。</p><p>To request access, correction or deletion of your account data, contact vietnamstephen@gmail.com. Billing records may need to be retained for accounting or legal obligations. 数据查阅、更正、删除请联系 vietnamstephen@gmail.com；账务资料可能依法保留。</p>';
+      if (page === 'terms' || page === 'refund') html += '<h2 id="refund">' + e(t('legal.refund')) + '</h2><p>' + e(t('legal.refundSummary')) + ' ' + e(t('legal.refundInstructions')) + '</p>';
+      html += '</article>';
       main.innerHTML = html + links(); return;
     }
     if (!api.visible(entitlement)) { main.innerHTML = '<div class="panel"><p>' + e(t('pricing.unavailable')) + '</p><a href="trips.html">' + e(t('nav.trips')) + '</a></div>'; return; }
@@ -42,6 +43,7 @@
       return '<button type="button" class="pill payment-buy" data-plan="' + e(key) + '"' +
         (disabled ? ' disabled aria-disabled="true"' : '') + (admin ? ' aria-describedby="' + noteId + '"' : '') + '>' +
         e(t(loading ? 'trips.loading' : current ? 'pricing.current' : session ? 'pricing.upgrade' : 'pricing.login')) + '</button>' +
+        '<p class="payment-agreement">' + e(t('legal.refundSummary')) + ' ' + e(t('pricing.agreement')) + ' <a href="terms.html">' + e(t('pricing.agreementTerms')) + '</a> ' + e(t('pricing.agreementJoin')) + ' <a href="refund.html">' + e(t('pricing.agreementRefund')) + '</a></p>' +
         (admin ? '<p class="payment-plan-note" id="' + noteId + '">' + e(t('pricing.adminNote')) + '</p>' : '');
     }
     function price(key) {
@@ -59,12 +61,12 @@
     }
     if (!P.prices[selectedPlan]) selectedPlan = 'yearly';
     var percent = yearlySavePercent(), locale = (window.SEA_APP || {}).lang || 'zh';
-    html += '<div class="payment-plans" id="plans"><section class="panel payment-plan featured"><div class="payment-toggle" role="tablist" aria-label="VIP">';
+    html += '<div class="payment-plans" id="plans"><section class="panel payment-plan featured"><div class="payment-toggle" role="tablist" aria-label="' + e(t('pricing.tripPack')) + '">';
     [['yearly', yearlyLabel()], ['monthly', t('pricing.segMonthly')], ['pass7', t('pricing.segPass7')]].forEach(function (item) {
       html += '<button type="button" class="pill" role="tab" id="price-tab-' + item[0] + '" aria-controls="price-panel-' + item[0] + '" tabindex="' + (item[0] === selectedPlan ? '0' : '-1') + '" data-price-tab="' + item[0] + '" aria-selected="' + (item[0] === selectedPlan ? 'true' : 'false') + '"' +
         (item[0] === selectedPlan ? ' aria-pressed="true"' : '') + '>' + e(item[1]) + '</button>';
     });
-    html += '</div><h2>' + e(t('pricing.vipTitle')) + '</h2>';
+    html += '</div><h2>' + e(t('pricing.tripPack')) + '</h2>';
     ['yearly', 'monthly', 'pass7'].forEach(function (key) {
       html += '<div class="payment-plan-body" role="tabpanel" id="price-panel-' + key + '" aria-labelledby="price-tab-' + key + '" data-price-panel="' + key + '"' + (key === selectedPlan ? '' : ' hidden') + '>';
       if (key === 'pass7') html += '<p>' + e(t('pricing.oneTime')) + '</p>' + price(key) + checkout(key);
@@ -83,7 +85,7 @@
     html += '</section><section class="panel payment-plan payment-free"><h2>' + e(t('pricing.free')) + '</h2><ul class="payment-features">' +
       ['weatherOnly', 'risk', 'savedTrips'].map(function (key) { return '<li>' + e(t('pricing.' + key)) + '</li>'; }).join('') +
       '</ul><a class="pill" href="trips.html">' + e(t('trips.google')) + '</a></section></div>';
-    html += '<section class="panel payment-comparison"><table class="payment-table"><thead><tr><th scope="col">' + e(t('pricing.feature')) + '</th><th scope="col">' + e(t('pricing.freeCol')) + '</th><th scope="col">VIP</th></tr></thead><tbody>';
+    html += '<section class="panel payment-comparison"><table class="payment-table"><thead><tr><th scope="col">' + e(t('pricing.feature')) + '</th><th scope="col">' + e(t('pricing.freeCol')) + '</th><th scope="col">' + e(t('pricing.tripPack')) + '</th></tr></thead><tbody>';
     ['weatherOnly', 'risk', 'savedTrips', 'flightStatus', 'suggestions'].forEach(function (key, index) {
       html += '<tr><th scope="row">' + e(t('pricing.' + key)) + '</th><td>' + (index < 3 ? '✓' : '—') + '</td><td>✓</td></tr>';
     });

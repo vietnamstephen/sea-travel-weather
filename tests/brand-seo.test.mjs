@@ -6,25 +6,15 @@ import vm from 'node:vm';
 const root = new URL('../', import.meta.url);
 const read = file => fs.readFileSync(new URL(file, root), 'utf8');
 
-test('GA4 loads directly only on the production host', () => {
+test('GA4 remains gated to production and waits for consent', () => {
   const app = read('js/app.js');
   assert.match(app, /var GA_MEASUREMENT_ID = 'G-GX775Z6J31'/);
-  assert.match(app, /if \(GA_MEASUREMENT_ID && location\.hostname === 'vietnamstephen\.github\.io'\)\s*\{/);
-  const block = app.match(/if \(GA_MEASUREMENT_ID && location\.hostname === 'vietnamstephen\.github\.io'\)\s*\{([\s\S]*?)\n  \}/)?.[1] || '';
-  assert.match(block, /gtag\/js/);
-  assert.match(block, /window\.gtag\('config', GA_MEASUREMENT_ID\)/);
-  assert.doesNotMatch(block, /googletagmanager\.com\/gtm\.js|GTM-MWQ554GB/);
-  for (const [hostname, id, expected] of [
-    ['vietnamstephen.github.io', 'G-GX775Z6J31', 1], ['localhost', 'G-GX775Z6J31', 0],
-    ['127.0.0.1', 'G-GX775Z6J31', 0], ['vietnamstephen.github.io', '', 0]
-  ]) {
-    let injections = 0;
-    vm.runInNewContext(`if (GA_MEASUREMENT_ID && location.hostname === 'vietnamstephen.github.io') {${block}\n}`, {
-      GA_MEASUREMENT_ID: id, location: { hostname }, document: { createElement: () => ({}), head: { appendChild: () => injections++ } },
-      window: { dataLayer: [] }, encodeURIComponent
-    });
-    assert.equal(injections, expected, `${hostname} with ID ${id || '(empty)'}`);
-  }
+  assert.match(app, /var consentEnabled = GA_MEASUREMENT_ID && location\.hostname === 'vietnamstephen\.github\.io'/);
+  assert.match(app, /if \(consentEnabled\) initConsent\(\)/);
+  assert.match(app, /gtag\('consent', 'default', \{ ad_storage: 'denied', analytics_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' \}\)/);
+  assert.match(app, /function loadAnalytics\(\)[\s\S]*?googletagmanager\.com\/gtag\/js[\s\S]*?gtag\('config', GA_MEASUREMENT_ID\)/);
+  assert.match(app, /if \(value === 'accepted'\)[\s\S]*?loadAnalytics\(\)/);
+  assert.doesNotMatch(app, /googletagmanager\.com\/gtm\.js|GTM-MWQ554GB/);
 });
 
 test('all five localized brand strings follow the approved spelling', () => {
