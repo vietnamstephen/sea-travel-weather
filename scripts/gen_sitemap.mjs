@@ -1,16 +1,22 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { base, countries, lists, readGuides, root, route } from './guide_sources.mjs';
 
-const context = { window: {} };
-vm.runInNewContext(fs.readFileSync(new URL('../js/data.js', import.meta.url), 'utf8'), context);
-const countries = context.window.SEA_DATA.countries.filter(country => ['vn', 'th'].includes(country.id));
-const base = 'https://vietnamstephen.github.io/sea-travel-weather/';
-const urls = [base, ...countries.flatMap(country => [
-  `${base}${country.id}.html`,
-  ...country.cities.map(city => `${base}${country.id}.html?city=${encodeURIComponent(city.id)}`)
-])];
-const xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-  '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-  urls.map(url => `  <url><loc>${url.replaceAll('&', '&amp;')}</loc></url>`).join('\n') +
-  '\n</urlset>\n';
-fs.writeFileSync(new URL('../sitemap.xml', import.meta.url), xml);
+export function writeSitemap(site = root) {
+  const context = { window: {} };
+  vm.runInNewContext(fs.readFileSync(new URL('../js/data.js', import.meta.url), 'utf8'), context);
+  const paths = [''];
+  for (const country of context.window.SEA_DATA.countries.filter(country => countries.includes(country.id))) {
+    paths.push(`${country.id}.html`, ...country.cities.map(city => `${country.id}.html?city=${encodeURIComponent(city.id)}`));
+  }
+  paths.push(...lists.map(route), ...readGuides(site).filter(article => !article.draft).map(route));
+  const xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    paths.map(url => `  <url><loc>${base}${url.replaceAll('&', '&amp;')}</loc></url>`).join('\n') +
+    '\n</urlset>\n';
+  fs.writeFileSync(path.join(site, 'sitemap.xml'), xml);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) writeSitemap();
