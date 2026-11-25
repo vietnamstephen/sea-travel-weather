@@ -1,0 +1,31 @@
+.brand-title, .brand-sub { display: block; }
+.brand { color: var(--txt); }
+.guide-main {
+  width: min(calc(100% - 32px), 54rem);
+  margin: 1.5rem auto;
+  padding: clamp(1rem, 4vw, 3rem);
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+.guide-main h1 { line-height: 1.26; margin: .5rem 0; }
+.guide-main h2, .guide-main h3 { margin-top: 1.5rem; line-height: 1.35; }
+.guide-main p, .guide-main figure, .guide-main ol, .guide-main ul,
+.guide-table, .guide-main blockquote { margin-top: 1rem; }
+.guide-main ol, .guide-main ul { padding-inline-start: 1.5rem; }
+.guide-main img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; }
+.guide-main p, .guide-main li, .guide-main td, .guide-main th { font-size: 1rem; }
+.guide-main .guide-swipe { display: none; }
+@media (max-width: 640px) {
+  .guide-main .guide-swipe { display: block; margin-top: 1rem; color: var(--sub); font-size: .875rem; text-align: center; }
+  .guide-main .guide-swipe + .guide-table { margin-top: .25rem; -webkit-mask-image: linear-gradient(to right, #000 85%, transparent); mask-image: linear-gradient(to right, #000 85%, transparent); }
+}
+.guide-main time, .guide-main figcaption { color: var(--sub); font-size: .875rem; }
+.guide-main figcaption { margin-top: .375rem; }
+.guide-table { max-width: 100%; overflow-x: auto; }
+.guide-table table { width: 100%; min-width: 40rem; border-collapse: collapse; }
+.guide-table td, .guide-table th { border: 1px solid var(--line); padding: .5rem; text-align: start; }
+.guide-table th, .guide-main blockquote { background: var(--panel2); }
+.guide-main blockquote { padding: .75rem 1rem; border-inline-start: 3px solid var(--line); }
+.guide-main .guide-list { list-style: none; padding: 0; }
+.guide-list li { border-top: 1px solid var(--line); padding: 1rem 0; }
+.guide-list h2, .guide-list p { margin: .25rem 0; }
