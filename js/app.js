@@ -5,12 +5,50 @@
   'use strict';
   var D = window.SEA_DATA, I = window.I18N, R = window.SEA_RISK;
   var GA_MEASUREMENT_ID = 'G-GX775Z6J31';
-  if (GA_MEASUREMENT_ID && location.hostname === 'vietnamstephen.github.io') {
-    var ga = document.createElement('script'); ga.async = true;
-    ga.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GA_MEASUREMENT_ID);
-    document.head.appendChild(ga);
-    window.dataLayer = window.dataLayer || []; window.gtag = function () { window.dataLayer.push(arguments); };
-    window.gtag('js', new Date()); window.gtag('config', GA_MEASUREMENT_ID);
+  var consentEnabled = GA_MEASUREMENT_ID && location.hostname === 'vietnamstephen.github.io';
+  function initConsent() {
+    var key = 'sea_analytics_consent', stored = null;
+    try { stored = localStorage.getItem(key); } catch (e) { /* storage may be disabled */ }
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+    window.gtag('consent', 'default', { ad_storage: 'denied', analytics_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+    function loadAnalytics() {
+      if (document.querySelector('script[data-sea-gtag]')) return;
+      var ga = document.createElement('script'); ga.async = true; ga.dataset.seaGtag = 'true';
+      ga.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GA_MEASUREMENT_ID);
+      document.head.appendChild(ga); window.gtag('js', new Date()); window.gtag('config', GA_MEASUREMENT_ID);
+    }
+    function consent(value) {
+      try { localStorage.setItem(key, value); } catch (e) { /* keep the current choice for this page */ }
+      if (value === 'accepted') {
+        window.gtag('consent', 'update', { ad_storage: 'granted', analytics_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
+        loadAnalytics();
+      } else {
+        window.gtag('consent', 'update', { ad_storage: 'denied', analytics_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+        var paths = ['/'], current = location.pathname || '/';
+        while (current && current !== '/') { paths.push(current); current = current.slice(0, current.lastIndexOf('/')) || '/'; }
+        var domains = [location.hostname, '.' + location.hostname, ''];
+        Array.from(new Set(paths)).forEach(function (path) {
+          document.cookie.split(';').forEach(function (cookie) {
+            var name = cookie.split('=')[0].trim();
+            if (/^_ga(?:_|$)/.test(name)) domains.forEach(function (domain) {
+              document.cookie = name + '=; Max-Age=0; path=' + path + (domain ? '; domain=' + domain : '');
+            });
+          });
+        });
+      }
+      banner.hidden = true;
+    }
+    var banner = document.createElement('section'); banner.className = 'consent-banner'; banner.setAttribute('role', 'dialog'); banner.setAttribute('aria-label', 'Cookie consent'); banner.hidden = true;
+    banner.innerHTML = '<p data-consent-copy></p><div><button type="button" data-consent-accept></button><button type="button" data-consent-reject></button></div>';
+    document.body.appendChild(banner);
+    function paint() { var l = LANG || 'zh'; banner.querySelector('[data-consent-copy]').textContent = I.t('consent.copy', l); banner.querySelector('[data-consent-accept]').textContent = I.t('consent.accept', l); banner.querySelector('[data-consent-reject]').textContent = I.t('consent.reject', l); }
+    window.SEA_CONSENT = { open: function () { paint(); banner.hidden = false; }, refresh: paint };
+    banner.querySelector('[data-consent-accept]').addEventListener('click', function () { consent('accepted'); });
+    banner.querySelector('[data-consent-reject]').addEventListener('click', function () { consent('rejected'); });
+    document.addEventListener('click', function (event) { if (event.target.closest('[data-cookie-settings]')) { event.preventDefault(); window.SEA_CONSENT.open(); } });
+    if (stored === 'accepted') { window.gtag('consent', 'update', { ad_storage: 'granted', analytics_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' }); loadAnalytics(); }
+    else if (stored !== 'rejected') window.SEA_CONSENT.open();
   }
   var esc = R.esc, t = function (k) { return I.t(k, LANG); };
   var LANG = (function () {
@@ -20,6 +58,7 @@
     return localStorage.getItem('sea_lang') || 'zh';
   })();
   if (!I.order.hasOwnProperty(LANG)) LANG = 'zh';
+  if (consentEnabled) initConsent();
   document.documentElement.setAttribute('lang', LANG === 'zh' ? 'zh-CN' : LANG);
 
   var PAGE = document.body.getAttribute('data-page') || 'overview';
@@ -146,6 +185,21 @@
       var k = el.getAttribute('data-i18n');
       if (k) el.textContent = t(k);
     });
+    var heading = document.querySelector('.footer .footer-notes summary, .footer .panel > h4');
+    if (heading) {
+      var contact = document.createElement('a');
+      contact.href = 'mailto:vietnamstephen@gmail.com';
+      contact.textContent = t('footer.contact');
+      heading.appendChild(contact);
+      if (consentEnabled) {
+        var settings = document.createElement('button');
+        settings.type = 'button';
+        settings.setAttribute('data-cookie-settings', '');
+        settings.textContent = t('consent.settings');
+        heading.appendChild(settings);
+      }
+    }
+    if (window.SEA_CONSENT && !document.querySelector('.consent-banner[hidden]')) window.SEA_CONSENT.refresh();
   }
 
   function updateSeo() {

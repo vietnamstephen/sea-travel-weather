@@ -197,6 +197,12 @@ button{cursor:pointer}
 .footer h4{font-size:var(--body-size,14px);color:var(--txt);margin-bottom:6px}
 .footer p + p{margin-top:6px}
 .footer .credit{margin-top:10px;text-align:center;font-size:var(--body-size,14px);color:var(--muted)}
+.footer :is(summary,h4) > :is(a,button){margin-inline-start:.75em;font:inherit;font-weight:400}
+.footer [data-cookie-settings]{border:0;background:none;color:var(--blue);text-decoration:underline;padding:0}
+.consent-banner{position:fixed;z-index:10000;left:16px;right:16px;bottom:16px;max-width:760px;margin:0 auto;padding:16px 20px;background:var(--panel,#fff);color:var(--txt,#18212f);border:1px solid var(--line,#ccd3dc);border-radius:14px;box-shadow:0 8px 32px #0003;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.consent-banner[hidden]{display:none}.consent-banner p{margin:0}.consent-banner div{display:flex;gap:8px;flex-shrink:0}.consent-banner button{padding:8px 14px;border:1px solid var(--line,#ccd3dc);border-radius:8px;background:var(--bg,#fff);color:inherit;cursor:pointer}.consent-banner button:first-child{background:var(--accent,#176b87);color:#fff}
+.payment-agreement{font-size:.88em;margin:8px 0 0}
+@media(max-width:560px){.consent-banner{left:10px;right:10px;bottom:10px;display:block}.consent-banner div{margin-top:10px}}
 .loading{padding:30px;text-align:center;color:var(--sub);font-size:var(--body-size,14px)}
 
 /* ===========================================================================

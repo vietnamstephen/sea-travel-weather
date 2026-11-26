@@ -33,13 +33,20 @@ try {
     try { return await route.fulfill({ status: 200, contentType: mime[extname(file)] || 'application/octet-stream', body: await readFile(file) }); }
     catch { return route.fulfill({ status: 404, body: 'not found' }); }
   });
+  prod.on('request', request => {
+    if (isCollect(request.url())) collectRequests.push(request.url());
+  });
   await prod.route('https://**/*', async route => {
     const url = route.request().url();
-    if (isCollect(url)) { collectRequests.push(url); return route.abort(); }
+    if (isCollect(url)) return route.abort();
     return route.fallback();
   });
   await prod.goto(`${prodBase}/`, { waitUntil: 'networkidle' });
-  await prod.waitForTimeout(1500);
+  assert.equal(collectRequests.length, 0, 'production must wait for consent before collecting');
+  await Promise.all([
+    prod.waitForRequest(request => isCollect(request.url())),
+    prod.locator('[data-consent-accept]').click()
+  ]);
   assert.ok(collectRequests.length >= 1, 'production must issue at least one GA collect request');
   assert.ok(collectRequests.some(url => new URL(url).searchParams.get('tid') === 'G-GX775Z6J31'), `missing expected GA measurement ID: ${collectRequests.join('\n')}`);
   await prod.close();
